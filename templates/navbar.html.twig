@@ -18,6 +18,9 @@
             <div class="navbar-start">
                 <a class="navbar-item" href="/about">About</a>
                 <a class="navbar-item" href="/events">Events</a>
+                {% if is_granted('ROLE_MANAGER') %}
+                    <a class="navbar-item" href="/manage">Manage</a>
+                {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}
                     <a class="navbar-item" href="/admin">Admin</a>
                 {% endif %}
