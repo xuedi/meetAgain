@@ -10,36 +10,28 @@ class UserFixture extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $admin = new User();
-        $admin->setEmail('admin@beijingcode.org');
-        $admin->setPassword('$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG');
-        $admin->setRoles(['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN']);
-        $manager->persist($admin);
+        foreach ($this->getData() as [$email, $password, $roles]) {
+            $user = new User();
+            $user->setEmail($email);
+            $user->setPassword($password);
+            $user->setRoles($roles);
 
-        $powerUser = new User();
-        $powerUser->setEmail('manager@beijingcode.org');
-        $powerUser->setPassword('$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG');
-        $powerUser->setRoles(['ROLE_USER', 'ROLE_MANAGER']);
-        $manager->persist($powerUser);
+            $manager->persist($user);
+            $manager->flush();
 
-        $userA = new User();
-        $userA->setEmail('user_a@beijingcode.org');
-        $userA->setPassword('$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG');
-        $userA->setRoles(['ROLE_USER']);
-        $manager->persist($userA);
+            $this->addReference('user_' . md5($email), $user);
+        }
+    }
 
-        $userB = new User();
-        $userB->setEmail('user_b@beijingcode.org');
-        $userB->setPassword('$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG');
-        $userB->setRoles(['ROLE_USER']);
-        $manager->persist($userB);
-
-        $userC = new User();
-        $userC->setEmail('user_c@beijingcode.org');
-        $userC->setPassword('$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG');
-        $userC->setRoles(['ROLE_USER']);
-        $manager->persist($userC);
-
-        $manager->flush();
+    private function getData(): array
+    {
+        return [
+            ['admin@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN']],
+            ['manager@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER']],
+            ['user_a@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER']],
+            ['user_b@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER']],
+            ['user_c@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER']],
+        ];
     }
 }
+

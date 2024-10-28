@@ -29,6 +29,10 @@ class Location
     #[ORM\Column(length: 8)]
     private ?string $Postcode = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $User = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +94,18 @@ class Location
     public function setPostcode(string $Postcode): static
     {
         $this->Postcode = $Postcode;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->User;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->User = $user;
 
         return $this;
     }

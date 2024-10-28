@@ -32,6 +32,14 @@ class Event
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $User = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Location $Location = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +113,30 @@ class Event
     public function setRecurringRule(?string $recurringRule): static
     {
         $this->recurringRule = $recurringRule;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->User;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->User = $user;
+
+        return $this;
+    }
+
+    public function getLocation(): ?Location
+    {
+        return $this->Location;
+    }
+
+    public function setLocation(?Location $Location): static
+    {
+        $this->Location = $Location;
 
         return $this;
     }
