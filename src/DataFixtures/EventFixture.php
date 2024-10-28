@@ -23,7 +23,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
             $event->setRecurringOf($recOf);
             $event->setRecurringRule($recRules);
             $event->setUser($this->getReference('user_' . md5('admin@beijingcode.org')));
-            $event->setLocation($this->getReference('location_' . md5($location)));
+            $event->setLocation($this->getReference('location_' . md5((string) $location)));
             $event->setCreatedAt(new DateTimeImmutable());
 
             $manager->persist($event);
@@ -49,7 +49,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
 
     private function setDateType(?string $text): ?DateTime
     {
-        if (empty($text)) {
+        if ($text === null || $text === '' || $text === '0') {
             return null;
         }
 

@@ -21,7 +21,7 @@ class UserFixture extends Fixture
             $manager->persist($user);
             $manager->flush();
 
-            $this->addReference('user_' . md5($email), $user);
+            $this->addReference('user_' . md5((string) $email), $user);
         }
     }
 

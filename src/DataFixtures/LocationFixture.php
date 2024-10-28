@@ -26,7 +26,7 @@ class LocationFixture extends Fixture implements DependentFixtureInterface
             $manager->persist($location);
             $manager->flush();
 
-            $this->addReference('location_' . md5($name), $location);
+            $this->addReference('location_' . md5((string) $name), $location);
         }
     }
 
@@ -46,14 +46,5 @@ class LocationFixture extends Fixture implements DependentFixtureInterface
             ['Lao Xiang', 'Wichert Str 43', 'Berlin', '10439', ''],
             ['Volksbar', 'Rosa-Luxemburg-Straße 39', 'Berlin', '10178', ''],
         ];
-    }
-
-    private function setDateType(?string $text): ?DateTime
-    {
-        if (empty($text)) {
-            return null;
-        }
-
-        return new DateTime($text);
     }
 }
