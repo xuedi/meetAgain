@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class AdminController extends AbstractController
 {
     #[Route('/admin', name: 'app_admin')]
-    public function number(): Response
+    public function index(): Response
     {
         $number = random_int(0, 100);
 

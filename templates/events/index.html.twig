@@ -7,6 +7,37 @@
         <div class="container">
             <h1>Events</h1>
 
+            <div class="container">
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>initial</th>
+                        <th>start</th>
+                        <th>stop</th>
+                        <th>recurringOf</th>
+                        <th>recurringRule</th>
+                        <th>description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <th>{{ event.id }}</th>
+                            <th>{{ event.initial }}</th>
+                            <th>{{ event.start|date('Y-m-d') }}</th>
+                            <th>{{ event.stop|date('Y-m-d') }}</th>
+                            <th>{{ event.recurringOf }}</th>
+                            <th>{{ event.recurringRule }}</th>
+                            <th>{{ event.description }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+
         </div>
     </section>
 {% endblock %}

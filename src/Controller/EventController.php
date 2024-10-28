@@ -10,12 +10,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class EventController extends AbstractController
 {
     public function __construct(
-        private EventRepository $repo,
+        private readonly EventRepository $repo,
     ) {
     }
 
     #[Route('/events', name: 'app_events')]
-    public function number(): Response
+    public function index(): Response
     {
         return $this->render('events/index.html.twig', [
             'events' => $this->repo->findAll(),

@@ -13,7 +13,7 @@ class UserFixture extends Fixture
         $admin = new User();
         $admin->setEmail('admin@beijingcode.org');
         $admin->setPassword('$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG');
-        $admin->setRoles(['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_USER']);
+        $admin->setRoles(['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN']);
         $manager->persist($admin);
 
         $powerUser = new User();

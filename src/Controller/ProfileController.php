@@ -9,12 +9,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class ProfileController extends AbstractController
 {
     #[Route('/profile', name: 'app_profile')]
-    public function number(): Response
+    public function index(): Response
     {
-        $number = random_int(0, 100);
-
-        return $this->render('profile/index.html.twig', [
-            'number' => $number,
-        ]);
+        return $this->render('profile/index.html.twig');
     }
 }

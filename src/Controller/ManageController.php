@@ -9,12 +9,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class ManageController extends AbstractController
 {
     #[Route('/manage', name: 'app_manage')]
-    public function number(): Response
+    public function index(): Response
     {
-        $number = random_int(0, 100);
-
-        return $this->render('manage/index.html.twig', [
-            'number' => $number,
-        ]);
+        return $this->render('manage/index.html.twig');
     }
 }
