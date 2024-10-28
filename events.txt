@@ -1,0 +1,24 @@
+
+Events
+------------------
+ID  | inicial | start      | recurringOf | Description (text) | Recuring Rule (text) |
+----|---------|------------|-------------|--------------------|----------------------|--------------------------------------------------
+1   | 1       | 2024-09-03 | null        | First Event        | every tuesday        |  <-- inicial event WITH recurrence
+2   | 0       | 2024-09-10 | 1           | null               | null                 |  <-- auto recurring (generated for x years)
+3   | 0       | 2024-09-17 | 1           | null               | null                 |  <-- auto recurring
+4   | 1       | 2024-09-24 | 1           | Adjustes series    | every tuesday        |  <-- edited the series (non sceduling)
+5   | 0       | 2024-10-01 | 5           | null               | null                 |  <-- auto recurring (updated all following non flaged)
+6   | 0       | 2024-10-08 | 5           | null               | null                 |  <-- auto recurring
+7   | 0       | 2024-10-15 | 5           | null               | null                 |  <-- auto recurring
+8   | 1       | 2024-10-22 | 5           | Adjustes series    | monthly              |  <-- edited the series (sceduling)
+9   | 0       | 2024-11-22 | 8           | null               | null                 |  <-- auto recurring (recreated all following)
+10  | 1       | 2024-12-20 | null        | xMas shopping      | null                 |  <-- single normal event
+11  | 0       | 2024-12-22 | 8           | null               | null                 |  <-- auto recurring
+12  | 1       | 2024-12-24 | null        | xMas               | null                 |  <-- single normal event
+13  | 1       | 2025-02-19 | null        | 10 year anav.      | null                 |  <-- single normal event
+
+ when a recurring event is changed it sets a flag to be protected from meta data (desc)
+ updated of an item before its own in the series not when the sceduling is changed then
+ all events are recreated, there should be a warning that x follow up events where custom
+ edited and lost.... pre-generate events for X months (settings: 60)
+
