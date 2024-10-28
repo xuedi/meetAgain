@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Event;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -23,6 +24,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
             $event->setRecurringRule($recRules);
             $event->setUser($this->getReference('user_' . md5('admin@beijingcode.org')));
             $event->setLocation($this->getReference('location_' . md5($location)));
+            $event->setCreatedAt(new DateTimeImmutable());
 
             $manager->persist($event);
             $manager->flush();

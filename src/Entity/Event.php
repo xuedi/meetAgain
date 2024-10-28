@@ -40,6 +40,9 @@ class Event
     #[ORM\JoinColumn(nullable: false)]
     private ?Location $Location = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $CreatedAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -137,6 +140,18 @@ class Event
     public function setLocation(?Location $Location): static
     {
         $this->Location = $Location;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->CreatedAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $CreatedAt): static
+    {
+        $this->CreatedAt = $CreatedAt;
 
         return $this;
     }

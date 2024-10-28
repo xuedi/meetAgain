@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Location;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -20,6 +21,7 @@ class LocationFixture extends Fixture implements DependentFixtureInterface
             $location->setPostcode($postcode);
             $location->setDescription($description);
             $location->setUser($this->getReference('user_' . md5('admin@beijingcode.org')));
+            $location->setCreatedAt(new DateTimeImmutable());
 
             $manager->persist($location);
             $manager->flush();

@@ -6,3 +6,6 @@ reset:
 
 run:
     symfony server:start
+
+check:
+    vendor/bin/rector process src --dry-run

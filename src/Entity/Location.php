@@ -33,6 +33,9 @@ class Location
     #[ORM\JoinColumn(nullable: false)]
     private ?User $User = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $CreatedAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -106,6 +109,18 @@ class Location
     public function setUser(?User $user): static
     {
         $this->User = $user;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->CreatedAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $CreatedAt): static
+    {
+        $this->CreatedAt = $CreatedAt;
 
         return $this;
     }

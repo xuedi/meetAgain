@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\User;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -15,6 +16,7 @@ class UserFixture extends Fixture
             $user->setEmail($email);
             $user->setPassword($password);
             $user->setRoles($roles);
+            $user->setCreatedAt(new DateTimeImmutable());
 
             $manager->persist($user);
             $manager->flush();
@@ -34,4 +36,3 @@ class UserFixture extends Fixture
         ];
     }
 }
-
