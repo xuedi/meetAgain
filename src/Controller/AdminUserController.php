@@ -3,19 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\UserType;
 use App\Repository\UserRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormBuilder;
-use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AdminUserController extends AbstractController
 {
-    public function __construct(
-        private readonly UserRepository $repo
-    ) {
+    public function __construct(private readonly UserRepository $repo)
+    {
     }
 
     #[Route('/admin/users', name: 'app_admin_users')]
@@ -26,18 +25,21 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/users/{id}', name: 'app_admin_users')]
-    public function edit(int $id): Response
+    #[Route('/admin/users/{id}', name: 'app_admin_users_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        $user = $this->repo->findOneBy(['id' => $id]);
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
 
-        $form = $this->createFormBuilder($user)
-            ->add('user', User::class)
-            ->getForm();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_admin_users');
+        }
 
         return $this->render('admin/user/edit.html.twig', [
+            'user' => $user,
             'form' => $form,
-            'id' => $id,
         ]);
     }
 }

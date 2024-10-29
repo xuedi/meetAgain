@@ -10,12 +10,14 @@
             <thead>
             <tr>
                 <th>Name</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             {% for host in hosts %}
                 <tr>
-                    <th>{{ host.name }}</th>
+                    <td>{{ host.name }}</td>
+                    <td><a href="{{ path('app_admin_hosts_edit', {'id': host.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
             </tbody>

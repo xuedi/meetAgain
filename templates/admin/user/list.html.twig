@@ -23,7 +23,7 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.roles|join(' | ') }}</td>
                     <td>{{ user.createdAt|date('Y-m-d') }}</td>
-                    <td><a href="/admin/users/{{ user.id }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
+                    <td><a href="{{ path('app_admin_users_edit', {'id': user.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
             </tbody>
