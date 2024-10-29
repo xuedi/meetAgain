@@ -20,7 +20,7 @@ class LocationFixture extends Fixture implements DependentFixtureInterface
             $location->setCity($city);
             $location->setPostcode($postcode);
             $location->setDescription($description);
-            $location->setUser($this->getReference('user_' . md5('admin@beijingcode.org')));
+            $location->setUser($this->getReference('user_' . md5('import')));
             $location->setCreatedAt(new DateTimeImmutable());
 
             $manager->persist($location);

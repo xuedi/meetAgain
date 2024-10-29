@@ -8,23 +8,37 @@ use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Filesystem\Filesystem;
 
 class EventFixture extends Fixture implements DependentFixtureInterface
 {
+    private const IS_INITIAL = true;
+    private const NOT_INITIAL = false;
+    private const NO_RECURRING_OF = 0;
+    private const NO_RECURRING_RULE = null;
+
+    public function __construct(private readonly Filesystem $fs)
+    {
+    }
+
     public function load(ObjectManager $manager): void
     {
         foreach ($this->getData() as $data) {
-            [$initial, $start, $stop, $desc, $recOf, $recRules, $location] = $data;
+            [$initial, $start, $stop, $name, $desc, $recOf, $recRules, $location, $hosts] = $data;
             $event = new Event();
             $event->setInitial($initial);
             $event->setStart($this->setDateType($start));
             $event->setStop($this->setDateType($stop));
+            $event->setName($name);
             $event->setDescription($desc);
             $event->setRecurringOf($recOf);
             $event->setRecurringRule($recRules);
-            $event->setUser($this->getReference('user_' . md5('admin@beijingcode.org')));
-            $event->setLocation($this->getReference('location_' . md5((string) $location)));
+            $event->setUser($this->getReference('user_' . md5('import')));
+            $event->setLocation($this->getReference('location_' . md5((string)$location)));
             $event->setCreatedAt(new DateTimeImmutable());
+            foreach ($hosts as $host) {
+                $event->addHost($this->getReference('host_' . md5((string)$host)));
+            }
 
             $manager->persist($event);
             $manager->flush();
@@ -36,14 +50,24 @@ class EventFixture extends Fixture implements DependentFixtureInterface
         return [
             UserFixture::class,
             LocationFixture::class,
+            HostFixture::class,
         ];
     }
 
     private function getData(): array
     {
         return [
-            [true, '2002-02-19', null, 'First Event', 0, null, 'St. Oberholz', ],
-            [true, '2020-01-01', null, 'Dinner Event', 0, null, 'Grand Tang', ],
+            [
+                self::IS_INITIAL,
+                '2020-09-03 19:00',
+                '2020-09-03 20:00',
+                'Outdoor Meetup at Himmelbeet',
+                $this->getBlob('Himmelbeet'),
+                self::NO_RECURRING_OF,
+                self::NO_RECURRING_RULE,
+                'St. Oberholz',
+                ['雪地', '易木']
+            ],
         ];
     }
 
@@ -54,5 +78,10 @@ class EventFixture extends Fixture implements DependentFixtureInterface
         }
 
         return new DateTime($text);
+    }
+
+    private function getBlob(string $string): string
+    {
+        return $this->fs->readFile(__DIR__ . "/blobs/Event_$string.txt");
     }
 }

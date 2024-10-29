@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -42,6 +44,20 @@ class Event
 
     #[ORM\Column]
     private ?\DateTimeImmutable $CreatedAt = null;
+
+    #[ORM\Column(length: 128)]
+    private ?string $Name = null;
+
+    /**
+     * @var Collection<int, Host>
+     */
+    #[ORM\ManyToMany(targetEntity: Host::class)]
+    private Collection $Host;
+
+    public function __construct()
+    {
+        $this->Host = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -152,6 +168,42 @@ class Event
     public function setCreatedAt(\DateTimeImmutable $CreatedAt): static
     {
         $this->CreatedAt = $CreatedAt;
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->Name;
+    }
+
+    public function setName(string $Name): static
+    {
+        $this->Name = $Name;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Host>
+     */
+    public function getHost(): Collection
+    {
+        return $this->Host;
+    }
+
+    public function addHost(Host $host): static
+    {
+        if (!$this->Host->contains($host)) {
+            $this->Host->add($host);
+        }
+
+        return $this;
+    }
+
+    public function removeHost(Host $host): static
+    {
+        $this->Host->removeElement($host);
 
         return $this;
     }
