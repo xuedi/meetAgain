@@ -17,7 +17,7 @@ class AdminEventController extends AbstractController
     public function index(): Response
     {
         return $this->render('admin/event.html.twig', [
-            'events' => $this->repo->findAll(),
+            'events' => $this->repo->findBy([], ['start' => 'ASC']),
         ]);
     }
 }

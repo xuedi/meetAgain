@@ -65,8 +65,52 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 $this->getBlob('Himmelbeet'),
                 self::NO_RECURRING_OF,
                 self::NO_RECURRING_RULE,
-                'St. Oberholz',
+                'Himmelbeet',
                 ['雪地', '易木']
+            ],
+            [
+                self::IS_INITIAL,
+                '2016-07-01 19:30',
+                '2016-07-01 20:30',
+                '下馆子！Let’s go eat!',
+                $this->getBlob('LetsGoEat'),
+                self::NO_RECURRING_OF,
+                self::NO_RECURRING_RULE,
+                'Lao Xiang',
+                ['易木']
+            ],
+            [
+                self::IS_INITIAL,
+                '2015-09-26 17:00',
+                '2015-09-26 20:30',
+                '中秋节 - Mid Autumn festival',
+                $this->getBlob('MidAutumnFestival'),
+                self::NO_RECURRING_OF,
+                self::NO_RECURRING_RULE,
+                'Garten der Welt',
+                ['易木']
+            ],
+            [
+                self::IS_INITIAL,
+                '2015-09-18 20:00',
+                '2015-09-18 22:30',
+                'Spicy Chinese dinner at a Sichuan restaurant',
+                $this->getBlob('SpicyChinese'),
+                self::NO_RECURRING_OF,
+                self::NO_RECURRING_RULE,
+                'Grand Tang',
+                ['易木', '雪地']
+            ],
+            [
+                self::IS_INITIAL,
+                '2015-02-26 19:30',
+                '2015-02-26 22:30',
+                'Let\'s meet up and talk Chinese!',
+                $this->getBlob('First'),
+                self::NO_RECURRING_OF,
+                self::NO_RECURRING_RULE,
+                'St. Oberholz',
+                ['易木', '雪地']
             ],
         ];
     }

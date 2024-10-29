@@ -9,19 +9,17 @@
         <table class="table">
             <thead>
             <tr>
-                <th>id</th>
-                <th>createBy</th>
-                <th>name</th>
-                <th>description</th>
-                <th>street</th>
-                <th>postcode</th>
-                <th>city</th>
+                <th>CreateBy</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Street</th>
+                <th>Postcode</th>
+                <th>City</th>
             </tr>
             </thead>
             <tbody>
             {% for location in locations %}
                 <tr>
-                    <th>{{ location.id }}</th>
                     <th>{{ location.user.name }}</th>
                     <th>{{ location.name }}</th>
                     <th>{{ location.description|slice(0, 20) }}</th>

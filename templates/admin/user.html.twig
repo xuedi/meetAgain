@@ -9,7 +9,6 @@
         <table class="table">
             <thead>
             <tr>
-                <th>ID</th>
                 <th>Name</th>
                 <th>eMail</th>
                 <th>Roles</th>
@@ -18,7 +17,6 @@
             <tbody>
             {% for user in users %}
                 <tr>
-                    <th>{{ user.id }}</th>
                     <th>{{ user.name }}</th>
                     <th>{{ user.email }}</th>
                     <th>{{ user.roles|join(' | ') }}</th>

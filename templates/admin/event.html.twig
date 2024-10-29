@@ -9,7 +9,6 @@
         <table class="table">
             <thead>
             <tr>
-                <th>ID</th>
                 <th>CreateBy</th>
                 <th>Start date</th>
                 <th>Stop date</th>
@@ -22,7 +21,6 @@
             <tbody>
             {% for event in events %}
                 <tr>
-                    <th>{{ event.id }}</th>
                     <th>
                         {% if event.initial %}
                             {{ event.user.name }}

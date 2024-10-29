@@ -45,6 +45,7 @@ class LocationFixture extends Fixture implements DependentFixtureInterface
             ['Grand Tang', 'Pestalozzistr. 37', 'Berlin', '10627', ''],
             ['Lao Xiang', 'Wichert Str 43', 'Berlin', '10439', ''],
             ['Volksbar', 'Rosa-Luxemburg-Straße 39', 'Berlin', '10178', ''],
+            ['Himmelbeet', ' Gartenstraße / Ecke Grenzstaße', 'Berlin', '13355', ''],
         ];
     }
 }
