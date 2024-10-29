@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -32,6 +34,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt = null;
+
+    #[ORM\ManyToMany(targetEntity: Rsvp::class, mappedBy: 'user')]
+    private Collection $rsvps;
+
+    public function __construct()
+    {
+        $this->rsvps = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -124,6 +134,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(?string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rsvp>
+     */
+    public function getRsvps(): Collection
+    {
+        return $this->rsvps;
+    }
+
+    public function addRsvp(Rsvp $rsvp): static
+    {
+        if (!$this->rsvps->contains($rsvp)) {
+            $this->rsvps->add($rsvp);
+            $rsvp->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRsvp(Rsvp $rsvp): static
+    {
+        if ($this->rsvps->removeElement($rsvp)) {
+            $rsvp->removeUser($this);
+        }
 
         return $this;
     }

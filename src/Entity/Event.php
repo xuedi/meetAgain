@@ -55,9 +55,16 @@ class Event
     #[ORM\ManyToMany(targetEntity: Host::class)]
     private Collection $host;
 
+    /**
+     * @var Collection<int, Rsvp>
+     */
+    #[ORM\ManyToMany(targetEntity: Rsvp::class, mappedBy: 'events')]
+    private Collection $rsvps;
+
     public function __construct()
     {
         $this->host = new ArrayCollection();
+        $this->rsvps = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -205,6 +212,33 @@ class Event
     public function removeHost(Host $host): static
     {
         $this->host->removeElement($host);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rsvp>
+     */
+    public function getRsvps(): Collection
+    {
+        return $this->rsvps;
+    }
+
+    public function addRsvp(Rsvp $rsvp): static
+    {
+        if (!$this->rsvps->contains($rsvp)) {
+            $this->rsvps->add($rsvp);
+            $rsvp->addEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRsvp(Rsvp $rsvp): static
+    {
+        if ($this->rsvps->removeElement($rsvp)) {
+            $rsvp->removeEvent($this);
+        }
 
         return $this;
     }

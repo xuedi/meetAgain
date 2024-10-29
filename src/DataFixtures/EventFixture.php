@@ -41,6 +41,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
 
             $manager->persist($event);
             $manager->flush();
+
+            $this->addReference('event_' . md5((string) $name), $event);
         }
     }
 
@@ -115,7 +117,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::IS_INITIAL,
                 '2024-10-31 19:00',
                 '2024-10-31 22:30',
-                'Chinese 中文 Chinesisch/German 德语 Deutsch Meetup! (Every 2 Weeks!) ',
+                'Chinese 中文 Chinesisch/German 德语 Deutsch Meetup! (Every 2 Weeks!)',
                 $this->getBlob('Current'),
                 self::NO_RECURRING_OF,
                 'bi-weekly',
