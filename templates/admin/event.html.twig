@@ -10,24 +10,38 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>initial</th>
-                <th>start</th>
-                <th>stop</th>
-                <th>recurringOf</th>
-                <th>recurringRule</th>
-                <th>description</th>
+                <th>CreateBy</th>
+                <th>Start date</th>
+                <th>Stop date</th>
+                <th>Recurring</th>
+                <th>Description</th>
+                <th>Location</th>
+                <th>Hosts</th>
             </tr>
             </thead>
             <tbody>
             {% for event in events %}
                 <tr>
                     <th>{{ event.id }}</th>
-                    <th>{{ event.initial }}</th>
+                    <th>
+                        {% if event.initial %}
+                            {{ event.user.name }}
+                        {% else %}
+                            auto
+                        {% endif %}
+                    </th>
                     <th>{{ event.start|date('Y-m-d') }}</th>
                     <th>{{ event.stop|date('Y-m-d') }}</th>
-                    <th>{{ event.recurringOf }}</th>
-                    <th>{{ event.recurringRule }}</th>
-                    <th>{{ event.description }}</th>
+                    <th>
+                        {% if event.recurringOf == 0 %}
+                            No
+                        {% else %}
+                            {{ event.recurringRule }}
+                        {% endif %}
+                    </th>
+                    <th>{{ event.description|slice(0, 20) }}</th>
+                    <th>{{ event.location.name }}</th>
+                    <th>{{ event.host|map(h => h.name)|join(', ') }}</th>
                 </tr>
             {% endfor %}
             </tbody>

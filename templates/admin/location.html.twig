@@ -1,6 +1,6 @@
 {% extends 'admin/base.html.twig' %}
 
-{% block title %}Admin - locations{% endblock %}
+{% block title %}Admin - Locations{% endblock %}
 
 {% block content %}
 
@@ -10,22 +10,24 @@
             <thead>
             <tr>
                 <th>id</th>
+                <th>createBy</th>
                 <th>name</th>
                 <th>description</th>
                 <th>street</th>
-                <th>city</th>
                 <th>postcode</th>
+                <th>city</th>
             </tr>
             </thead>
             <tbody>
             {% for location in locations %}
                 <tr>
                     <th>{{ location.id }}</th>
+                    <th>{{ location.user.name }}</th>
                     <th>{{ location.name }}</th>
-                    <th>{{ location.description }}</th>
+                    <th>{{ location.description|slice(0, 20) }}</th>
                     <th>{{ location.street }}</th>
-                    <th>{{ location.city }}</th>
                     <th>{{ location.postcode }}</th>
+                    <th>{{ location.city }}</th>
                 </tr>
             {% endfor %}
             </tbody>

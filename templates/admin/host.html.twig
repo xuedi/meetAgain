@@ -1,0 +1,29 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Admin - Hosts{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>name</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for host in hosts %}
+                <tr>
+                    <th>{{ host.id }}</th>
+                    <th>{{ host.name }}</th>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
+
