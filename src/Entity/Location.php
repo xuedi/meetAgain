@@ -15,26 +15,26 @@ class Location
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Name = null;
+    private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $Street = null;
+    private ?string $street = null;
 
     #[ORM\Column(length: 32)]
-    private ?string $City = null;
+    private ?string $city = null;
 
     #[ORM\Column(length: 8)]
-    private ?string $Postcode = null;
+    private ?string $postcode = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $User = null;
+    private ?User $user = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $CreatedAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function getId(): ?int
     {
@@ -43,12 +43,12 @@ class Location
 
     public function getName(): ?string
     {
-        return $this->Name;
+        return $this->name;
     }
 
-    public function setName(string $Name): static
+    public function setName(string $name): static
     {
-        $this->Name = $Name;
+        $this->name = $name;
 
         return $this;
     }
@@ -67,60 +67,60 @@ class Location
 
     public function getStreet(): ?string
     {
-        return $this->Street;
+        return $this->street;
     }
 
-    public function setStreet(string $Street): static
+    public function setStreet(string $street): static
     {
-        $this->Street = $Street;
+        $this->street = $street;
 
         return $this;
     }
 
     public function getCity(): ?string
     {
-        return $this->City;
+        return $this->city;
     }
 
-    public function setCity(string $City): static
+    public function setCity(string $city): static
     {
-        $this->City = $City;
+        $this->city = $city;
 
         return $this;
     }
 
     public function getPostcode(): ?string
     {
-        return $this->Postcode;
+        return $this->postcode;
     }
 
-    public function setPostcode(string $Postcode): static
+    public function setPostcode(string $postcode): static
     {
-        $this->Postcode = $Postcode;
+        $this->postcode = $postcode;
 
         return $this;
     }
 
     public function getUser(): ?User
     {
-        return $this->User;
+        return $this->user;
     }
 
     public function setUser(?User $user): static
     {
-        $this->User = $user;
+        $this->user = $user;
 
         return $this;
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->CreatedAt;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $CreatedAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->CreatedAt = $CreatedAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }

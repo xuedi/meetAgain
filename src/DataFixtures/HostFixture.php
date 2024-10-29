@@ -15,7 +15,7 @@ class HostFixture extends Fixture implements DependentFixtureInterface
             $host = new Host();
             $host->setName($name);
             if ($user) {
-                $host->setUser($this->getReference('user_' . md5($user)));
+                $host->setUser($this->getReference('user_' . md5((string) $user)));
             }
 
             $manager->persist($host);

@@ -13,7 +13,6 @@ use Symfony\Component\Filesystem\Filesystem;
 class EventFixture extends Fixture implements DependentFixtureInterface
 {
     private const IS_INITIAL = true;
-    private const NOT_INITIAL = false;
     private const NO_RECURRING_OF = 0;
     private const NO_RECURRING_RULE = null;
 
@@ -110,6 +109,17 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::NO_RECURRING_OF,
                 self::NO_RECURRING_RULE,
                 'St. Oberholz',
+                ['易木', '雪地']
+            ],
+            [
+                self::IS_INITIAL,
+                '2024-10-31 19:00',
+                '2024-10-31 22:30',
+                'Chinese 中文 Chinesisch/German 德语 Deutsch Meetup! (Every 2 Weeks!) ',
+                $this->getBlob('Current'),
+                self::NO_RECURRING_OF,
+                'bi-weekly',
+                'Volksbar',
                 ['易木', '雪地']
             ],
         ];

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -20,10 +21,10 @@ class Event
     private ?bool $initial = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $start = null;
+    private DateTimeInterface $start;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $stop = null;
+    private ?DateTimeInterface $stop = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $recurringOf = null;
@@ -36,27 +37,27 @@ class Event
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $User = null;
+    private ?User $user = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Location $Location = null;
+    private ?Location $location = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $CreatedAt = null;
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(length: 128)]
-    private ?string $Name = null;
+    private ?string $name = null;
 
     /**
      * @var Collection<int, Host>
      */
     #[ORM\ManyToMany(targetEntity: Host::class)]
-    private Collection $Host;
+    private Collection $host;
 
     public function __construct()
     {
-        $this->Host = new ArrayCollection();
+        $this->host = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,24 +77,24 @@ class Event
         return $this;
     }
 
-    public function getStart(): ?\DateTimeInterface
+    public function getStart(): DateTimeInterface
     {
         return $this->start;
     }
 
-    public function setStart(\DateTimeInterface $start): static
+    public function setStart(DateTimeInterface $start): static
     {
         $this->start = $start;
 
         return $this;
     }
 
-    public function getStop(): ?\DateTimeInterface
+    public function getStop(): ?DateTimeInterface
     {
         return $this->stop;
     }
 
-    public function setStop(?\DateTimeInterface $stop): static
+    public function setStop(?DateTimeInterface $stop): static
     {
         $this->stop = $stop;
 
@@ -138,48 +139,48 @@ class Event
 
     public function getUser(): ?User
     {
-        return $this->User;
+        return $this->user;
     }
 
     public function setUser(?User $user): static
     {
-        $this->User = $user;
+        $this->user = $user;
 
         return $this;
     }
 
     public function getLocation(): ?Location
     {
-        return $this->Location;
+        return $this->location;
     }
 
-    public function setLocation(?Location $Location): static
+    public function setLocation(?Location $location): static
     {
-        $this->Location = $Location;
+        $this->location = $location;
 
         return $this;
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->CreatedAt;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $CreatedAt): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->CreatedAt = $CreatedAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
     public function getName(): ?string
     {
-        return $this->Name;
+        return $this->name;
     }
 
-    public function setName(string $Name): static
+    public function setName(string $name): static
     {
-        $this->Name = $Name;
+        $this->name = $name;
 
         return $this;
     }
@@ -189,13 +190,13 @@ class Event
      */
     public function getHost(): Collection
     {
-        return $this->Host;
+        return $this->host;
     }
 
     public function addHost(Host $host): static
     {
-        if (!$this->Host->contains($host)) {
-            $this->Host->add($host);
+        if (!$this->host->contains($host)) {
+            $this->host->add($host);
         }
 
         return $this;
@@ -203,7 +204,7 @@ class Event
 
     public function removeHost(Host $host): static
     {
-        $this->Host->removeElement($host);
+        $this->host->removeElement($host);
 
         return $this;
     }

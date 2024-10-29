@@ -12,14 +12,18 @@
                 <th>Name</th>
                 <th>eMail</th>
                 <th>Roles</th>
+                <th>CreatedAt</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             {% for user in users %}
                 <tr>
-                    <th>{{ user.name }}</th>
-                    <th>{{ user.email }}</th>
-                    <th>{{ user.roles|join(' | ') }}</th>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.roles|join(' | ') }}</td>
+                    <td>{{ user.createdAt|date('Y-m-d') }}</td>
+                    <td><a href="/admin/users/{{ user.id }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
             </tbody>
