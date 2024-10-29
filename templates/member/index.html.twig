@@ -6,9 +6,31 @@
 
     <section class="section">
         <div class="container">
-            <h1>Management</h1>
 
-            <p>Power users can approve images, users and so on</p>
+            <div class="columns is-multiline">
+                {% for member in members %}
+
+                    <div class="column is-1">
+
+                        <div class="card">
+                            <div class="card-image">
+                                <figure class="image is-2">
+                                    <img
+                                            src="https://bulma.io/assets/images/placeholders/128x128.png"
+                                            alt="Placeholder image"
+                                    />
+                                </figure>
+                            </div>
+                            <div class="card-content p-3 has-text-centered">
+                                <p>{{ member.name }}</p>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                {% endfor %}
+            </div>
 
 
         </div>

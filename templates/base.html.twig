@@ -14,8 +14,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
     {% block javascripts %}{% endblock %}
 </head>
-<body>
+<body class="has-navbar-fixed-top mt-6">
 {% include 'base_navbar.html.twig' %}
 {% block body %}{% endblock %}
+{% include 'base_footer.html.twig' %}
 </body>
 </html>

@@ -15,17 +15,19 @@
                 <th>Street</th>
                 <th>Postcode</th>
                 <th>City</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             {% for location in locations %}
                 <tr>
-                    <th>{{ location.user.name }}</th>
-                    <th>{{ location.name }}</th>
-                    <th>{{ location.description|slice(0, 20) }}</th>
-                    <th>{{ location.street }}</th>
-                    <th>{{ location.postcode }}</th>
-                    <th>{{ location.city }}</th>
+                    <td>{{ location.user.name }}</td>
+                    <td>{{ location.name }}</td>
+                    <td>{{ location.description|slice(0, 20) }}</td>
+                    <td>{{ location.street }}</td>
+                    <td>{{ location.postcode }}</td>
+                    <td>{{ location.city }}</td>
+                    <td><a href="{{ path('app_admin_locations_edit', {'id': location.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
             </tbody>

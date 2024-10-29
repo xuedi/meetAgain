@@ -16,4 +16,12 @@ class MemberController extends AbstractController
             'members' => $repo->findAll(),
         ]);
     }
+
+    #[Route('/members/{id}', name: 'app_member_view')]
+    public function view(UserRepository $repo): Response
+    {
+        return $this->render('member/view.html.twig', [
+            'members' => $repo->findAll(),
+        ]);
+    }
 }
