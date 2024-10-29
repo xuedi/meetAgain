@@ -13,7 +13,7 @@
                 <th>Start date</th>
                 <th>Stop date</th>
                 <th>Recurring</th>
-                <th>Description</th>
+                <th>Name</th>
                 <th>Location</th>
                 <th>Hosts</th>
                 <th></th>
@@ -26,10 +26,10 @@
                     <td>{{ event.start|date('Y-m-d') }}</td>
                     <td>{{ event.stop|date('Y-m-d') }}</td>
                     <td>{% if event.recurringRule %}{{ event.recurringRule }}{% else %}No{% endif %}</td>
-                    <td>{{ event.description|slice(0, 20) }}</td>
+                    <td>{{ event.name|slice(0, 32) }}</td>
                     <td>{{ event.location.name }}</td>
                     <td>{{ event.host|map(h => h.name)|join(', ') }}</td>
-                    <td><span class="icon"><i class="fa fa-edit"></i></span></td>
+                    <td><a href="{{ path('app_admin_events_edit', {'id': event.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
             </tbody>

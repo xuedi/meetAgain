@@ -9,15 +9,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class EventController extends AbstractController
 {
-    public function __construct(private readonly EventViewService $eventViewService)
-    {
-    }
-
     #[Route('/events', name: 'app_events')]
-    public function index(): Response
+    public function index(EventViewService $eventService): Response
     {
         return $this->render('events/index.html.twig', [
-            'structuredList' => $this->eventViewService->getList(),
+            'structuredList' => $eventService->getList(),
         ]);
     }
 }

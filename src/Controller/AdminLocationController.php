@@ -9,15 +9,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class AdminLocationController extends AbstractController
 {
-    public function __construct(private readonly LocationRepository $repo)
-    {
-    }
-
     #[Route('/admin/locations', name: 'app_admin_locations')]
-    public function index(): Response
+    public function index(LocationRepository $repo): Response
     {
         return $this->render('admin/location.html.twig', [
-            'locations' => $this->repo->findAll(),
+            'locations' => $repo->findAll(),
         ]);
     }
 }

@@ -9,15 +9,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class AdminConfigController extends AbstractController
 {
-    public function __construct(private readonly ConfigRepository $repo)
-    {
-    }
-
     #[Route('/admin/config', name: 'app_admin_config')]
-    public function index(): Response
+    public function index(ConfigRepository $repo): Response
     {
         return $this->render('admin/config.html.twig', [
-            'config' => $this->repo->findAll(),
+            'config' => $repo->findAll(),
         ]);
     }
 }

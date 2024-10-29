@@ -13,15 +13,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class AdminUserController extends AbstractController
 {
-    public function __construct(private readonly UserRepository $repo)
-    {
-    }
-
     #[Route('/admin/users', name: 'app_admin_users')]
-    public function index(): Response
+    public function index(UserRepository $repo): Response
     {
         return $this->render('admin/user/list.html.twig', [
-            'users' => $this->repo->findAll(),
+            'users' => $repo->findAll(),
         ]);
     }
 
