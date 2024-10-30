@@ -7,7 +7,6 @@ reset:
 deploy-cheapo-preview:
 	git pull
 	composer install --dev
-	php bin/console cache:clear
 	php bin/console doctrine:schema:drop --force -q
 	php bin/console doctrine:schema:create -q
 	php bin/console doctrine:fixtures:load --append -q
