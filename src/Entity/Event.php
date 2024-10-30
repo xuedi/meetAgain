@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinTable;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
@@ -49,22 +50,17 @@ class Event
     #[ORM\Column(length: 128)]
     private ?string $name = null;
 
-    /**
-     * @var Collection<int, Host>
-     */
     #[ORM\ManyToMany(targetEntity: Host::class)]
     private Collection $host;
 
-    /**
-     * @var Collection<int, Rsvp>
-     */
-    #[ORM\OneToMany(targetEntity: Rsvp::class, mappedBy: 'event')]
-    private Collection $rsvps;
+    #[JoinTable(name: 'event_rsvp')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'rsvp')]
+    private Collection $rsvp;
 
     public function __construct()
     {
         $this->host = new ArrayCollection();
-        $this->rsvps = new ArrayCollection();
+        $this->rsvp = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -192,15 +188,12 @@ class Event
         return $this;
     }
 
-    /**
-     * @return Collection<int, Host>
-     */
-    public function getHost(): Collection
+    public function getHostUsers(): Collection
     {
         return $this->host;
     }
 
-    public function addHost(Host $host): static
+    public function addHostUser(Host $host): static
     {
         if (!$this->host->contains($host)) {
             $this->host->add($host);
@@ -209,39 +202,30 @@ class Event
         return $this;
     }
 
-    public function removeHost(Host $host): static
+    public function removeHostUser(Host $host): static
     {
         $this->host->removeElement($host);
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Rsvp>
-     */
-    public function getRsvps(): Collection
+    public function getRsvpUsers(): Collection
     {
-        return $this->rsvps;
+        return $this->rsvp;
     }
 
-    public function addRsvp(Rsvp $rsvp): static
+    public function addRsvpUser(User $user): static
     {
-        if (!$this->rsvps->contains($rsvp)) {
-            $this->rsvps->add($rsvp);
-            $rsvp->setEvent($this);
+        if (!$this->rsvp->contains($user)) {
+            $this->rsvp->add($user);
         }
 
         return $this;
     }
 
-    public function removeRsvp(Rsvp $rsvp): static
+    public function removeRsvpUser(User $user): static
     {
-        if ($this->rsvps->removeElement($rsvp)) {
-            // set the owning side to null (unless already changed)
-            if ($rsvp->getEvent() === $this) {
-                $rsvp->setEvent(null);
-            }
-        }
+        $this->rsvp->removeElement($user);
 
         return $this;
     }

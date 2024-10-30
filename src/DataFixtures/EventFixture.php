@@ -23,7 +23,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         foreach ($this->getData() as $data) {
-            [$initial, $start, $stop, $name, $desc, $recOf, $recRules, $location, $hosts] = $data;
+            [$initial, $start, $stop, $name, $desc, $recOf, $recRules, $location, $hosts, $rsvps] = $data;
             $event = new Event();
             $event->setInitial($initial);
             $event->setStart($this->setDateType($start));
@@ -35,8 +35,11 @@ class EventFixture extends Fixture implements DependentFixtureInterface
             $event->setUser($this->getReference('user_' . md5('import')));
             $event->setLocation($this->getReference('location_' . md5((string)$location)));
             $event->setCreatedAt(new DateTimeImmutable());
-            foreach ($hosts as $host) {
-                $event->addHost($this->getReference('host_' . md5((string)$host)));
+            foreach ($hosts as $user) {
+                $event->addHostUser($this->getReference('host_' . md5((string)$user)));
+            }
+            foreach ($rsvps as $user) {
+                $event->addRsvpUser($this->getReference('user_' . md5((string)$user)));
             }
 
             $manager->persist($event);
@@ -67,7 +70,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::NO_RECURRING_OF,
                 self::NO_RECURRING_RULE,
                 'Himmelbeet',
-                ['雪地', '易木']
+                ['雪地', '易木'],
+                ['xuedi', 'yimu', 'user_b', 'user_c'],
             ],
             [
                 self::IS_INITIAL,
@@ -78,7 +82,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::NO_RECURRING_OF,
                 self::NO_RECURRING_RULE,
                 'Lao Xiang',
-                ['易木']
+                ['易木'],
+                ['yimu', 'xiaolong', 'user_a'],
             ],
             [
                 self::IS_INITIAL,
@@ -89,7 +94,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::NO_RECURRING_OF,
                 self::NO_RECURRING_RULE,
                 'Garten der Welt',
-                ['易木']
+                ['易木'],
+                ['xuedi', 'yimu', 'xiaolong', 'user_a', 'user_c'],
             ],
             [
                 self::IS_INITIAL,
@@ -100,7 +106,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::NO_RECURRING_OF,
                 self::NO_RECURRING_RULE,
                 'Grand Tang',
-                ['易木', '雪地']
+                ['易木', '雪地'],
+                ['xuedi', 'yimu', 'user_c'],
             ],
             [
                 self::IS_INITIAL,
@@ -111,7 +118,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::NO_RECURRING_OF,
                 self::NO_RECURRING_RULE,
                 'St. Oberholz',
-                ['易木', '雪地']
+                ['易木', '雪地'],
+                ['xuedi', 'yimu', 'xiaolong'],
             ],
             [
                 self::IS_INITIAL,
@@ -122,7 +130,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 self::NO_RECURRING_OF,
                 'bi-weekly',
                 'Volksbar',
-                ['易木', '雪地']
+                ['易木', '雪地'],
+                ['xuedi', 'yimu', 'xiaolong', 'user_a', 'user_b', 'user_c'],
             ],
         ];
     }

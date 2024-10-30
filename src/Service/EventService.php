@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Repository\EventRepository;
 
-class EventViewService
+class EventService
 {
     public function __construct(private EventRepository $repo)
     {

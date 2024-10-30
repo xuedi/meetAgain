@@ -35,15 +35,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt = null;
 
-    /**
-     * @var Collection<int, Rsvp>
-     */
-    #[ORM\ManyToMany(targetEntity: Rsvp::class, mappedBy: 'user')]
-    private Collection $rsvps;
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'rsvp')]
+    private Collection $rsvp;
 
     public function __construct()
     {
-        $this->rsvps = new ArrayCollection();
+        $this->rsvp = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,9 +90,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -141,28 +135,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Rsvp>
-     */
-    public function getRsvps(): Collection
+    public function getRsvpEvents(): Collection
     {
-        return $this->rsvps;
+        return $this->rsvp;
     }
 
-    public function addRsvp(Rsvp $rsvp): static
+    public function addRsvpEvent(Event $event): static
     {
-        if (!$this->rsvps->contains($rsvp)) {
-            $this->rsvps->add($rsvp);
-            $rsvp->addUser($this);
+        if (!$this->rsvp->contains($event)) {
+            $this->rsvp->add($event);
+            $event->addRsvpUser($this);
         }
 
         return $this;
     }
 
-    public function removeRsvp(Rsvp $rsvp): static
+    public function removeRsvpEvent(Event $event): static
     {
-        if ($this->rsvps->removeElement($rsvp)) {
-            $rsvp->removeUser($this);
+        if ($this->rsvp->removeElement($event)) {
+            $event->removeRsvpUser($this);
         }
 
         return $this;

@@ -28,7 +28,7 @@
                     <td>{% if event.recurringRule %}{{ event.recurringRule }}{% else %}No{% endif %}</td>
                     <td>{{ event.name|slice(0, 32) }}</td>
                     <td>{{ event.location.name }}</td>
-                    <td>{{ event.host|map(h => h.name)|join(', ') }}</td>
+                    <td>{{ event.hostUsers|map(h => h.name)|join(', ') }}</td>
                     <td><a href="{{ path('app_admin_events_edit', {'id': event.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
