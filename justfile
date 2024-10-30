@@ -23,7 +23,7 @@ deploy:
 
 
 run:
-    symfony server:start
+    symfony server:start --no-tls
 
 
 check:
