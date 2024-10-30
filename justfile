@@ -24,4 +24,4 @@ run:
     symfony server:start
 
 check:
-    vendor/bin/rector process src --dry-run
+    vendor/bin/rector process src --dry-run -c tools/reactor.php

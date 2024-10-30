@@ -6,7 +6,7 @@ use App\Repository\EventRepository;
 
 class EventService
 {
-    public function __construct(private EventRepository $repo)
+    public function __construct(private readonly EventRepository $repo)
     {
     }
 

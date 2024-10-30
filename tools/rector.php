@@ -8,17 +8,17 @@ use Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictConstructorRec
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__ . '/assets',
-        __DIR__ . '/config',
-        __DIR__ . '/public',
-        __DIR__ . '/src',
-        __DIR__ . '/tests',
+        __DIR__ . '/../assets',
+        __DIR__ . '/../config',
+        __DIR__ . '/../public',
+        __DIR__ . '/../src',
+        __DIR__ . '/../tests',
     ])
     ->withPhpSets(php83: true)
     ->withPreparedSets(deadCode: true, codeQuality: true)
     ->withAttributesSets(symfony: true, doctrine: true, phpunit: true)
     ->withTypeCoverageLevel(0)
-    ->withSymfonyContainerXml(__DIR__ . '/var/cache/dev/App_KernelDevDebugContainer.xml')
+    ->withSymfonyContainerXml(__DIR__ . '/../var/cache/dev/App_KernelDevDebugContainer.xml')
     ->withSets([
         SymfonySetList::SYMFONY_71,
         SymfonySetList::SYMFONY_CODE_QUALITY,
