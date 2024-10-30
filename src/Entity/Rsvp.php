@@ -15,21 +15,36 @@ class Rsvp
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(inversedBy: 'rsvps')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Event $event = null;
+
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'rsvps')]
     private Collection $user;
-
-    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'rsvps')]
-    private Collection $events;
 
     public function __construct()
     {
         $this->user = new ArrayCollection();
-        $this->events = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getEvent(): ?Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?Event $event): static
+    {
+        $this->event = $event;
+
+        return $this;
     }
 
     /**
@@ -52,30 +67,6 @@ class Rsvp
     public function removeUser(User $user): static
     {
         $this->user->removeElement($user);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Event>
-     */
-    public function getEvents(): Collection
-    {
-        return $this->events;
-    }
-
-    public function addEvent(Event $event): static
-    {
-        if (!$this->events->contains($event)) {
-            $this->events->add($event);
-        }
-
-        return $this;
-    }
-
-    public function removeEvent(Event $event): static
-    {
-        $this->events->removeElement($event);
 
         return $this;
     }

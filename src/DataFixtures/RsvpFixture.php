@@ -14,7 +14,7 @@ class RsvpFixture extends Fixture implements DependentFixtureInterface
         foreach ($this->getData() as [$user, $event]) {
             $rsvp = new Rsvp();
             $rsvp->addUser($this->getReference('user_' . md5((string)$user)));
-            $rsvp->addEvent($this->getReference('event_' . md5((string)$event)));
+            $rsvp->setEvent($this->getReference('event_' . md5((string)$event)));
 
             $manager->persist($rsvp);
             $manager->flush();;
@@ -36,9 +36,10 @@ class RsvpFixture extends Fixture implements DependentFixtureInterface
         $eventC = 'Let\'s meet up and talk Chinese!';
         $eventD = 'Spicy Chinese dinner at a Sichuan restaurant';
         $eventE = '中秋节 - Mid Autumn festival';
+        $eventF = 'Outdoor Meetup at Himmelbeet';
         return [
 
-            // 'Outdoor Meetup at Himmelbeet'
+            // 'Chinese 中文 Chinesisch/German 德语 Deutsch Meetup! (Every 2 Weeks!)'
             ['xuedi', $eventA],
             ['yimu', $eventA],
             ['xiaolong', $eventA],
@@ -65,6 +66,10 @@ class RsvpFixture extends Fixture implements DependentFixtureInterface
             ['xuedi', $eventE],
             ['yimu', $eventE],
             ['user_a', $eventE],
+
+            // 'Outdoor Meetup at Himmelbeet'
+            ['xuedi', $eventF],
+            ['user_a', $eventF],
         ];
     }
 }

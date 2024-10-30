@@ -58,7 +58,7 @@ class Event
     /**
      * @var Collection<int, Rsvp>
      */
-    #[ORM\ManyToMany(targetEntity: Rsvp::class, mappedBy: 'events')]
+    #[ORM\OneToMany(targetEntity: Rsvp::class, mappedBy: 'event')]
     private Collection $rsvps;
 
     public function __construct()
@@ -228,7 +228,7 @@ class Event
     {
         if (!$this->rsvps->contains($rsvp)) {
             $this->rsvps->add($rsvp);
-            $rsvp->addEvent($this);
+            $rsvp->setEvent($this);
         }
 
         return $this;
@@ -237,7 +237,10 @@ class Event
     public function removeRsvp(Rsvp $rsvp): static
     {
         if ($this->rsvps->removeElement($rsvp)) {
-            $rsvp->removeEvent($this);
+            // set the owning side to null (unless already changed)
+            if ($rsvp->getEvent() === $this) {
+                $rsvp->setEvent(null);
+            }
         }
 
         return $this;

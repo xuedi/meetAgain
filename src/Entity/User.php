@@ -35,6 +35,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt = null;
 
+    /**
+     * @var Collection<int, Rsvp>
+     */
     #[ORM\ManyToMany(targetEntity: Rsvp::class, mappedBy: 'user')]
     private Collection $rsvps;
 

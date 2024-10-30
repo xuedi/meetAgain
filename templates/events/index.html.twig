@@ -40,6 +40,12 @@
                             <p class="subtitle is-7 mb-3">{{ event.start|date('d. F Y @ H:i') }}</p>
                             <h1 class="title is-4 mt-1">{{ event.name }}</h1>
                             <p>{{ event.description|slice(0, 240) }} ...</p>
+                            <p class="mt-3">
+                                <span class="tag is-warning">RSVP</span>
+                                {% for rsvp in event.rsvps %}
+                                    <span class="tag">{{rsvp.user.current.name }}</span>
+                                {% endfor %}
+                            </p>
                         </div>
                         <div class="column is-3">
                             <figure class="image is-3by2">

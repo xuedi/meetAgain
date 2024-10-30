@@ -14,7 +14,7 @@ class EventViewService
     {
         $structuredList = [];
 
-        $events = $this->repo->findBy([], ['start' => 'ASC']);
+        $events = $this->repo->findBy([], ['start' => 'ASC']); // TODO: optimise loading all at one and reduce a call or each user
         foreach ($events as $event) {
             $key = $event->getStart()->format('Y-m');
 
