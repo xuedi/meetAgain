@@ -72,7 +72,7 @@
                         <div class="dropdown-content">
                             {% for enabledLocale in app.enabled_locales %}
                                 {% if enabledLocale != app.request.locale %}
-                                    <a class="navbar-item" href="{{ path('app_profile_language', {'locale': enabledLocale}) }}">
+                                    <a class="navbar-item" href="{{ path('app_default_language', {'locale': enabledLocale}) }}">
                                         <figure class="image is-32x32 mt-3">
                                             <img class="is-flag" src="{{ asset('images/flags/' ~ enabledLocale ~ '.png') }}"  alt="Locale flag"/>
                                         </figure>

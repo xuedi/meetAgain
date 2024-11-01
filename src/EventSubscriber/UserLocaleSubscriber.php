@@ -15,10 +15,7 @@ class UserLocaleSubscriber implements EventSubscriberInterface
     public function onLoginSuccess(LoginSuccessEvent $event): void
     {
         $user = $event->getUser();
-
-        if (null !== $user->getLocale()) {
-            $this->requestStack->getSession()->set('_locale', $user->getLocale());
-        }
+        $this->requestStack->getSession()->set('_locale', $user->getLocale());
     }
 
     public static function getSubscribedEvents(): array
