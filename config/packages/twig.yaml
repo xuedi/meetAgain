@@ -1,6 +1,8 @@
 twig:
     form_themes: ['form/bulma.html.twig']
     file_name_pattern: '*.twig'
+    globals:
+        ga_tracking: 'UA-xxxxx-x'
 
 when@test:
     twig:

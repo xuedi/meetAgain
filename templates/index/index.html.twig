@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}{{ "Welcome"|trans }}{% endblock %}
 
 {% block body %}
     <section class="hero has-background-danger">
@@ -31,7 +31,6 @@
             </div>
         </div>
     </section>
-
 
     <section class="section mt-6">
         <div class="container">
@@ -74,7 +73,8 @@
     <section class="section">
         <div class="container">
             <h1>Welcome</h1>
-
+            app.request.locale: {{ dump(app.request.locale) }}
+            app.request.locale: {{ dump(app.request.locale) }}
         </div>
     </section>
 {% endblock %}

@@ -1,7 +1,12 @@
+@font-face {
+    font-family: "Inter";
+}
 body {
     font-family: 'Inter', sans-serif;
 }
 .navbar-top {
     border-bottom: 1px solid lightgray;
 }
-
+.is-flag {
+    height: 40px;
+}

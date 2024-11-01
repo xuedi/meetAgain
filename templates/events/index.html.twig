@@ -6,7 +6,7 @@
 
 
     {% for item in structuredList %}
-        <section class="section py-3">
+        <section class="section py-3 is-hidden-mobile">
             <div class="container">
 
                 <div class="columns">
@@ -20,8 +20,6 @@
                     </div>
                 </div>
 
-
-
             </div>
         </section>
 
@@ -30,7 +28,7 @@
             <section class="section py-3">
                 <div class="container">
                     <div class="columns">
-                        <div class="column is-2">
+                        <div class="column is-2 is-hidden-mobile">
                             <div class="mt-1">
                                 <p class="has-text-centered is-size-6">{{ event.start|date('D')|upper }}</p>
                                 <p class="has-text-centered is-size-3 has-text-weight-bold">{{ event.start|date('d') }}</p>
@@ -52,6 +50,14 @@
                                 <img src="https://bulma.io/assets/images/placeholders/128x128.png"  alt="Event Image"/>
                             </figure>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section py-3 is-hidden-tablet">
+                <div class="container">
+                    <div class="column is-10">
+                        <hr>
                     </div>
                 </div>
             </section>

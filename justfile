@@ -12,6 +12,7 @@ deploy-cheapo-preview:
 	php bin/console doctrine:schema:drop --force -q
 	php bin/console doctrine:schema:create -q
 	php bin/console doctrine:fixtures:load --append -q
+	php bin/console asset-map:compile
 	php bin/console cache:clear
 
 
@@ -19,11 +20,18 @@ deploy:
 	git pull
 	composer dump-env prod
 	composer install --no-dev --optimize-autoloader
+	php bin/console asset-map:compile
 	APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
 
 
 run:
     symfony server:start --no-tls
+
+
+updateTranslations:
+    php bin/console translation:extract de --force --format yml
+    php bin/console translation:extract en --force --format yml
+    php bin/console translation:extract cn --force --format yml
 
 
 check:

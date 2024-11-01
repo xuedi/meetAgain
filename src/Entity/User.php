@@ -38,6 +38,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'rsvp')]
     private Collection $rsvp;
 
+    #[ORM\Column(length: 2)]
+    private string $locale = 'en';
+
     public function __construct()
     {
         $this->rsvp = new ArrayCollection();
@@ -155,6 +158,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->rsvp->removeElement($event)) {
             $event->removeRsvpUser($this);
         }
+
+        return $this;
+    }
+
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(string $locale): static
+    {
+        $this->locale = $locale;
 
         return $this;
     }

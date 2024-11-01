@@ -59,6 +59,30 @@
                 {% else %}
                     <a class="navbar-item" href="/login">login</a>
                 {% endif %}
+                <div class="dropdown ml-3">
+                    <div class="dropdown-trigger is-hoverable">
+                        <div class="button" aria-haspopup="true" aria-controls="dropdown-languages" onclick="this.parentNode.parentNode.classList.toggle('is-active')">
+                            <span class="image is-32x32 mt-3">
+                                <img class="is-flag" src="{{ asset('images/flags/' ~ app.request.locale ~ '.png') }}"  alt="Current locale flag"/>
+                            </span>
+                            <span class="icon is-small"><i class="fas fa-angle-down" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-languages" role="menu">
+                        <div class="dropdown-content">
+                            {% for enabledLocale in app.enabled_locales %}
+                                {% if enabledLocale != app.request.locale %}
+                                    <a class="navbar-item" href="{{ path('app_profile_language', {'locale': enabledLocale}) }}">
+                                        <figure class="image is-32x32 mt-3">
+                                            <img class="is-flag" src="{{ asset('images/flags/' ~ enabledLocale ~ '.png') }}"  alt="Locale flag"/>
+                                        </figure>
+                                        <span class="ml-3">{{ 'language_' ~ enabledLocale | trans }}</span>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>

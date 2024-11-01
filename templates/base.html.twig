@@ -3,16 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>meetAgain</title>
+    <title>{% block title %}meetAgain{% endblock %}</title>
     {% block stylesheets %}{% endblock %}
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-    <link rel="stylesheet" href="/stylesheets/bulma.min.css">
-    <link rel="stylesheet" href="/stylesheets/bulma-timeline.min.css">
-    <link rel="stylesheet" href="/stylesheets/custom.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('css/bulma.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('css/bulma-timeline.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('css/inter-font.css') }}"/>
+
     {% block javascripts %}{% endblock %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
 </head>
 <body class="has-navbar-fixed-top mt-5">
 {% include 'base_navbar.html.twig' %}
