@@ -188,12 +188,12 @@ class Event
         return $this;
     }
 
-    public function getHostUsers(): Collection
+    public function getHost(): Collection
     {
         return $this->host;
     }
 
-    public function addHostUser(Host $host): static
+    public function addHost(Host $host): static
     {
         if (!$this->host->contains($host)) {
             $this->host->add($host);
@@ -202,19 +202,19 @@ class Event
         return $this;
     }
 
-    public function removeHostUser(Host $host): static
+    public function removeHost(Host $host): static
     {
         $this->host->removeElement($host);
 
         return $this;
     }
 
-    public function getRsvpUsers(): Collection
+    public function getRsvp(): Collection
     {
         return $this->rsvp;
     }
 
-    public function addRsvpUser(User $user): static
+    public function addRsvp(User $user): static
     {
         if (!$this->rsvp->contains($user)) {
             $this->rsvp->add($user);
@@ -223,7 +223,7 @@ class Event
         return $this;
     }
 
-    public function removeRsvpUser(User $user): static
+    public function removeRsvp(User $user): static
     {
         $this->rsvp->removeElement($user);
 

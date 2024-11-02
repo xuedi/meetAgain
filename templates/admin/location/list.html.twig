@@ -27,7 +27,7 @@
                     <td>{{ location.street }}</td>
                     <td>{{ location.postcode }}</td>
                     <td>{{ location.city }}</td>
-                    <td><a href="{{ path('app_admin_locations_edit', {'id': location.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
+                    <td><a href="{{ path('app_admin_location_edit', {'id': location.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
             </tbody>

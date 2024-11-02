@@ -5,13 +5,13 @@ namespace App\Form;
 use App\Entity\Event;
 use App\Entity\Host;
 use App\Entity\Location;
-use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -29,23 +29,20 @@ class EventType extends AbstractType
             ->add('stop', DateTimeType::class, [
                 'widget' => 'single_text',
             ])
-            ->add('createdAt', DateTimeType::class, [
-                'widget' => 'single_text',
-                'html5' => false, //.. date picker
-            ])
             //->add('recurringOf')
             ->add(
                 'recurringRule', ChoiceType::class, [
                     'choices' => ['non-recuring' => null, 'daily' => 'daily', 'weekly' => 'weekly', 'bi-weekly' => 'bi-weekly', 'monthly' => 'monthly'],
+                    'label' => 'Recurring',
                     'expanded' => false,
                     'multiple' => false,
                 ]
             )
-            ->add('description')
-            ->add('name')
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'name',
+            ->add('description', TextareaType::class, [
+                'attr' => ['rows' => 16],
+            ])
+            ->add('name', TextType::class, [
+                'label' => 'Titel'
             ])
             ->add('location', EntityType::class, [
                 'class' => Location::class,
@@ -56,8 +53,7 @@ class EventType extends AbstractType
                 'choice_label' => 'name',
                 'expanded' => true,
                 'multiple' => true,
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -7,8 +7,34 @@
     <div class="container">
 
         {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <button class="btn">Save</button>
+
+        <div class="columns">
+            <div class="column is-4">
+                {{ form_row(form.start) }}
+            </div>
+            <div class="column is-4">
+                {{ form_row(form.stop) }}
+            </div>
+            <div class="column is-2">
+                {{ form_row(form.recurringRule) }}
+            </div>
+            <div class="column is-2">
+                {{ form_row(form.location) }}
+            </div>
+        </div>
+
+        {{ form_row(form.name) }}
+
+        <div class="columns">
+            <div class="column is-10">
+                {{ form_row(form.description) }}
+            </div>
+            <div class="column is-2">
+                <div class="mt-5">{{ form_row(form.host) }}</div>
+            </div>
+        </div>
+
+        <button class="button">Save</button>
         {{ form_end(form) }}
 
     </div>

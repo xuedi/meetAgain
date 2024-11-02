@@ -28,10 +28,10 @@ run:
     symfony server:start --no-tls
 
 
-updateTranslations:
-    php bin/console translation:extract de --force --format yml
-    php bin/console translation:extract en --force --format yml
-    php bin/console translation:extract cn --force --format yml
+translationsExtract:
+    php bin/console translation:extract --force --format yml de
+    php bin/console translation:extract --force --format yml en
+    php bin/console translation:extract --force --format yml cn
 
 
 check:

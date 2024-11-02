@@ -17,7 +17,7 @@
             {% for host in hosts %}
                 <tr>
                     <td>{{ host.name }}</td>
-                    <td><a href="{{ path('app_admin_hosts_edit', {'id': host.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
+                    <td><a href="{{ path('app_admin_host_edit', {'id': host.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
                 </tr>
             {% endfor %}
             </tbody>

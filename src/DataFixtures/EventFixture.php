@@ -36,10 +36,10 @@ class EventFixture extends Fixture implements DependentFixtureInterface
             $event->setLocation($this->getReference('location_' . md5((string)$location)));
             $event->setCreatedAt(new DateTimeImmutable());
             foreach ($hosts as $user) {
-                $event->addHostUser($this->getReference('host_' . md5((string)$user)));
+                $event->addHost($this->getReference('host_' . md5((string)$user)));
             }
             foreach ($rsvps as $user) {
-                $event->addRsvpUser($this->getReference('user_' . md5((string)$user)));
+                $event->addRsvp($this->getReference('user_' . md5((string)$user)));
             }
 
             $manager->persist($event);

@@ -30,7 +30,7 @@ class AdminController extends AbstractController
         return $this->render('admin/index.html.twig');
     }
 
-    #[Route('/users', name: 'app_admin_users')]
+    #[Route('/users', name: 'app_admin_user')]
     public function userIndex(UserRepository $repo): Response
     {
         return $this->render('admin/user/list.html.twig', [
@@ -38,7 +38,7 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/users/{id}', name: 'app_admin_users_edit', methods: ['GET', 'POST'])]
+    #[Route('/users/{id}', name: 'app_admin_user_edit', methods: ['GET', 'POST'])]
     public function userEdit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(UserType::class, $user);
@@ -47,7 +47,7 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_users');
+            return $this->redirectToRoute('app_admin_user');
         }
 
         return $this->render('admin/user/edit.html.twig', [
@@ -55,7 +55,7 @@ class AdminController extends AbstractController
             'form' => $form,
         ]);
     }
-    #[Route('/events', name: 'app_admin_events')]
+    #[Route('/events', name: 'app_admin_event')]
     public function eventIndex(EventRepository $repo): Response
     {
         return $this->render('admin/event/list.html.twig', [
@@ -63,11 +63,12 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/events/{id}', name: 'app_admin_events_edit', methods: ['GET', 'POST'])]
+    #[Route('/events/{id}', name: 'app_admin_event_edit', methods: ['GET', 'POST'])]
     public function eventEdit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
         //overwrite
         $event->setInitial(true);
+        $event->setUser($this->getUser());
 
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
@@ -75,7 +76,7 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_events');
+            return $this->redirectToRoute('app_admin_event');
         }
 
         return $this->render('admin/event/edit.html.twig', [
@@ -83,7 +84,7 @@ class AdminController extends AbstractController
             'form' => $form,
         ]);
     }
-    #[Route('/hosts', name: 'app_admin_hosts')]
+    #[Route('/hosts', name: 'app_admin_host')]
     public function hostIndex(HostRepository $repo): Response
     {
         return $this->render('admin/host/list.html.twig', [
@@ -91,7 +92,7 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/hosts/{id}', name: 'app_admin_hosts_edit', methods: ['GET', 'POST'])]
+    #[Route('/hosts/{id}', name: 'app_admin_host_edit', methods: ['GET', 'POST'])]
     public function hostEdit(Request $request, Host $host, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(HostType::class, $host);
@@ -100,7 +101,7 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_hosts');
+            return $this->redirectToRoute('app_admin_host');
         }
 
         return $this->render('admin/host/edit.html.twig', [
@@ -109,7 +110,7 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/locations', name: 'app_admin_locations')]
+    #[Route('/locations', name: 'app_admin_location')]
     public function locationIndex(LocationRepository $repo): Response
     {
         return $this->render('admin/location/list.html.twig', [
@@ -117,7 +118,7 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/locations/{id}', name: 'app_admin_locations_edit', methods: ['GET', 'POST'])]
+    #[Route('/locations/{id}', name: 'app_admin_location_edit', methods: ['GET', 'POST'])]
     public function locationEdit(Request $request, Location $location, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(LocationType::class, $location);
@@ -126,7 +127,7 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_hosts');
+            return $this->redirectToRoute('app_admin_location');
         }
 
         return $this->render('admin/location/edit.html.twig', [
@@ -135,10 +136,16 @@ class AdminController extends AbstractController
         ]);
     }
 
-
-
     #[Route('/config', name: 'app_admin_config')]
     public function configIndex(ConfigRepository $repo): Response
+    {
+        return $this->render('admin/config.html.twig', [
+            'config' => $repo->findAll(),
+        ]);
+    }
+
+    #[Route('/cms', name: 'app_admin_cms')]
+    public function cmsIndex(ConfigRepository $repo): Response
     {
         return $this->render('admin/config.html.twig', [
             'config' => $repo->findAll(),
