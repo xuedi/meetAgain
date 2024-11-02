@@ -1,0 +1,31 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+
+
+    <div class="notification is-success">
+        <button class="delete"></button>
+        all translation have been published, the first lading of the page no might take a bit longer
+    </div>
+
+    <h2 class="subtitle">Result</h2>
+
+    <table class="table">
+        <tbody>
+        <tr>
+            <td>Files cleaned up:</td>
+            <td>{{ result.cleanedUp }}</td>
+        </tr>
+        <tr>
+            <td>Translations published:</td>
+            <td>{{ result.published }}</td>
+        </tr>
+        <tr>
+            <td>Languages:</td>
+            <td>{{ result.languages|join(', ') }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+{% endblock %}
+

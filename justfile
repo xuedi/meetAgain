@@ -33,6 +33,10 @@ translationsExtract:
     php bin/console translation:extract --force --format php en
     php bin/console translation:extract --force --format php cn
 
+clearCache:
+    composer dump-autoload
+    php bin/console cache:clear
+
 
 check:
     vendor/bin/rector process src --dry-run -c tools/reactor.php

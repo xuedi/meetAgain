@@ -12,16 +12,21 @@ class TranslationFixture extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
+        $languageCode = ['cn','de','en'];
+        $languageSet = [0,1,2];
         $importUser = $this->getReference('user_' . md5('import'));
-        foreach ($this->getData() as [$language, $placeholder, $translation]) {
-            $user = new Translation();
-            $user->setLanguage($language);
-            $user->setUser($importUser);
-            $user->setPlaceholder($placeholder);
-            $user->setTranslation($translation);
-            $user->setCreatedAt(new DateTimeImmutable());
+        foreach ($this->getData() as [$placeholder, $translation]) {
+            foreach ($languageSet as $index) {
 
-            $manager->persist($user);
+                $user = new Translation();
+                $user->setLanguage($languageCode[$index]);
+                $user->setUser($importUser);
+                $user->setPlaceholder($placeholder);
+                $user->setTranslation($translation[$index]);
+                $user->setCreatedAt(new DateTimeImmutable());
+
+                $manager->persist($user);
+            }
         }
         $manager->flush();
     }
@@ -36,48 +41,41 @@ class TranslationFixture extends Fixture implements DependentFixtureInterface
     private function getData(): array
     {
         return [
-            ['cn', 'page_title_default', '欢迎'],
-            ['cn', 'menu_about', '关于'],
-            ['cn', 'menu_events', '活动'],
-            ['cn', 'menu_members', '成员'],
-            ['cn', 'menu_manage', '管理'],
-            ['cn', 'menu_admin', '管理员'],
-            ['cn', 'menu_profile_events', '活动'],
-            ['cn', 'menu_profile_messages', '信息'],
-            ['cn', 'menu_profile_view_profile', '查看简介'],
-            ['cn', 'menu_profile_config', '设置和隐私'],
-            ['cn', 'menu_profile_logout', '注销'],
-            ['cn', 'language_de', '德语'],
-            ['cn', 'language_en', '英语'],
-            ['cn', 'language_cn', '中文'],
-            ['de', 'page_title_default', 'Willkommen'],
-            ['de', 'menu_about', 'Über Uns'],
-            ['de', 'menu_events', 'Events'],
-            ['de', 'menu_members', 'Mitglieder'],
-            ['de', 'menu_manage', 'Verwaltung'],
-            ['de', 'menu_admin', 'Admin'],
-            ['de', 'menu_profile_events', 'Events'],
-            ['de', 'menu_profile_messages', 'Nachrichten'],
-            ['de', 'menu_profile_view_profile', 'Profil anzeigen'],
-            ['de', 'menu_profile_config', 'Einstellungen'],
-            ['de', 'menu_profile_logout', 'Abmelden'],
-            ['de', 'language_de', 'Deutsch'],
-            ['de', 'language_en', 'English'],
-            ['de', 'language_cn', 'Chinesisch'],
-            ['en', 'page_title_default', 'Welcome'],
-            ['en', 'menu_about', 'About'],
-            ['en', 'menu_events', 'Events'],
-            ['en', 'menu_members', 'Members'],
-            ['en', 'menu_manage', 'Manage'],
-            ['en', 'menu_admin', 'Admin'],
-            ['en', 'menu_profile_events', 'Events'],
-            ['en', 'menu_profile_messages', 'Messages'],
-            ['en', 'menu_profile_view_profile', 'View profile'],
-            ['en', 'menu_profile_config', 'Settings & Privacy'],
-            ['en', 'menu_profile_logout', 'Logout'],
-            ['en', 'language_de', 'German'],
-            ['en', 'language_en', 'English'],
-            ['en', 'language_cn', 'Chinese'],
+            ['page_title_default', ['欢迎','Willkommen','Welcome']],
+            ['menu_about', ['关于','Über Uns','About']],
+            ['menu_events', ['活动','Events','Events']],
+            ['menu_members', ['成员','Mitglieder','Members']],
+            ['menu_manage', ['管理','Verwaltung','Manage']],
+            ['menu_admin', ['管理员','Admin','Admin']],
+            ['menu_profile_events', ['活动','Events','Events']],
+            ['menu_profile_messages', ['信息','Nachrichten','Messages']],
+            ['menu_profile_view_profile', ['查看简介','Profil anzeigen','View profile']],
+            ['menu_profile_config', ['设置和隐私','Einstellungen','Settings & Privacy']],
+            ['menu_profile_logout', ['注销','Abmelden','Logout']],
+            ['language_de', ['德语','Deutsch','German']],
+            ['language_en', ['英语','English','English']],
+            ['language_cn', ['中文','Chinesisch','Chinese']],
+            ['button_save', ['节省','Speichern','Save']],
+            ['menu_admin_cms', ['页面','Seiten','Pages']],
+            ['menu_admin_config', ['配置','Konfiguration','Configuration']],
+            ['menu_admin_event', ['活动','Events','Events']],
+            ['menu_admin_host', ['主机','Gastgeber','Hosts']],
+            ['menu_admin_location', ['会场','Veranstaltungsort','Venue']],
+            ['menu_admin_translation_edit', ['编辑','Bearbeiten','Edit']],
+            ['menu_admin_translation_extract', ['搜索','Suchen','Search']],
+            ['menu_admin_translation_publish', ['发布','Veröffentlichen','Publish']],
+            ['menu_admin_user', ['成员','Mitglieder','Members']],
+            ['page_title_about', ['关于','Über uns','About']],
+            ['page_title_admin', ['管理','Admin','Admin']],
+            ['page_title_event', ['活动','Events','Events']],
+            ['page_title_login', ['登录','Login','Login']],
+            ['page_title_manage', ['管理','Verwalten','Manage']],
+            ['page_title_member', ['成员','Mitglieder','Members']],
+            ['page_title_profile', ['概况','Profil','Profile']],
+            ['role_admin', ['管理','Administrator','Admin']],
+            ['role_manager', ['经理','Manager','Manager']],
+            ['role_system', ['系统','System','System']],
+            ['role_user', ['用户','Benutzer','User']],
         ];
     }
 }

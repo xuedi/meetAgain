@@ -1,0 +1,33 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+
+
+    <div class="notification is-success">
+        <button class="delete"></button>
+        Every file in the website was successfully search for new possible translations
+    </div>
+
+    <h2 class="subtitle">Result</h2>
+
+    <table class="table">
+        <tbody>
+        <tr>
+            <td>Number of translations:</td>
+            <td>{{ result.count }}</td>
+        </tr>
+        <tr>
+            <td>New translations:</td>
+            <td>{{ result.new }}</td>
+        </tr>
+        <tr>
+            <td>Extraction time:</td>
+            <td>{{ result.extractionTime }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+
+{% endblock %}
+

@@ -174,18 +174,16 @@ class AdminController extends AbstractController
     #[Route('/translations/extract', name: 'app_admin_translation_extract')]
     public function translationsExtract(TranslationService $translationService): Response
     {
-        $translationService->extract();
-        // flash message
-
-        return $this->redirectToRoute('app_admin_translation');
+        return $this->render('admin/translations/extract.html.twig', [
+            'result' => $translationService->extract(),
+        ]);
     }
 
     #[Route('/translations/publish', name: 'app_admin_translation_publish')]
     public function translationsPublish(TranslationService $translationService): Response
     {
-        $translationService->publish();
-        // flash message
-
-        return $this->redirectToRoute('app_admin_translation');
+        return $this->render('admin/translations/publish.html.twig', [
+            'result' => $translationService->publish(),
+        ]);
     }
 }

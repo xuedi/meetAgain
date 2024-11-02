@@ -7,17 +7,22 @@ use App\Repository\TranslationRepository;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
+use Symfony\Component\HttpKernel\KernelInterface;
 
-class TranslationService
+readonly class TranslationService
 {
     public function __construct(
-        private readonly TranslationRepository $translationRepo,
-        private readonly UserRepository $userRepo,
-        private readonly EntityManagerInterface $entityManager,
+        private TranslationRepository $translationRepo,
+        private UserRepository $userRepo,
+        private EntityManagerInterface $entityManager,
+        private Filesystem $fs,
+        private KernelInterface $appKernel,
+        private ParameterBagInterface $appParams,
+        private JustService $just,
     ) {
     }
 
@@ -36,6 +41,7 @@ class TranslationService
                 'value' => $translation,
             ];
         }
+        ksort($structuredList, SORT_NATURAL);
 
         return $structuredList;
     }
@@ -61,49 +67,79 @@ class TranslationService
         $this->entityManager->flush();
     }
 
-    public function extract(): void
+    public function extract(): array
     {
-        $this->extractTranslationsFromFilesystem();
+        $numberTranslationCount = 0;
+        $newTranslations = 0;
+        $extractionTime = $this->just->command('translationsExtract');
 
-        $path = __DIR__ . '/../../translations/';
+        $path = $this->appKernel->getProjectDir() . '/translations/';
         $dataBase = $this->translationRepo->getUniqueList();
         $importUser = $this->userRepo->findOneBy(['email' => 'system@beijingcode.org']);
-        dump($dataBase);
 
         $finder = new Finder();
         $finder->files()->in($path)->depth(0)->name(['messages*.php']);
         foreach ($finder as $file) {
             [$name, $lang, $ext] = explode('.', $file->getFilename());
             foreach (include($file->getPathname()) as $placeholder => $translationMessage) {
-                if (!in_array($placeholder, $dataBase[$lang])) {
+                if (!in_array($placeholder, $dataBase[$lang], true)) {
                     $translation = new Translation();
                     $translation->setLanguage($lang);
                     $translation->setPlaceholder($placeholder);
                     $translation->setCreatedAt(new DateTimeImmutable());
                     $translation->setUser($importUser);
                     $this->entityManager->persist($translation);
+                    $newTranslations++;
                 }
+                $numberTranslationCount++;
             }
         }
         $this->entityManager->flush();
+        $this->publish();
+
+        return [
+            'count' => $numberTranslationCount,
+            'new' => $newTranslations,
+            'extractionTime' => $extractionTime,
+        ];
     }
 
-    public function publish(): void
+    public function publish(): array
     {
-        //
-    }
+        $cleanedUp = 0;
+        $published = 0;
+        $locales = $this->appParams->get('kernel.enabled_locales');
 
-    // TODO: trigger from code
-    private function extractTranslationsFromFilesystem(): void
-    {
-        $process = new Process(['just', 'translationsExtract']);
-        $process->setWorkingDirectory(realpath(__DIR__ . "/../../"));
-        $process->enableOutput();
-        $process->start();
-        $process->wait();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
+        // clean up old translation files
+        $path = $this->appKernel->getProjectDir() . '/translations/';
+        $finder = new Finder();
+        $finder->files()->in($path)->depth(0)->name(['*.php']);
+        foreach ($finder as $file) {
+            $this->fs->remove($file->getPathname());
+            $cleanedUp++;
         }
+
+        // create new translation files
+        foreach ($locales as $locale) {
+            $file = $path . 'messages.' . $locale . '.php';
+            $this->fs->appendToFile($file, '<?php return array (');
+            $translations = $this->translationRepo->findBy(['language' => $locale]);
+            foreach ($translations as $translation) {
+                $this->fs->appendToFile($file, sprintf(
+                    "'%s' => '%s',",
+                    $translation->getPlaceholder(),
+                    $translation->getTranslation(),
+                ));
+                $published++;
+            }
+            $this->fs->appendToFile($file, ');');
+        }
+        $this->just->command('clearCache');
+
+        return [
+            'cleanedUp' => $cleanedUp,
+            'published' => $published,
+            'languages' => $locales,
+        ];
     }
 }
