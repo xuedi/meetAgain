@@ -15,6 +15,7 @@ use App\Repository\EventRepository;
 use App\Repository\HostRepository;
 use App\Repository\LocationRepository;
 use App\Repository\UserRepository;
+use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -150,5 +151,41 @@ class AdminController extends AbstractController
         return $this->render('admin/config.html.twig', [
             'config' => $repo->findAll(),
         ]);
+    }
+
+    #[Route('/translations', name: 'app_admin_translation')]
+    public function translationsIndex(TranslationService $translationService): Response
+    {
+        return $this->render('admin/translations/list.html.twig', [
+            'translationMatrix' => $translationService->getMatrix(),
+        ]);
+    }
+
+    #[Route('/translations/save', name: 'app_admin_translation_save')]
+    public function translationsSave(TranslationService $translationService, Request $request): Response
+    {
+        // todo check token
+        $translationService->saveMatrix($request);
+        // flash message
+
+        return $this->redirectToRoute('app_admin_translation');
+    }
+
+    #[Route('/translations/extract', name: 'app_admin_translation_extract')]
+    public function translationsExtract(TranslationService $translationService): Response
+    {
+        $translationService->extract();
+        // flash message
+
+        return $this->redirectToRoute('app_admin_translation');
+    }
+
+    #[Route('/translations/publish', name: 'app_admin_translation_publish')]
+    public function translationsPublish(TranslationService $translationService): Response
+    {
+        $translationService->publish();
+        // flash message
+
+        return $this->redirectToRoute('app_admin_translation');
     }
 }

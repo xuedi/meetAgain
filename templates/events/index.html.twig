@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}{{ "page_title_event"|trans }}{% endblock %}
 
 {% block body %}
 
@@ -40,7 +40,7 @@
                             <p>{{ event.description|slice(0, 240) }} ...</p>
                             <p class="mt-3">
                                 <span class="tag is-warning">RSVP</span>
-                                {% for user in event.rsvpUsers %}
+                                {% for user in event.rsvp %}
                                     <span class="tag">{{ user.name }}</span>
                                 {% endfor %}
                             </p>

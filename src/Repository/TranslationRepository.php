@@ -16,28 +16,21 @@ class TranslationRepository extends ServiceEntityRepository
         parent::__construct($registry, Translation::class);
     }
 
-    //    /**
-    //     * @return Translations[] Returns an array of Translations objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function buildKeyValueList(): array
+    {
+        $list = [];
+        foreach ($this->findAll() as $translation) {
+            $list[$translation->getId()] = $translation->getTranslation();
+        }
+        return $list;
+    }
 
-    //    public function findOneBySomeField($value): ?Translations
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function getUniqueList(): array
+    {
+        $list = [];
+        foreach ($this->findAll() as $translation) {
+            $list[$translation->getLanguage()][] = $translation->getPlaceholder();
+        }
+        return $list;
+    }
 }

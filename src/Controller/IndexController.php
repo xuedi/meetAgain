@@ -35,6 +35,6 @@ class IndexController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->forward('App\Controller\IndexController::index');
+        return $this->forward('App\Controller\IndexController::index'); // TODO: add proper route instead
     }
 }

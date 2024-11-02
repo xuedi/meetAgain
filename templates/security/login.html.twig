@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}{{ "page_title_login"|trans }}{% endblock %}
 
 {% block body %}
 
@@ -10,6 +10,7 @@
 
             <form method="post">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <input type="hidden" name="_target_path" value="{{ path('app_profile') }}"/>
                 {% if error %}
                     <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                 {% endif %}
@@ -53,6 +54,8 @@
                     </div>
                 </div>
             </form>
+
+            OR REGISTER
 
         </div>
     </section>
