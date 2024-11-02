@@ -78,6 +78,8 @@ class TranslationFixture extends Fixture implements DependentFixtureInterface
             ['role_user', ['用户','Benutzer','User']],
             ['menu_default', ['主页','Startseite','Homepage']],
             ['menu_login', ['登录','Anmelden','Login']],
+            ['p: Please sign in', ['请登录','Anmeldung','Please sign in']],
+            ['p: Please register', ['请注册','Registrierung','Please register']],
         ];
     }
 }

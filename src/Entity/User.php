@@ -7,12 +7,14 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -40,6 +42,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 2)]
     private string $locale = 'en';
+
+    #[ORM\Column(enumType: UserStatus::class)]
+    private ?UserStatus $status;
+
+    #[ORM\Column]
+    private bool $public;
+
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $regcode = null;
 
     public function __construct()
     {
@@ -147,7 +158,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->rsvp->contains($event)) {
             $this->rsvp->add($event);
-            $event->addRsvpUser($this);
+            $event->addRsvp($this);
         }
 
         return $this;
@@ -156,7 +167,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeRsvpEvent(Event $event): static
     {
         if ($this->rsvp->removeElement($event)) {
-            $event->removeRsvpUser($this);
+            $event->removeRsvp($this);
         }
 
         return $this;
@@ -170,6 +181,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLocale(string $locale): static
     {
         $this->locale = $locale;
+
+        return $this;
+    }
+
+    public function getStatus(): UserStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(UserStatus $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(bool $public): static
+    {
+        $this->public = $public;
+
+        return $this;
+    }
+
+    public function getRegcode(): ?string
+    {
+        return $this->regcode;
+    }
+
+    public function setRegcode(?string $regcode): static
+    {
+        $this->regcode = $regcode;
 
         return $this;
     }
