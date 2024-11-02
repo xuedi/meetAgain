@@ -47,8 +47,8 @@ class TranslationFixture extends Fixture implements DependentFixtureInterface
             ['menu_members', ['成员','Mitglieder','Members']],
             ['menu_manage', ['管理','Verwaltung','Manage']],
             ['menu_admin', ['管理员','Admin','Admin']],
-            ['menu_profile_events', ['活动','Events','Events']],
-            ['menu_profile_messages', ['信息','Nachrichten','Messages']],
+            ['menu_profile_events', ['我的活动','Meine Events','My events']],
+            ['menu_profile_messages', ['我的留言','Meine Nachrichten','My messages']],
             ['menu_profile_view_profile', ['查看简介','Profil anzeigen','View profile']],
             ['menu_profile_config', ['设置和隐私','Einstellungen','Settings & Privacy']],
             ['menu_profile_logout', ['注销','Abmelden','Logout']],
@@ -76,6 +76,8 @@ class TranslationFixture extends Fixture implements DependentFixtureInterface
             ['role_manager', ['经理','Manager','Manager']],
             ['role_system', ['系统','System','System']],
             ['role_user', ['用户','Benutzer','User']],
+            ['menu_default', ['主页','Startseite','Homepage']],
+            ['menu_login', ['登录','Anmelden','Login']],
         ];
     }
 }

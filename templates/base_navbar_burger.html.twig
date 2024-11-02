@@ -1,0 +1,58 @@
+<a role="button" class="navbar-burger" data-target="navBurgenMenu" aria-label="menu" aria-expanded="false">
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+</a>
+
+<div id="navBurgenMenu" class="navbar-menu is-hidden-desktop">
+
+    <div class="navbar-start">
+        <a class="navbar-item" href="{{ path('app_default') }}">{{ "menu_default" | trans }}</a>
+        <a class="navbar-item" href="{{ path('app_about') }}">{{ "menu_about" | trans }}</a>
+        <a class="navbar-item" href="{{ path('app_event') }}">{{ "menu_events" | trans }}</a>
+        <a class="navbar-item" href="{{ path('app_member') }}">{{ "menu_members" | trans }}</a>
+
+        {% if is_granted('ROLE_USER') %}
+            <hr class="dropdown-divider"/>
+            <div class="navbar-item">
+                <aside class="menu">
+                    <p class="menu-label">Loggedin: {{ app.user.name }}</p>
+                    <ul class="menu-list pl-3">
+                        <li><a href="{{ path('app_profile_events') }}">{{ "menu_profile_events" | trans }}</a></li>
+                        <li><a href="{{ path('app_profile_messages') }}">{{ "menu_profile_messages" | trans }}</a></li>
+                    </ul>
+                </aside>
+            </div>
+        {% endif %}
+
+
+        <hr class="dropdown-divider"/>
+        {% if is_granted('ROLE_USER') %}
+            <a class="navbar-item" href="{{ path('app_profile_logout') }}">
+                <span class="icon mr-2"><i class="fa fa-sign-out"></i></span>
+                {{ "menu_profile_logout" | trans }}
+            </a>
+        {% else %}
+            <a class="navbar-item" href="{{ path('app_login') }}">
+                <span class="icon mr-2"><i class="fa fa-sign-in"></i></span>
+                {{ "menu_login" | trans }}
+            </a>
+        {% endif %}
+
+        <hr class="dropdown-divider"/>
+        <div class="navbar-item">
+            {% for enabledLocale in app.enabled_locales %}
+                {% if enabledLocale != app.request.locale %}
+                    <a class="button is-small mr-2" href="{{ path('app_default_language', {'locale': enabledLocale}) }}">
+                        <figure class="image is-32x32 mt-3">
+                            <img class="is-flag" src="{{ asset('images/flags/' ~ enabledLocale ~ '.png') }}"
+                                 alt="Locale flag"/>
+                        </figure>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+
+</div>

@@ -4,16 +4,11 @@
             <a class="navbar-item" href="{{ path('app_default') }}">
                 <img class="signal-logo" src="{{ asset('/images/logo.png') }}" alt="Website Logo">
             </a>
-
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" onclick="this.parentNode.parentNode.classList.toggle('is-active')">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
+            {% include 'base_navbar_burger.html.twig' %}
         </div>
 
 
-        <div id="navbarExampleTransparentExample" class="navbar-menu">
+        <div id="navBarTop" class="navbar-menu">
             <div class="navbar-start">
                 <a class="navbar-item" href="{{ path('app_about') }}">{{ "menu_about" | trans }}</a>
                 <a class="navbar-item" href="{{ path('app_event') }}">{{ "menu_events" | trans }}</a>
@@ -57,7 +52,7 @@
                         </div>
                     </div>
                 {% else %}
-                    <a class="navbar-item" href="{{ path('app_login') }}">login</a>
+                    <a class="navbar-item" href="{{ path('app_login') }}">{{ "menu_login" | trans }}</a>
                 {% endif %}
                 <div class="dropdown is-hoverable ml-3">
                     <div class="dropdown-trigger is-hoverable">
