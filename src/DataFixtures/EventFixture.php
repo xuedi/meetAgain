@@ -43,13 +43,13 @@ class EventFixture extends Fixture implements DependentFixtureInterface
             }
 
             $manager->persist($event);
-            $manager->flush();
 
             $this->addReference('event_' . md5((string) $name), $event);
         }
+        $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             UserFixture::class,

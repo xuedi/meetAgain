@@ -29,9 +29,9 @@ run:
 
 
 translationsExtract:
-    php bin/console translation:extract --force --format yml de
-    php bin/console translation:extract --force --format yml en
-    php bin/console translation:extract --force --format yml cn
+    php bin/console translation:extract --force --format php de
+    php bin/console translation:extract --force --format php en
+    php bin/console translation:extract --force --format php cn
 
 
 check:

@@ -19,13 +19,13 @@ class HostFixture extends Fixture implements DependentFixtureInterface
             }
 
             $manager->persist($host);
-            $manager->flush();
 
             $this->addReference('host_' . md5((string)$name), $host);
         }
+        $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             UserFixture::class,

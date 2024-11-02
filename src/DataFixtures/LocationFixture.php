@@ -24,13 +24,13 @@ class LocationFixture extends Fixture implements DependentFixtureInterface
             $location->setCreatedAt(new DateTimeImmutable());
 
             $manager->persist($location);
-            $manager->flush();
 
             $this->addReference('location_' . md5((string) $name), $location);
         }
+        $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             UserFixture::class,

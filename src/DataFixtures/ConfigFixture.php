@@ -18,8 +18,8 @@ class ConfigFixture extends Fixture
             $user->setType($type);
 
             $manager->persist($user);
-            $manager->flush();
         }
+        $manager->flush();
     }
 
     private function getData(): array

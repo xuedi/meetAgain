@@ -21,10 +21,10 @@ class UserFixture extends Fixture
             $user->setCreatedAt(new DateTimeImmutable());
 
             $manager->persist($user);
-            $manager->flush();
 
             $this->addReference('user_' . md5((string) $name), $user);
         }
+        $manager->flush();
     }
 
     private function getData(): array
