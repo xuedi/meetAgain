@@ -10,6 +10,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -32,8 +33,8 @@ class EventType extends AbstractType
             ])
             //->add('recurringOf')
             ->add(
-                'recurringRule', ChoiceType::class, [
-                    'choices' => EventIntervals::cases(),
+                'recurringRule', EnumType::class, [
+                    'class' => EventIntervals::class,
                     'label' => 'Recurring',
                     'expanded' => false,
                     'multiple' => false,

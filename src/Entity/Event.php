@@ -30,6 +30,7 @@ class Event
     #[ORM\Column(nullable: true)]
     private ?int $recurringOf = null;
 
+    //#[ORM\Column(type: "string", nullable: true, enumType: Color::class)]
     #[ORM\Column(enumType: EventIntervals::class)]
     private ?EventIntervals $recurringRule;
 
