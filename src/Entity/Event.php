@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Entity;
 
@@ -30,8 +30,8 @@ class Event
     #[ORM\Column(nullable: true)]
     private ?int $recurringOf = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $recurringRule = null;
+    #[ORM\Column(enumType: EventIntervals::class)]
+    private ?EventIntervals $recurringRule;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
@@ -128,12 +128,12 @@ class Event
         return $this;
     }
 
-    public function getRecurringRule(): ?string
+    public function getRecurringRule(): ?EventIntervals
     {
         return $this->recurringRule;
     }
 
-    public function setRecurringRule(?string $recurringRule): static
+    public function setRecurringRule(?EventIntervals $recurringRule): static
     {
         $this->recurringRule = $recurringRule;
 

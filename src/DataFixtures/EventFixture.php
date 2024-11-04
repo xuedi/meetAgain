@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Event;
+use App\Entity\EventIntervals;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -13,8 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class EventFixture extends Fixture implements DependentFixtureInterface
 {
     private const IS_INITIAL = true;
-    private const NO_RECURRING_OF = 0;
-    private const NO_RECURRING_RULE = null;
+    private const NO_RECURRING_OF = null;
 
     public function __construct(private readonly Filesystem $fs)
     {
@@ -68,7 +68,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 'Outdoor Meetup at Himmelbeet',
                 $this->getBlob('Himmelbeet'),
                 self::NO_RECURRING_OF,
-                self::NO_RECURRING_RULE,
+                EventIntervals::NonRecurring,
                 'Himmelbeet',
                 ['雪地', '易木'],
                 ['xuedi', 'yimu', 'user_b', 'user_c'],
@@ -80,7 +80,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 '下馆子！Let’s go eat!',
                 $this->getBlob('LetsGoEat'),
                 self::NO_RECURRING_OF,
-                self::NO_RECURRING_RULE,
+                EventIntervals::NonRecurring,
                 'Lao Xiang',
                 ['易木'],
                 ['yimu', 'xiaolong', 'user_a'],
@@ -92,7 +92,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 '中秋节 - Mid Autumn festival',
                 $this->getBlob('MidAutumnFestival'),
                 self::NO_RECURRING_OF,
-                self::NO_RECURRING_RULE,
+                EventIntervals::NonRecurring,
                 'Garten der Welt',
                 ['易木'],
                 ['xuedi', 'yimu', 'xiaolong', 'user_a', 'user_c'],
@@ -104,7 +104,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 'Spicy Chinese dinner at a Sichuan restaurant',
                 $this->getBlob('SpicyChinese'),
                 self::NO_RECURRING_OF,
-                self::NO_RECURRING_RULE,
+                EventIntervals::NonRecurring,
                 'Grand Tang',
                 ['易木', '雪地'],
                 ['xuedi', 'yimu', 'user_c'],
@@ -116,7 +116,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 'Let\'s meet up and talk Chinese!',
                 $this->getBlob('First'),
                 self::NO_RECURRING_OF,
-                self::NO_RECURRING_RULE,
+                EventIntervals::NonRecurring,
                 'St. Oberholz',
                 ['易木', '雪地'],
                 ['xuedi', 'yimu', 'xiaolong'],
@@ -128,7 +128,7 @@ class EventFixture extends Fixture implements DependentFixtureInterface
                 'Chinese 中文 Chinesisch/German 德语 Deutsch Meetup! (Every 2 Weeks!)',
                 $this->getBlob('Current'),
                 self::NO_RECURRING_OF,
-                'bi-weekly',
+                EventIntervals::BiMonthly,
                 'Volksbar',
                 ['易木', '雪地'],
                 ['xuedi', 'yimu', 'xiaolong', 'user_a', 'user_b', 'user_c'],

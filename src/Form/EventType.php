@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Form;
 
 use App\Entity\Event;
+use App\Entity\EventIntervals;
 use App\Entity\Host;
 use App\Entity\Location;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -32,7 +33,7 @@ class EventType extends AbstractType
             //->add('recurringOf')
             ->add(
                 'recurringRule', ChoiceType::class, [
-                    'choices' => ['non-recuring' => null, 'daily' => 'daily', 'weekly' => 'weekly', 'bi-weekly' => 'bi-weekly', 'monthly' => 'monthly'],
+                    'choices' => EventIntervals::cases(),
                     'label' => 'Recurring',
                     'expanded' => false,
                     'multiple' => false,
