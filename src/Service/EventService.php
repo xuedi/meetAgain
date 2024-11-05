@@ -40,15 +40,25 @@ class EventService
         return $structuredList;
     }
 
-    public function fillRecurringEvents(Event $event): void
+    public function extentRecurringEvents(): void
     {
-        if ($event->getRecurringRule() === EventIntervals::NonRecurring) {
+        $events = $this->repo->findAllRecurring();
+        foreach ($events as $event) {
+            $this->fillRecurringEvents($event);
+        }
+    }
+
+    private function fillRecurringEvents(Event $event): void
+    {
+        if ($event->getRecurringRule() === null) {
             return;
         }
 
         $skipFirst = true;
-        $ruleInterval = (EventIntervals::BiMonthly === $event->getRecurringRule()) ? 2 : 1;
-        $ruleFrequency = match ($event->getRecurringRule()) {
+        $today = new DateTime();
+        $recurringRule = $event->getRecurringRule();
+        $ruleInterval = (EventIntervals::BiMonthly === $recurringRule) ? 2 : 1;
+        $ruleFrequency = match ($recurringRule) {
             EventIntervals::Daily => RRule::DAILY,
             EventIntervals::Weekly, EventIntervals::BiMonthly => RRule::WEEKLY,
             EventIntervals::Monthly => RRule::MONTHLY,
@@ -59,8 +69,15 @@ class EventService
         $rrule = new RRule([
             'freq' => $ruleFrequency,
             'interval' => $ruleInterval,
-            'dtstart' => $event->getStart()->format('Y-m-d'),
-            'until' => $event->getStart()->modify('+3 month')->format('Y-m-d')
+            'dtstart' => $this->getLastRecurringEventDate($event),
+            'until' => (match ($recurringRule) {
+                EventIntervals::Daily => $today->modify('+2 weeks'),
+                EventIntervals::Weekly, $today->modify('+3 weeks'),
+                EventIntervals::BiMonthly, $today->modify('+5 weeks'),
+                EventIntervals::Monthly => $today->modify('+3 months'),
+                EventIntervals::Yearly => $today->modify('+3 years'),
+                default => throw new RuntimeException('Unknown EventIntervals'),
+            })->format('Y-m-d')
         ]);
 
         foreach ($rrule as $occurrence) {
@@ -68,7 +85,6 @@ class EventService
                 $skipFirst = false;
                 continue;
             }
-            echo $occurrence->format('Y-m-d').'<hr>';
             $recurringEvent = new Event();
             $recurringEvent->setUser($event->getUser());
             $recurringEvent->setLocation($event->getLocation());
@@ -76,7 +92,7 @@ class EventService
             $recurringEvent->setStart($this->updateDate($event->getStart(), $occurrence));
             $recurringEvent->setStop($this->updateDate($event->getStop(), $occurrence));
             $recurringEvent->setRecurringOf($event->getId());
-            $recurringEvent->setRecurringRule(EventIntervals::NonRecurring); // TODO: set to null
+            $recurringEvent->setRecurringRule(null);
             $recurringEvent->setName($event->getName()); // TODO: set to null
             $recurringEvent->setDescription($event->getDescription()); // TODO: set to null      // TODO: add a recurringContent Pointer to the last changed item and update all following
             $recurringEvent->setDescription($event->getDescription()); // TODO: set to null
@@ -98,5 +114,15 @@ class EventService
         );
 
         return $newDate;
+    }
+
+    private function getLastRecurringEventDate(Event $event): string
+    {
+        $lastRecurringEvent = $this->repo->findOneBy(['recurringOf' => $event->getId()], ['start' => 'DESC']);
+        if ($lastRecurringEvent === null) {
+            $lastRecurringEvent = $event;
+        }
+
+        return $lastRecurringEvent->getStart()->format('Y-m-d');
     }
 }

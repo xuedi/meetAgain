@@ -30,12 +30,8 @@ class Event
     #[ORM\Column(nullable: true)]
     private ?int $recurringOf = null;
 
-    //#[ORM\Column(type: "string", nullable: true, enumType: Color::class)]
-    #[ORM\Column(enumType: EventIntervals::class)]
+    #[ORM\Column(type: "integer", nullable: true, enumType: EventIntervals::class)]
     private ?EventIntervals $recurringRule;
-
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -50,6 +46,9 @@ class Event
 
     #[ORM\Column(length: 128)]
     private ?string $name = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $description = null;
 
     #[ORM\ManyToMany(targetEntity: Host::class)]
     private Collection $host;

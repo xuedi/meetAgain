@@ -7,9 +7,7 @@ use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Event>
- */
+/** @extends ServiceEntityRepository<Event> */
 class EventRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -29,28 +27,15 @@ class EventRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
-    //    /**
-    //     * @return Events[] Returns an array of Events objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findAllRecurring()
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $query = $qb->select('e')
+            ->from(Event::class, 'e')
+            ->where($qb->expr()->isNotNull('e.recurringRule'))
+            ->orderBy('e.start', 'ASC')
+            ->getQuery();
 
-    //    public function findOneBySomeField($value): ?Events
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return $query->getResult();
+    }
 }

@@ -23,7 +23,7 @@
                     <td>{% if event.initial %}{{ event.user.name }}{% else %}auto{% endif %}</td>
                     <td>{{ event.start|date('Y-m-d') }}</td>
                     <td>{{ event.stop|date('Y-m-d') }}</td>
-                    <td>{% if event.recurringRule.value == 1 %}{{ 'No'|trans }}{% else %}{{ event.recurringRule.name|trans }}{% endif %}</td>
+                    <td>{% if event.recurringRule is null %}{{ 'No'|trans }}{% else %}{{ event.recurringRule.name|trans }}{% endif %}</td>
                     <td>{{ event.name|slice(0, 32) }}</td>
                     <td>{{ event.location.name }}</td>
                     <td>{{ event.host|map(h => h.name)|join(', ') }}</td>

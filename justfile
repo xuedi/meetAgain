@@ -28,6 +28,9 @@ run:
     symfony server:start --no-tls
 
 
+extendEvents:
+    php bin/console app:event:extent
+
 translationsExtract:
     php bin/console translation:extract --force --format php de
     php bin/console translation:extract --force --format php en
