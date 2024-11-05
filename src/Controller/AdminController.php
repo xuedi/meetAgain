@@ -15,6 +15,7 @@ use App\Repository\EventRepository;
 use App\Repository\HostRepository;
 use App\Repository\LocationRepository;
 use App\Repository\UserRepository;
+use App\Service\EventService;
 use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -65,9 +66,9 @@ class AdminController extends AbstractController
     }
 
     #[Route('/events/{id}', name: 'app_admin_event_edit', methods: ['GET', 'POST'])]
-    public function eventEdit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
+    public function eventEdit(Request $request, Event $event, EntityManagerInterface $entityManager, EventService $es): Response
     {
-        //overwrite
+        //overwrite TODO: check wherever the code goes
         $event->setInitial(true);
         $event->setUser($this->getUser());
 

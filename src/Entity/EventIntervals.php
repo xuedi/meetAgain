@@ -4,10 +4,10 @@ namespace App\Entity;
 
 enum EventIntervals: int
 {
-    case NonRecurring = 1;
-    case Weekly = 2;
-    case BiMonthly = 3;
-    case Monthly = 4;
-    case Quarterly = 5;
+    case NonRecurring = 1; // TODO: remove but make column nullable
+    case Daily = 2;
+    case Weekly = 3;
+    case BiMonthly = 4;
+    case Monthly = 5;
     case Yearly = 6;
 }

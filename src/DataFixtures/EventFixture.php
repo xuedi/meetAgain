@@ -44,6 +44,8 @@ class EventFixture extends Fixture implements DependentFixtureInterface
 
             $manager->persist($event);
 
+            // TODO: create recurring events via service?
+
             $this->addReference('event_' . md5((string) $name), $event);
         }
         $manager->flush();
@@ -123,9 +125,9 @@ class EventFixture extends Fixture implements DependentFixtureInterface
             ],
             [
                 self::IS_INITIAL,
-                '2024-10-31 19:00',
-                '2024-10-31 22:30',
-                'Chinese 中文 Chinesisch/German 德语 Deutsch Meetup! (Every 2 Weeks!)',
+                '2024-01-05 19:00',
+                '2024-01-05 22:30',
+                '定期活动 - Regular meetup',
                 $this->getBlob('Current'),
                 self::NO_RECURRING_OF,
                 EventIntervals::BiMonthly,

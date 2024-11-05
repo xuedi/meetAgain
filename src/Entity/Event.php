@@ -194,6 +194,13 @@ class Event
         return $this->host;
     }
 
+    public function setHost(Collection $hosts): static
+    {
+        $this->host = $hosts;
+
+        return $this;
+    }
+
     public function addHost(Host $host): static
     {
         if (!$this->host->contains($host)) {
