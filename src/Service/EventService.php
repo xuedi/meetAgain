@@ -20,14 +20,13 @@ class EventService
     ) {
     }
 
-    public function getList(bool $pastEvents = false): array
+    public function getList(string $time = null, string $type = null): array
     {
         $structuredList = [];
 
-
-        if ($pastEvents) {
+        //if ($pastEvents) {
             //
-        }
+        //}
 
         $events = $this->repo->findBy([], ['start' => 'ASC']);
         foreach ($events as $event) {

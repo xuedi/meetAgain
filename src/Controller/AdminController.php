@@ -19,8 +19,11 @@ use App\Service\EventService;
 use App\Service\TranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Asset\Packages as AssertManager;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/admin')]
@@ -66,17 +69,30 @@ class AdminController extends AbstractController
     }
 
     #[Route('/events/{id}', name: 'app_admin_event_edit', methods: ['GET', 'POST'])]
-    public function eventEdit(Request $request, Event $event, EntityManagerInterface $entityManager, EventService $es): Response
-    {
+    public function eventEdit(
+        Request $request,
+        Event $event,
+        EntityManagerInterface $entityManager,
+        Filesystem $filesystem,
+        KernelInterface $appKernel,
+    ): Response {
+
         //overwrite TODO: check wherever the code goes
         $event->setInitial(true);
         $event->setUser($this->getUser());
 
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+
+            // save image port flush (ID)
+            $previewImage = $form->get('image')->getData();
+            if ($previewImage) {
+                $path = $appKernel->getProjectDir() . '/assets/images/events/';
+                $file = $path . $event->getId();// . '.' . $previewImage->guessExtension();
+                $filesystem->copy($previewImage->getRealPath(), $file);
+            }
 
             return $this->redirectToRoute('app_admin_event');
         }

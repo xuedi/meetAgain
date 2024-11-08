@@ -11,11 +11,13 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class EventType extends AbstractType
 {
@@ -36,6 +38,8 @@ class EventType extends AbstractType
                 'recurringRule', EnumType::class, [
                     'class' => EventIntervals::class,
                     'label' => 'Recurring',
+                    'placeholder' => 'NonRecurring',
+                    'required' => false,
                     'expanded' => false,
                     'multiple' => false,
                 ]
@@ -53,8 +57,22 @@ class EventType extends AbstractType
             ->add('host', EntityType::class, [
                 'class' => Host::class,
                 'choice_label' => 'name',
+                'label' => 'Hosts',
                 'expanded' => true,
                 'multiple' => true,
+            ])->add('image', FileType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Preview Image',
+                'constraints' => [
+                    new File([
+                        'maxSize' => '3000k',
+                        'mimeTypes' => [
+                            'image/*',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image, preferable 600x400',
+                    ])
+                ],
             ]);
     }
 

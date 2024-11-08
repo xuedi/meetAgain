@@ -5,24 +5,19 @@ namespace App\Controller;
 use App\Repository\EventRepository;
 use App\Service\EventService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class EventController extends AbstractController
 {
     #[Route('/events', name: 'app_event')]
-    public function index(EventService $eventService): Response
+    public function index(EventService $eventService, Request $request): Response
     {
         return $this->render('events/index.html.twig', [
-            'structuredList' => $eventService->getList(),
-        ]);
-    }
-
-    #[Route('/events/past', name: 'app_event_past')]
-    public function past(EventService $eventService): Response
-    {
-        return $this->render('events/index.html.twig', [
-            'structuredList' => $eventService->getList(true),
+            'structuredList' => $eventService->getList($request->get('name'), $request->get('type')),
+            'timeFilter' => $request->get('time'),
+            'typeFilter' => $request->get('type'),
         ]);
     }
 
