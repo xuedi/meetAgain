@@ -12,7 +12,7 @@
 
                     <h1 class="subtitle">{{ "p: Please sign in"|trans }}</h1>
 
-                    <form method="post">
+                    <form method="post" class="box">
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                         <input type="hidden" name="_target_path" value="{{ path('app_profile') }}"/>
                         {% if error %}

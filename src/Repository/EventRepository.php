@@ -22,7 +22,7 @@ class EventRepository extends ServiceEntityRepository
             FROM App\Entity\Event e
             WHERE e.start > :date
             ORDER BY e.start ASC'
-        )->setParameter('date', new DateTime());
+        )->setParameter('date', new DateTime())->setMaxResults($number);
 
         return $query->getResult();
     }

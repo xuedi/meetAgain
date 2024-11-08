@@ -20,9 +20,14 @@ class EventService
     ) {
     }
 
-    public function getList(): array
+    public function getList(bool $pastEvents = false): array
     {
         $structuredList = [];
+
+
+        if ($pastEvents) {
+            //
+        }
 
         $events = $this->repo->findBy([], ['start' => 'ASC']);
         foreach ($events as $event) {
@@ -94,7 +99,7 @@ class EventService
             $recurringEvent->setRecurringOf($event->getId());
             $recurringEvent->setRecurringRule(null);
             $recurringEvent->setName($event->getName()); // TODO: set to null
-            $recurringEvent->setDescription($event->getDescription()); // TODO: set to null      // TODO: add a recurringContent Pointer to the last changed item and update all following
+            $recurringEvent->setDescription($event->getDescription()); // TODO: set to null  // TODO: add a recurringContent Pointer to the last changed item and update all following
             $recurringEvent->setDescription($event->getDescription()); // TODO: set to null
             $recurringEvent->setCreatedAt(new DateTimeImmutable());
             $recurringEvent->setHost($event->getHost());

@@ -16,6 +16,9 @@
 
                     <h1 class="subtitle">{{ "p: Please register"|trans }}</h1>
 
+                    <form method="post" class="box">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
                     {{ form_errors(registrationForm) }}
 
                     {{ form_start(registrationForm) }}
@@ -27,7 +30,7 @@
 
 
                     <button class="button is-primary">{{ "button_Register" | trans }}</button>
-                    {{ form_end(registrationForm) }}
+                    </form>
 
 
 

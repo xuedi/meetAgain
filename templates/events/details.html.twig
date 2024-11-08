@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "page_title_event"|trans }}{% endblock %}
+
+{% block body %}
+
+
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-2">
+                    {{ event.name }}
+                </div>
+                <div class="column is-10">
+                    {{ event.description }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+{% endblock %}
