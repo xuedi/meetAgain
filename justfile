@@ -14,6 +14,7 @@ deploy-cheapo-preview:
 	php bin/console doctrine:fixtures:load --append -q
 	php bin/console asset-map:compile
 	php bin/console cache:clear
+	php bin/console app:event:extent
 
 
 deploy:
