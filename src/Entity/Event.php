@@ -57,6 +57,9 @@ class Event
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'rsvp')]
     private Collection $rsvp;
 
+    #[ORM\ManyToOne]
+    private ?Image $previewImage = null;
+
     public function __construct()
     {
         $this->host = new ArrayCollection();
@@ -233,6 +236,18 @@ class Event
     public function removeRsvp(User $user): static
     {
         $this->rsvp->removeElement($user);
+
+        return $this;
+    }
+
+    public function getPreviewImage(): ?Image
+    {
+        return $this->previewImage;
+    }
+
+    public function setPreviewImage(?Image $previewImage): static
+    {
+        $this->previewImage = $previewImage;
 
         return $this;
     }

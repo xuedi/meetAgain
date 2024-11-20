@@ -17,6 +17,7 @@ use App\Repository\LocationRepository;
 use App\Repository\UserRepository;
 use App\Service\EventService;
 use App\Service\TranslationService;
+use App\Service\UploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\Packages as AssertManager;
@@ -72,27 +73,19 @@ class AdminController extends AbstractController
     public function eventEdit(
         Request $request,
         Event $event,
+        UploadService $uploadService,
         EntityManagerInterface $entityManager,
-        Filesystem $filesystem,
-        KernelInterface $appKernel,
     ): Response {
-
-        //overwrite TODO: check wherever the code goes
-        $event->setInitial(true);
-        $event->setUser($this->getUser());
 
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $event->setPreviewImage($uploadService->upload($form, 'image'));
+            $event->setInitial(true);
+            $event->setUser($this->getUser());
 
-            // save image port flush (ID)
-            $previewImage = $form->get('image')->getData();
-            if ($previewImage) {
-                $path = $appKernel->getProjectDir() . '/assets/images/events/';
-                $file = $path . $event->getId();// . '.' . $previewImage->guessExtension();
-                $filesystem->copy($previewImage->getRealPath(), $file);
-            }
+            $entityManager->persist($event);
+            $entityManager->flush();
 
             return $this->redirectToRoute('app_admin_event');
         }

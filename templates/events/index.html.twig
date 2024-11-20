@@ -72,11 +72,7 @@
                         </div>
                         <div class="column is-3">
                             <figure class="image is-3by2">
-                                {% if asset_exists('images/events/' ~ event.id) %}
-                                    <img src="{{ asset('images/events/' ~ event.id) }}" alt="Event Image"/>
-                                {% else %}
-                                    <img src="{{ asset('images/600x400.png') }}" alt="Event Image"/>
-                                {% endif %}
+                                <img src="{{ asset( event.previewImage.assetPath ) }}" alt="Event Image"/>
                             </figure>
                         </div>
                     </div>

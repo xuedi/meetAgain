@@ -28,6 +28,8 @@ deploy:
 run:
     symfony server:start --no-tls
 
+make:
+    php bin/console make
 
 extendEvents:
     php bin/console app:event:extent
