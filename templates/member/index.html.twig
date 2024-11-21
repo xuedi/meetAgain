@@ -15,10 +15,7 @@
                         <div class="card">
                             <div class="card-image">
                                 <figure class="image is-2">
-                                    <img
-                                            src="https://bulma.io/assets/images/placeholders/128x128.png"
-                                            alt="Placeholder image"
-                                    />
+                                    {% include '_block/image.html.twig' with {'image': member.image} %}
                                 </figure>
                             </div>
                             <div class="card-content p-3 has-text-centered">

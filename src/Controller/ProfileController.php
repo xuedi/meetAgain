@@ -2,24 +2,57 @@
 
 namespace App\Controller;
 
+use App\Entity\Event;
+use App\Entity\User;
+use App\Form\ProfileType;
+use App\Repository\EventRepository;
+use App\Service\UploadService;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 #[Route('/profile')]
 class ProfileController extends AbstractController
 {
     #[Route('/', name: 'app_profile')]
-    public function index(): Response
+    public function index(Request $request, EventRepository $repo, UploadService $uploadService, EntityManagerInterface $entityManager,): Response
     {
-        return $this->render('profile/index.html.twig');
+        $form = $this->createForm(ProfileType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $image = $uploadService->upload($form, 'image');
+            $user = $this->getAuthedUser();
+            if ($image) {
+                $user->setImage($image);
+            }
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_profile');
+        }
+
+        return $this->render('profile/index.html.twig', [
+            'user' => $this->getAuthedUser(),
+            'upcoming' => $repo->getUpcomingEvents(10),
+            'past' => $repo->getPastEvents(20),
+            'form' => $form,
+        ]);
     }
 
-    #[Route('/events', name: 'app_profile_events')]
-    public function events(): Response
+    #[Route('/toggleRsvp/{event}/', name: 'app_profile_toggle_rsvp')]
+    public function toggleRsvp(Event $event, EntityManagerInterface $em): Response
     {
-        return $this->render('profile/events.html.twig');
+        $event->toggleRsvp($this->getAuthedUser());
+        $em->persist($event);
+        $em->flush();
+
+        return $this->redirectToRoute('app_profile');
     }
 
     #[Route('/messages', name: 'app_profile_messages')]
@@ -40,5 +73,17 @@ class ProfileController extends AbstractController
         $security->logout(false);
 
         return $this->forward('App\Controller\IndexController::index');
+    }
+
+    private function getAuthedUser(): User
+    { // just to avoid phpstorms nullpointer warning
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw new AuthenticationCredentialsNotFoundException(
+                "Should never happen, see: config/packages/security.yaml"
+            );
+        }
+
+        return $user;
     }
 }

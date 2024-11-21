@@ -26,7 +26,7 @@
                     <div class="dropdown is-hoverable">
                         <div class="dropdown-trigger">
                             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-                                <span><a href="{{ path('app_profile') }}">{{ app.user.name }}</a></span>
+                                <span>{{ app.user.name }}</span>
                                 <span class="icon is-small">
                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
                                 </span>
@@ -41,10 +41,9 @@
                                     </p>
                                 </div>
                                 <hr class="dropdown-divider"/>
-                                <a class="navbar-item" href="{{ path('app_profile_events') }}">{{ "menu_profile_events" | trans }}</a>
+                                <a class="navbar-item" href="{{ path('app_profile') }}">{{ "menu_profile_view_profile" | trans }}</a>
                                 <a class="navbar-item" href="{{ path('app_profile_messages') }}">{{ "menu_profile_messages" | trans }}</a>
                                 <hr class="dropdown-divider"/>
-                                <a class="navbar-item" href="{{ path('app_member_view', {'id': app.user.id}) }}">{{ "menu_profile_view_profile" | trans }}</a>
                                 <a class="navbar-item" href="{{ path('app_profile_config') }}">{{ "menu_profile_config" | trans }}</a>
                                 <hr class="dropdown-divider"/>
                                 <a class="navbar-item" href="{{ path('app_profile_logout') }}">{{ "menu_profile_logout" | trans }}</a>

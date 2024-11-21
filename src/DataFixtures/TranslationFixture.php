@@ -49,7 +49,7 @@ class TranslationFixture extends Fixture implements DependentFixtureInterface
             ['menu_admin', ['管理员','Admin','Admin']],
             ['menu_profile_events', ['我的活动','Meine Events','My events']],
             ['menu_profile_messages', ['我的留言','Meine Nachrichten','My messages']],
-            ['menu_profile_view_profile', ['查看简介','Profil anzeigen','View profile']],
+            ['menu_profile_view_profile', ['查看简介','Mein Profil','My profile']],
             ['menu_profile_config', ['设置和隐私','Einstellungen','Settings & Privacy']],
             ['menu_profile_logout', ['注销','Abmelden','Logout']],
             ['language_de', ['德语','Deutsch','German']],

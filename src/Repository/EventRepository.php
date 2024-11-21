@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Event;
+use App\Entity\User;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,6 +22,18 @@ class EventRepository extends ServiceEntityRepository
             'SELECT e
             FROM App\Entity\Event e
             WHERE e.start > :date
+            ORDER BY e.start ASC'
+        )->setParameter('date', new DateTime())->setMaxResults($number);
+
+        return $query->getResult();
+    }
+
+    public function getPastEvents(int $number = 3, ?User $user = null): array
+    {
+        $query = $this->getEntityManager()->createQuery(
+            'SELECT e
+            FROM App\Entity\Event e
+            WHERE e.start < :date
             ORDER BY e.start ASC'
         )->setParameter('date', new DateTime())->setMaxResults($number);
 

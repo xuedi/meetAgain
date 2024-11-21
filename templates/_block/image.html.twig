@@ -1,1 +1,5 @@
-<img src="{{ asset( image.assetPath ) }}" {% if image.alt %}alt="{{ image.alt }}"{% endif %} />
+{% if image %}
+    <img src="{{ asset( image.assetPath ) }}" {% if image.alt %}alt="{{ image.alt }}"{% endif %} />
+{% else %}
+    <img src="{{ asset( 'images/24a49fc7e545ec8d3434e683326ce9f410d33260.png' ) }}" />
+{% endif %}

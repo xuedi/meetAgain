@@ -6,11 +6,77 @@
 
     <section class="section">
         <div class="container">
-            <h1>Dashboards</h1>
+
+            <div class="columns">
+                <div class="column is-6">
+                    {{ form_start(form) }}
+
+                    <div class="box">
+                        <div class="columns">
+                            <div class="column is-6">
+                                <figure class="image">
+                                    {% include '_block/image.html.twig' with {'image': user.image} %}
+                                </figure>
+                                {{ form_row(form.image) }}
+                            </div>
+                            <div class="column is-6">
+                                <div>
+                                    <span class="title is-4">{{ user.name }}</span>
+                                    <a class="is-pulled-right" target="_blank" href="{{ path('app_member_view', {'id': user.id}) }}">
+                                        <i class="fa fa-external-link" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                                <br>
+                                <div>
+                                    <span>Language after login: </span>{{ form_row(form.languages) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="has-text-right">
+                            <button class="button">{{ "button_save" | trans }}</button>
+                        </div>
+                    </div>
+
+                    <div class="box">
+                        <h2 class="title is-5">Infos</h2>
+                        <p>Joined: {{ user.createdAt|date('Y-m-d') }}</p>
+                        <p>Email: {{ user.email }}</p>
+                        <p>Friends: x</p>
+                        <p>Messages: x</p>
+                        <p>RSVP: x</p>
+                    </div>
+
+                    {{ form_end(form) }}
+
+                </div>
+                <div class="column is-6">
+
+                    <div class="box">
+                        <h2 class="title is-5">Upcoming events</h2>
+                        {% include 'profile/rsvp_list.html.twig' with {'user': user, 'list': upcoming, 'isPast': false} %}
+                    </div>
+
+                    <div class="card is-fullwidth">
+                        <header class="card-header">
+                            <p class="card-header-title">My past events</p>
+                            <a class="card-header-icon card-toggle">
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                        </header>
+                        <div class="card-content is-hidden">
+                            {% include 'profile/rsvp_list.html.twig' with {'user': user, 'list': past, 'isPast': true} %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
 
 
 
         </div>
     </section>
+
 
 {% endblock %}

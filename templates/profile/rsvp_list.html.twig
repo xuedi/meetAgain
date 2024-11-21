@@ -1,0 +1,30 @@
+<table class="table is-fullwidth">
+    <tbody>
+    {% for event in list %}
+        <tr>
+            <td>
+                <p class="has-text-grey">{{ event.start|date('Y-m-d') }}</p>
+            </td>
+            <td>{{ event.name }}</td>
+            <td class="is-right">
+                {% if isPast %}
+                    <span class="tag is-small is-success is-light">Yes</span>
+                {% else %}
+                    {% set link = path('app_profile_toggle_rsvp', {event: event.id}) %}
+                    {% set no = '' %}
+                    {% set yes = '' %}
+                    {% if event.rsvp.contains(user) %}
+                        {% set yes = 'is-success' %}
+                    {% else %}
+                        {% set no = 'is-danger' %}
+                    {% endif %}
+                    <div class="buttons has-addons">
+                        <a href="{{ link }}" class="button is-small {{ yes }}">Yes</a>
+                        <a href="{{ link }}" class="button is-small {{ no }}">No</a>
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
