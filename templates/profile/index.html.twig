@@ -15,7 +15,7 @@
                         <div class="columns">
                             <div class="column is-6">
                                 <figure class="image">
-                                    {% include '_block/image.html.twig' with {'image': user.image} %}
+                                    {% include '_block/image.html.twig' with {'image': user.image, 'size': '400x400'} %}
                                 </figure>
                                 {{ form_row(form.image) }}
                                 <small>The image should be squarish, it will be cropped</small>

@@ -35,7 +35,6 @@ class EventFixture extends Fixture implements DependentFixtureInterface
             $event->setRecurringRule($recRules);
             $event->setUser($this->getReference('user_' . md5('import')));
             $event->setLocation($this->getReference('location_' . md5((string)$location)));
-            $event->setPreviewImage($this->getReference('image_default_16x9'));
             $event->setCreatedAt(new DateTimeImmutable());
             foreach ($hosts as $user) {
                 $event->addHost($this->getReference('host_' . md5((string)$user)));

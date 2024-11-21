@@ -30,7 +30,7 @@
             <div class="column is-2">
                 <div class="mt-5">
                     {{ form_row(form.image) }}
-                    {% include '_block/image.html.twig' with {'image': event.previewImage} %}
+                    {% include '_block/image.html.twig' with {'image': event.previewImage, 'size': '600x400'} %}
                     <br>
                     <br>
                     {{ form_row(form.host) }}

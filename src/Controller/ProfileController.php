@@ -7,7 +7,6 @@ use App\Entity\User;
 use App\Form\ProfileType;
 use App\Repository\EventRepository;
 use App\Service\UploadService;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -30,7 +29,7 @@ class ProfileController extends AbstractController
         $form = $this->createForm(ProfileType::class, $this->getAuthedUser());
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $image = $uploadService->upload($form, 'image');
+            $image = $uploadService->upload($form, 'image', $this->getAuthedUser());
             $user = $this->getAuthedUser();
             $user->setBio($form->get('bio')->getData());
             $user->setLocale($form->get('languages')->getData());
@@ -40,6 +39,9 @@ class ProfileController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
+            if ($image) {
+                $uploadService->createThumbnails($image, [[400,400]]);
+            }
 
             return $this->redirectToRoute('app_profile');
         }

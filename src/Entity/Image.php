@@ -29,6 +29,13 @@ class Image
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $alt = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $uploader = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -95,6 +102,30 @@ class Image
     public function setAlt(?string $alt): static
     {
         $this->alt = $alt;
+
+        return $this;
+    }
+
+    public function getUploader(): ?User
+    {
+        return $this->uploader;
+    }
+
+    public function setUploader(?User $uploader): static
+    {
+        $this->uploader = $uploader;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }

@@ -80,12 +80,18 @@ class AdminController extends AbstractController
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $event->setPreviewImage($uploadService->upload($form, 'image'));
+            $image = $uploadService->upload($form, 'image', $this->getUser());
             $event->setInitial(true);
             $event->setUser($this->getUser());
+            if ($image) {
+                $event->setPreviewImage($image);
+            }
 
             $entityManager->persist($event);
             $entityManager->flush();
+            if ($image) {
+                $uploadService->createThumbnails($image, [[600,400]]);
+            }
 
             return $this->redirectToRoute('app_admin_event');
         }

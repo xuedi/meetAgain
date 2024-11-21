@@ -3,22 +3,41 @@
 namespace App\DataFixtures;
 
 use App\Entity\Image;
+use App\Service\UploadService;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class ImageFixture extends Fixture
+class ImageFixture extends Fixture implements DependentFixtureInterface
 {
+
+    public function __construct(
+        private UploadService $imageService,
+    ) {
+    }
+
     public function load(ObjectManager $manager): void
     {
-        $image = new Image();
-        $image->setHash('d9f6449ca222391003844e22d8c9cb1ade994875');
-        $image->setExtension('png');
-        $image->setMimeType('image/png');
-        $image->setSize(11787);
-        $image->setAlt('Default for unset images');
+        $defaultImage = new Image();
+        $defaultImage->setHash('b184cd5280c69dad635c047e4f98d9cb47ba9613');
+        $defaultImage->setExtension('png');
+        $defaultImage->setMimeType('image/png');
+        $defaultImage->setSize(0);
+        $defaultImage->setAlt('Default image for Events');
+        $defaultImage->setCreatedAt(new DateTimeImmutable());
+        $defaultImage->setUploader($this->getReference('user_' . md5('import')));
 
-        $manager->persist($image);
-        $this->addReference('image_default_16x9', $image);
+        $manager->persist($defaultImage);
+
         $manager->flush();
+        $this->imageService->createThumbnails($defaultImage, [[400, 400], [600, 400]]);
+    }
+
+    public function getDependencies(): array
+    {
+        return [
+            UserFixture::class,
+        ];
     }
 }
