@@ -18,6 +18,7 @@
                                     {% include '_block/image.html.twig' with {'image': user.image} %}
                                 </figure>
                                 {{ form_row(form.image) }}
+                                <small>The image should be squarish, it will be cropped</small>
                             </div>
                             <div class="column is-6">
                                 <div>
@@ -27,9 +28,8 @@
                                     </a>
                                 </div>
                                 <br>
-                                <div>
-                                    <span>Language after login: </span>{{ form_row(form.languages) }}
-                                </div>
+                                {{ form_row(form.bio) }}
+                                {{ form_row(form.languages) }}
                             </div>
                         </div>
 

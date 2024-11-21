@@ -20,13 +20,20 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
 class ProfileController extends AbstractController
 {
     #[Route('/', name: 'app_profile')]
-    public function index(Request $request, EventRepository $repo, UploadService $uploadService, EntityManagerInterface $entityManager,): Response
-    {
-        $form = $this->createForm(ProfileType::class);
+    public function index(
+        Request $request,
+        EventRepository $repo,
+        UploadService $uploadService,
+        EntityManagerInterface $entityManager,
+    ): Response {
+
+        $form = $this->createForm(ProfileType::class, $this->getAuthedUser());
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $image = $uploadService->upload($form, 'image');
             $user = $this->getAuthedUser();
+            $user->setBio($form->get('bio')->getData());
+            $user->setLocale($form->get('languages')->getData());
             if ($image) {
                 $user->setImage($image);
             }
