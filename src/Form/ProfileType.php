@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -37,7 +38,7 @@ class ProfileType extends AbstractType
             'label' => false,
             'constraints' => [
                 new File([
-                    'maxSize' => '3000k',
+                    'maxSize' => '5000k',
                     'mimeTypes' => [
                         'image/*',
                     ],
@@ -45,6 +46,13 @@ class ProfileType extends AbstractType
                 ])
             ],
         ])->add(
+            'public', ChoiceType::class, [
+                'data' => $user->isPublic(),
+                'mapped' => false,
+                'label' => 'Public profile:',
+                'choices' => [$this->translator->trans('Yes') => true, $this->translator->trans('No') => false],
+            ]
+        )->add(
             'languages', ChoiceType::class, [
                 'data' => $user->getLocale(),
                 'mapped' => false,

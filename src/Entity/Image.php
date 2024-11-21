@@ -89,11 +89,6 @@ class Image
         return $this;
     }
 
-    public function getAssetPath(): string
-    {
-        return sprintf('images/%s.%s', $this->hash, $this->extension);
-    }
-
     public function getAlt(): ?string
     {
         return $this->alt;

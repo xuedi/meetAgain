@@ -33,6 +33,7 @@ class ProfileController extends AbstractController
             $user = $this->getAuthedUser();
             $user->setBio($form->get('bio')->getData());
             $user->setLocale($form->get('languages')->getData());
+            $user->setPublic($form->get('public')->getData());
             if ($image) {
                 $user->setImage($image);
             }

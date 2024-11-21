@@ -66,7 +66,7 @@ class EventType extends AbstractType
                 'label' => 'Preview Image',
                 'constraints' => [
                     new File([
-                        'maxSize' => '3000k',
+                        'maxSize' => '5000k',
                         'mimeTypes' => [
                             'image/*',
                         ],
