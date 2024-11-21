@@ -1,4 +1,5 @@
 
+
 // enable closing button for notification boxes
 document.addEventListener('DOMContentLoaded', () => {
     (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
@@ -9,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
 
 // burger menu
 document.addEventListener('DOMContentLoaded', () => {
@@ -32,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+
 
 // event filters
 //class="eventOnchangeFilter"

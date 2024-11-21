@@ -26,6 +26,9 @@ class Image
     #[ORM\Column(length: 64, unique: true)]
     private ?string $hash = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $alt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -82,5 +85,17 @@ class Image
     public function getAssetPath(): string
     {
         return sprintf('images/%s.%s', $this->hash, $this->extension);
+    }
+
+    public function getAlt(): ?string
+    {
+        return $this->alt;
+    }
+
+    public function setAlt(?string $alt): static
+    {
+        $this->alt = $alt;
+
+        return $this;
     }
 }

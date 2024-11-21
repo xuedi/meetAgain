@@ -70,7 +70,7 @@ class EventType extends AbstractType
                         'mimeTypes' => [
                             'image/*',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid image, preferable 600x400',
+                        'mimeTypesMessage' => 'Please upload a valid image, preferable 16x9 format',
                     ])
                 ],
             ]);

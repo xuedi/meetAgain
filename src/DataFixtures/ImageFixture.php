@@ -15,6 +15,7 @@ class ImageFixture extends Fixture
         $image->setExtension('png');
         $image->setMimeType('image/png');
         $image->setSize(11787);
+        $image->setAlt('Default for unset images');
 
         $manager->persist($image);
         $this->addReference('image_default_16x9', $image);
