@@ -54,7 +54,7 @@ class EventService
 
     private function fillRecurringEvents(Event $event): void
     {
-        if ($event->getRecurringRule() === null) {
+        if (!$event->getRecurringRule() instanceof EventIntervals) {
             return;
         }
 

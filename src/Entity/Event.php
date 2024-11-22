@@ -31,7 +31,7 @@ class Event
     private ?int $recurringOf = null;
 
     #[ORM\Column(type: "integer", nullable: true, enumType: EventIntervals::class)]
-    private ?EventIntervals $recurringRule;
+    private ?EventIntervals $recurringRule = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]

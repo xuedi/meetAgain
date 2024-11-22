@@ -39,7 +39,7 @@ clearCache:
 
 
 check:
-    vendor/bin/rector process src --dry-run -c tools/reactor.php
+    vendor/bin/rector process src --dry-run -c tools/rector.php
     vendor/bin/phpstan analyse -c tools/phpstan.neon
     #vendor/bin/psalm --threads=8 --config='tests/psalm.xml' --show-info=true
     #phpcs --_all inline since cant give config as parameter

@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $locale = 'en';
 
     #[ORM\Column(enumType: UserStatus::class)]
-    private ?UserStatus $status;
+    private ?UserStatus $status = null;
 
     #[ORM\Column]
     private bool $public;

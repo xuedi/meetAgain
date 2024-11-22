@@ -35,7 +35,7 @@ readonly class UploadService
         // load or create
         $hash = sha1($imageData->getContent());
         $image = $this->imageRepo->findOneBy(['hash' => $hash]);
-        if ($image) {
+        if ($image !== null) {
             return $image;
         }
 
@@ -53,7 +53,7 @@ readonly class UploadService
         return $image;
     }
 
-    public function createThumbnails(Image $image, array $sizes): void
+    public function createThumbnails(Image $image, array $sizes): void // TODO: make type for size and get from config
     {
         $source = $this->getSourceFile($image);
         foreach ($sizes as [$width, $height]) {

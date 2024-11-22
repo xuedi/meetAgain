@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
-class UserLocaleSubscriber implements EventSubscriberInterface
+readonly class UserLocaleSubscriber implements EventSubscriberInterface
 {
     public function __construct(private RequestStack $requestStack)
     {

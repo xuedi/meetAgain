@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Event;
 use App\Entity\Host;
+use App\Entity\Image;
 use App\Entity\Location;
 use App\Entity\User;
 use App\Form\EventType;
@@ -83,13 +84,13 @@ class AdminController extends AbstractController
             $image = $uploadService->upload($form, 'image', $this->getUser());
             $event->setInitial(true);
             $event->setUser($this->getUser());
-            if ($image) {
+            if ($image instanceof Image) {
                 $event->setPreviewImage($image);
             }
 
             $entityManager->persist($event);
             $entityManager->flush();
-            if ($image) {
+            if ($image instanceof Image) {
                 $uploadService->createThumbnails($image, [[600,400]]);
             }
 

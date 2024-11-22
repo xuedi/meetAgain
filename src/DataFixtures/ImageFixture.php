@@ -13,7 +13,7 @@ class ImageFixture extends Fixture implements DependentFixtureInterface
 {
 
     public function __construct(
-        private UploadService $imageService,
+        private readonly UploadService $imageService,
     ) {
     }
 

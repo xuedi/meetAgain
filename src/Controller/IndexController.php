@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class IndexController extends AbstractController
 {
@@ -29,7 +30,7 @@ class IndexController extends AbstractController
 
         // set user preferences in DB
         $user = $this->getUser();
-        if ($user !== null) {
+        if ($user instanceof UserInterface) {
             $user->setLocale($locale);
             $entityManager->persist($user);
             $entityManager->flush();

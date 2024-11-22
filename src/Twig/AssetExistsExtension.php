@@ -15,9 +15,9 @@ class AssetExistsExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
-        return array(
-            new TwigFunction('asset_exists', [$this, 'assetExists']),
-        );
+        return [
+           new TwigFunction('asset_exists', [$this, 'assetExists']),
+        ];
     }
 
     public function assetExists($path): bool
@@ -25,11 +25,7 @@ class AssetExistsExtension extends AbstractExtension
         $assets = $this->appKernel->getProjectDir() . '/assets/';
         $toCheck = realpath($assets . $path);
 
-        if (!is_file($toCheck)) {
-            return false;
-        }
-
-        return true;
+        return is_file($toCheck);
     }
 
     public function getName(): string

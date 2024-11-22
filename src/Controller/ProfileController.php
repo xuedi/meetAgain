@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Entity\Image;
 use App\Entity\User;
 use App\Form\ProfileType;
 use App\Repository\EventRepository;
@@ -34,13 +35,13 @@ class ProfileController extends AbstractController
             $user->setBio($form->get('bio')->getData());
             $user->setLocale($form->get('languages')->getData());
             $user->setPublic($form->get('public')->getData());
-            if ($image) {
+            if ($image instanceof Image) {
                 $user->setImage($image);
             }
 
             $entityManager->persist($user);
             $entityManager->flush();
-            if ($image) {
+            if ($image instanceof Image) {
                 $uploadService->createThumbnails($image, [[400,400]]);
             }
 

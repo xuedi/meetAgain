@@ -17,8 +17,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ProfileType extends AbstractType
 {
     public function __construct(
-        private ParameterBagInterface $appParams,
-        private TranslatorInterface $translator,
+        private readonly ParameterBagInterface $appParams,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
