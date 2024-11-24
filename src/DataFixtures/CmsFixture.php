@@ -20,6 +20,7 @@ class CmsFixture extends Fixture implements DependentFixtureInterface
             $cms->setPublished(true);
 
             $manager->persist($cms);
+            $this->addReference('cms_' . md5((string) $slug), $cms);
         }
         $manager->flush();
     }

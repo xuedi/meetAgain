@@ -2,28 +2,29 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Request;
+use App\Repository\CmsRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
 class CmsService
 {
-    public function __construct(private Environment $twig)
+    public function __construct(private Environment $twig, private CmsRepository $repo)
     {
     }
 
-    public function handle(Request $request): Response
+    public function handle(string $locale, string $slug): Response
     {
-        $uri = $request->getRequestUri();
-        dump($uri);
-        dump($request->getLocale());
-
-
-
-        $contents = $this->twig->render('cms/index.html.twig', [
-            'test' => 'testValue',
+        $cms = $this->repo->findOneBy([
+            'slug' => $slug,
+            'published' => true
         ]);
 
-        return new Response($contents, 200);
+        if ($cms === null) {
+            return new Response($this->twig->render('cms/404.html.twig'), 200);
+        }
+
+        return new Response($this->twig->render('cms/index.html.twig', [
+            'blocks' => $cms->getLanguageFilteredBlockJsonList($locale),
+        ]), 200);
     }
 }

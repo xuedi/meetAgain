@@ -2,8 +2,13 @@
 
 namespace App\Entity;
 
+use App\Entity\BlockType\Headline;
+use App\Entity\BlockType\Text;
 use App\Repository\CmsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 
 #[ORM\Entity(repositoryClass: CmsRepository::class)]
 class Cms
@@ -25,6 +30,17 @@ class Cms
 
     #[ORM\Column]
     private ?bool $published = null;
+
+    /**
+     * @var Collection<int, CmsBlock>
+     */
+    #[ORM\OneToMany(targetEntity: CmsBlock::class, mappedBy: 'page', orphanRemoval: true)]
+    private Collection $blocks;
+
+    public function __construct()
+    {
+        $this->blocks = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -75,6 +91,61 @@ class Cms
     public function setPublished(bool $published): static
     {
         $this->published = $published;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CmsBlock>
+     */
+    public function getBlocks(): Collection
+    {
+        return $this->blocks;
+    }
+
+    /**
+     * @return Collection<int, CmsBlock>
+     * @throws Exception
+     */
+    public function getLanguageFilteredBlockJsonList(string $language): Collection
+    {
+        $objects = [];
+        foreach ($this->blocks as $block) {
+            if ($block->getLanguage() === $language) {
+                $objects[] = match($block->getType()) {
+                    CmsBlockTypes::Headline => Headline::fromJson($block->getJson()),
+                    CmsBlockTypes::Text => Text::fromJson($block->getJson()),
+                    CmsBlockTypes::Image => throw new Exception('To be implemented'),
+                    CmsBlockTypes::Video => throw new Exception('To be implemented'),
+                    CmsBlockTypes::Events => throw new Exception('To be implemented'),
+                    CmsBlockTypes::Gallery => throw new Exception('To be implemented'),
+                    CmsBlockTypes::TwoColumns => throw new Exception('To be implemented'),
+                    CmsBlockTypes::ThreeColumns => throw new Exception('To be implemented'),
+                };
+            }
+        }
+
+        return new ArrayCollection($objects);
+    }
+
+    public function addBlock(CmsBlock $block): static
+    {
+        if (!$this->blocks->contains($block)) {
+            $this->blocks->add($block);
+            $block->setPage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBlock(CmsBlock $block): static
+    {
+        if ($this->blocks->removeElement($block)) {
+            // set the owning side to null (unless already changed)
+            if ($block->getPage() === $this) {
+                $block->setPage(null);
+            }
+        }
 
         return $this;
     }

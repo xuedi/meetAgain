@@ -34,7 +34,7 @@ translationsExtract:
 
 
 createMigration:
-    php bin/console doctrine:migrations:version 'DoctrineMigrations\Version20241124185307'
+    php bin/console doctrine:migrations:version --add 'DoctrineMigrations\Version20241124200359'
     php bin/console doctrine:migrations:diff
 
 

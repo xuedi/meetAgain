@@ -2,8 +2,8 @@
 
 namespace App\Controller\Admin;
 
-use App\Controller\CmsType;
-use App\Entity\User;
+use App\Entity\Cms;
+use App\Form\CmsType;
 use App\Repository\CmsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,10 +22,23 @@ class AdminCmsController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_cms_edit', methods: ['GET', 'POST'])]
-    public function cmsEdit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/{locale}', name: 'app_admin_cms_edit', requirements: ['locale' => 'en|de|cn'], methods: ['GET', 'POST'])]
+    public function cmsEdit(Request $request, Cms $cms, EntityManagerInterface $entityManager, string $locale = 'en'): Response
     {
-        dump('CMS-edit');
-        exit;
+        $form = $this->createForm(CmsType::class, $cms);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_admin_cms');
+        }
+
+        return $this->render('admin/cms/edit.html.twig', [
+            'editLocale' => $locale,
+            'form' => $form,
+            'cms' => $cms,
+            'blocks' => $cms->getLanguageFilteredBlockJsonList($locale),
+        ]);
     }
 }
