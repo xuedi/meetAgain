@@ -1,0 +1,33 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+
+    <div class="container">
+
+        <table class="table is-fullwidth">
+            <thead>
+            <tr>
+                <th>Slug</th>
+                <th>CreatedBy</th>
+                <th>CreatedAt</th>
+                <th>Published</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for page in cms %}
+                <tr>
+                    <td>{{ page.slug }}</td>
+                    <td>{{ page.createdBy.name }}</td>
+                    <td>{{ page.createdAt|date('Y-m-d') }}</td>
+                    <td>{{ page.published }}</td>
+                    <td><a href="{{ path('app_admin_cms_edit', {'id': page.id}) }}"><span class="icon"><i class="fa fa-edit"></i></span></a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
+
