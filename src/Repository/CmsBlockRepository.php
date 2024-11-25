@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Cms;
 use App\Entity\CmsBlock;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,10 +20,14 @@ class CmsBlockRepository extends ServiceEntityRepository
 
     public function getMaxPriority(): float
     {
-        return $this->createQueryBuilder('b')
-            ->select('MAX(b.priority)')
-            ->getQuery()
-            ->getSingleScalarResult();
+        try {
+            return $this->createQueryBuilder('b')
+                ->select('MAX(b.priority)')
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NoResultException $e) {
+            return 1;
+        }
     }
 
     //    /**
