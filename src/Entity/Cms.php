@@ -105,10 +105,6 @@ class Cms
         return $this->blocks;
     }
 
-    /**
-     * @return Collection<int, CmsBlock>
-     * @throws Exception
-     */
     public function getLanguageFilteredBlockJsonList(string $language): Collection
     {
         $objects = [];
@@ -119,6 +115,7 @@ class Cms
                     CmsBlockTypes::Headline => HeadlineBlockType::fromJson($block->getJson()),
                     CmsBlockTypes::Image => ImageBlockType::fromJson($block->getJson()),
                     CmsBlockTypes::Text => TextBlockType::fromJson($block->getJson()),
+                    default => throw new Exception('To be implemented'),
                 };
             }
         }

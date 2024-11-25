@@ -8,7 +8,7 @@
 
     <div class="navbar-start">
         <a class="navbar-item" href="{{ path('app_default') }}">{{ "menu_default" | trans }}</a>
-        <a class="navbar-item" href="{{ path('app_about') }}">{{ "menu_about" | trans }}</a>
+        <a class="navbar-item" href="/{{ app.locale }}/about">{{ "menu_about" | trans }}</a>
         <a class="navbar-item" href="{{ path('app_event') }}">{{ "menu_events" | trans }}</a>
         <a class="navbar-item" href="{{ path('app_member') }}">{{ "menu_members" | trans }}</a>
 
@@ -42,7 +42,9 @@
         <div class="navbar-item">
             {% for enabledLocale in app.enabled_locales %}
                 {% if enabledLocale != app.request.locale %}
-                    <a class="button is-small mr-2" href="{{ path('app_default_language', {'locale': enabledLocale}) }}">
+                    {% set attributes = app.request.attributes.get('_route_params') | merge({'_locale': enabledLocale}) %}
+                    {% set link = path(app.request.attributes.get('_route'),  attributes) %}
+                    <a class="button is-small mr-2" href="{{ link }}">
                         <figure class="image is-32x32 mt-3">
                             <img class="is-flag" src="{{ asset('images/flags/' ~ enabledLocale ~ '.png') }}"
                                  alt="Locale flag"/>

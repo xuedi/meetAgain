@@ -20,11 +20,20 @@ class CmsService
         ]);
 
         if ($cms === null) {
-            return new Response($this->twig->render('cms/404.html.twig'), 200);
+            return new Response($this->twig->render('cms/404.html.twig', [
+                'message' => 'no page with this route could be found',
+            ]), 200);
+        }
+
+        $blocks = $cms->getLanguageFilteredBlockJsonList($locale);
+        if ($blocks->count() === 0) {
+            return new Response($this->twig->render('cms/404.html.twig', [
+                'message' => 'page was found but is has no content in this language',
+            ]), 200);
         }
 
         return new Response($this->twig->render('cms/index.html.twig', [
-            'blocks' => $cms->getLanguageFilteredBlockJsonList($locale),
+            'blocks' => $blocks,
         ]), 200);
     }
 }

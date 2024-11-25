@@ -1,13 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ "page_title_default"|trans }}{% endblock %}
+{% block title %}{{ "page_title_error"|trans }}{% endblock %}
 
 {% block body %}
 
-    <section class="section mt-6">
+    <section class="section">
         <div class="container">
 
-            CMS | no single slug page with this route found
+            <h1 class="title">Error</h1>
+            <p class="mb-5">
+                {{ message|trans }}
+            </p>
 
         </div>
     </section>

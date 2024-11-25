@@ -2,16 +2,19 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Cms;
 use App\Entity\CmsBlock;
 use App\Entity\CmsBlockTypes;
-use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Filesystem\Filesystem;
 
 class CmsBlockFixture extends Fixture implements DependentFixtureInterface
 {
+    public function __construct(private readonly Filesystem $fs)
+    {
+    }
+
     public function load(ObjectManager $manager): void
     {
         foreach ($this->getData() as [$page, $lang, $type, $json]) {
@@ -44,6 +47,17 @@ class CmsBlockFixture extends Fixture implements DependentFixtureInterface
             ['imprint', 'de', CmsBlockTypes::Text, ['title' => '1. Paragraf', 'content' => 'Etwas text p1']],
             ['imprint', 'cn', CmsBlockTypes::Headline, ['title' => '版本说明']],
             ['imprint', 'cn', CmsBlockTypes::Text, ['title' => '第 1 段', 'content' => '第一段的一些文字']],
+            ['about', 'en', CmsBlockTypes::Headline, ['title' => 'About']],
+            ['about', 'en', CmsBlockTypes::Text, ['content' => $this->getBlob('about_en')]],
+            ['about', 'de', CmsBlockTypes::Headline, ['title' => 'Über Uns']],
+            ['about', 'de', CmsBlockTypes::Text, ['content' => $this->getBlob('about_de')]],
+            ['about', 'cn', CmsBlockTypes::Headline, ['title' => '关于我们']],
+            ['about', 'cn', CmsBlockTypes::Text, ['content' => $this->getBlob('about_cn')]],
         ];
+    }
+
+    private function getBlob(string $string): string
+    {
+        return $this->fs->readFile(__DIR__ . "/blobs/$string.txt");
     }
 }
