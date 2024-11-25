@@ -9,6 +9,6 @@
 <div class="field">
     <label class="label">Content</label>
     <div class="control">
-        <input class="input" name="content" type="text" value="{% if block is defined %}{{ block.content }}{% endif %}">
+        <textarea class="textarea" name="content" placeholder="Textarea">{% if block is defined %}{{ block.content }}{% endif %}</textarea>
     </div>
 </div>
