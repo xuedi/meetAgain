@@ -26,6 +26,9 @@ class CmsBlock
     #[ORM\Column]
     private array $json = [];
 
+    #[ORM\Column]
+    private ?float $priority = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,18 @@ class CmsBlock
     public function setJson(array $json): static
     {
         $this->json = $json;
+
+        return $this;
+    }
+
+    public function getPriority(): ?float
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(float $priority): static
+    {
+        $this->priority = $priority;
 
         return $this;
     }
