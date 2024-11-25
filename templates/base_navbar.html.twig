@@ -67,7 +67,9 @@
                             {% for enabledLocale in app.enabled_locales %}
                                 {% if enabledLocale != app.request.locale %}
                                     <nobr>
-                                        <a class="navbar-item" href="{{ path('app_default_language', {'locale': enabledLocale}) }}">
+                                        {% set attributes = app.request.attributes.get('_route_params') | merge({'_locale': enabledLocale}) %}
+                                        {% set link = path(app.request.attributes.get('_route'),  attributes) %}
+                                        <a class="navbar-item" href="{{ link }}">
                                             <figure class="image is-32x32 mt-3">
                                                 <img class="is-flag" src="{{ asset('images/flags/' ~ enabledLocale ~ '.png') }}"  alt="Locale flag"/>
                                             </figure>
