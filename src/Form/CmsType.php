@@ -20,13 +20,13 @@ class CmsType extends AbstractType
     {
         $builder
             ->add('slug', TextType::class, [
-                'label' => false,
+                'label' => false, // TODO: add SLUG restrains
             ])
             ->add('published', ChoiceType::class, [
                 'label' => false,
                 'choices' => [
                     $this->translator->trans('Published') => 1,
-                    $this->translator->trans('Offline') => 0,
+                    $this->translator->trans('Draft') => 0,
                 ],
             ]);
     }

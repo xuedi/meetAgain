@@ -44,6 +44,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// toggle is-hidden
+document.addEventListener('DOMContentLoaded', function() {
+    let trigger = document.getElementsByClassName('toggleTrigger');
+    for (let i = 0; i < trigger.length; i++) {
+        trigger[i].addEventListener('click', event => {
+            event.preventDefault();
+            let target = event.currentTarget.getAttribute('data-id');
+            document.getElementById(target).classList.toggle('is-hidden');
+        });
+    }
+});
+
+
+
 
 // event filters
 //class="eventOnchangeFilter"

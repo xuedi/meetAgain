@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
-use App\Entity\BlockType\Headline;
-use App\Entity\BlockType\Text;
+use App\Entity\BlockType\Headline as HeadlineBlockType;
+use App\Entity\BlockType\Image as ImageBlockType;
+use App\Entity\BlockType\Text as TextBlockType;
+use App\Entity\BlockType\Paragraph as ParagraphBlockType;
 use App\Repository\CmsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -113,14 +115,10 @@ class Cms
         foreach ($this->blocks as $block) {
             if ($block->getLanguage() === $language) {
                 $objects[] = match($block->getType()) {
-                    CmsBlockTypes::Headline => Headline::fromJson($block->getJson()),
-                    CmsBlockTypes::Text => Text::fromJson($block->getJson()),
-                    CmsBlockTypes::Image => throw new Exception('To be implemented'),
-                    CmsBlockTypes::Video => throw new Exception('To be implemented'),
-                    CmsBlockTypes::Events => throw new Exception('To be implemented'),
-                    CmsBlockTypes::Gallery => throw new Exception('To be implemented'),
-                    CmsBlockTypes::TwoColumns => throw new Exception('To be implemented'),
-                    CmsBlockTypes::ThreeColumns => throw new Exception('To be implemented'),
+                    CmsBlockTypes::Paragraph => ParagraphBlockType::fromJson($block->getJson()),
+                    CmsBlockTypes::Headline => HeadlineBlockType::fromJson($block->getJson()),
+                    CmsBlockTypes::Image => ImageBlockType::fromJson($block->getJson()),
+                    CmsBlockTypes::Text => TextBlockType::fromJson($block->getJson()),
                 };
             }
         }

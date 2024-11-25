@@ -7,5 +7,6 @@ use App\Entity\CmsBlockTypes;
 interface BlockType
 {
     public static function fromJson(array $json): self;
-    public function getType(): CmsBlockTypes;
+    public static function getType(): CmsBlockTypes;
+    public function toArray(): array;
 }

@@ -2,6 +2,25 @@
 
 {% block content %}
 
+    <article class="message is-danger is-hidden" id="cms-delete-warning">
+        <div class="message-header">
+            <p>Delete the Page</p>
+            <button class="delete toggleTrigger" data-id="cms-delete-warning" aria-label="delete"></button>
+        </div>
+        <div class="message-body">
+            <p>
+                If you delete this page, all of its connected blocks and images and so on will be also removed. Also, all
+                language variation! Please consider to set this Page just offline.
+            </p>
+            <div class="has-text-right">
+                <a class="button is-danger" href="{{ path('app_admin_cms_delete', {'id': cms.id}) }}">
+                    <span class="icon"><i class="fa fa-trash"></i></span>
+                    <span>Yes, Delete</span>
+                </a>
+            </div>
+        </div>
+    </article>
+
     <div class="box">
         {{ form_start(form) }}
         <div class="columns">
@@ -15,12 +34,16 @@
                 <div class="buttons has-addons">
                     {% for locale in app.enabled_locales %}
                         {% set link = path('app_admin_cms_edit', {'id': cms.id, 'locale': locale}) %}
-                        <a class="button {% if locale == editLocale %}is-active{% endif %}" href="{{ link }}">{{ locale }}</a>
+                        <a class="button {% if locale == editLocale %}is-active{% endif %}"
+                           href="{{ link }}">{{ locale }}</a>
                     {% endfor %}
                 </div>
             </div>
             <div class="column is-2">
                 <button class="button">{{ "button_save" | trans }}</button>
+                <a class="button is-danger toggleTrigger" data-id="cms-delete-warning" href="{{ path('app_admin_cms_delete', {'id': cms.id}) }}">
+                    <span class="icon"><i class="fa fa-trash"></i></span>
+                </a>
             </div>
         </div>
         {{ form_end(form) }}
@@ -31,29 +54,12 @@
     <div class="container">
         {% for block in blocks %}
             <div class="box">
-                {% include 'cms/blocks/' ~ block.type.name ~ '.html.twig' with {'block': block} only %}
+                {% include 'admin/cms/blocks/' ~ block.type.name ~ '.html.twig' with {'block': block} %}
             </div>
         {% endfor %}
 
+        {% include 'admin/cms/newBlocks.html.twig' %}
 
-        <a href="{{ path('app_admin_cms_edit', {'id': cms.id, 'locale': editLocale}) }}">
-            <button class="button">
-                <span class="icon"><i class="fa fa-plus"></i></span>
-                <span>Headline</span>
-            </button>
-        </a>
-        <a href="{{ path('app_admin_cms_edit', {'id': cms.id, 'locale': editLocale}) }}">
-            <button class="button">
-                <span class="icon"><i class="fa fa-plus"></i></span>
-                <span>Text</span>
-            </button>
-        </a>
-        <a href="{{ path('app_admin_cms_edit', {'id': cms.id, 'locale': editLocale}) }}">
-            <button class="button">
-                <span class="icon"><i class="fa fa-plus"></i></span>
-                <span>Image</span>
-            </button>
-        </a>
     </div>
 
 {% endblock %}

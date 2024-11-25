@@ -8,8 +8,9 @@ enum CmsBlockTypes: int
     case Text = 2;
     case Image = 3;
     case Video = 4;
-    case Events = 5;
-    case Gallery = 6;
-    case TwoColumns = 7;
-    case ThreeColumns = 8;
+    case Paragraph = 5;
+    case Events = 6;
+    case Gallery = 7;
+    case TwoColumns = 8;
+    case ThreeColumns = 9;
 }

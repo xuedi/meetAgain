@@ -13,13 +13,20 @@ class Headline implements BlockType
         $this->title = $title;
     }
 
-    public static function fromJson(array $data): self
+    public static function fromJson(array $json): self
     {
-        return new self($data['title']);
+        return new self($json['title']);
     }
 
-    public function getType(): CmsBlockTypes
+    public static function getType(): CmsBlockTypes
     {
         return CmsBlockTypes::Headline;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'title' => $this->title,
+        ];
     }
 }

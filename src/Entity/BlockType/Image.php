@@ -4,29 +4,29 @@ namespace App\Entity\BlockType;
 
 use App\Entity\CmsBlockTypes;
 
-class Text implements BlockType
+class Image implements BlockType
 {
-    public string $content;
+    public string $id;
 
-    private function __construct(string $content)
+    private function __construct(string $id)
     {
-        $this->content = $content;
+        $this->id = $id;
     }
 
     public static function fromJson(array $json): self
     {
-        return new self($json['content']);
+        return new self($json['id']);
     }
 
     public static function getType(): CmsBlockTypes
     {
-        return CmsBlockTypes::Text;
+        return CmsBlockTypes::Image;
     }
 
     public function toArray(): array
     {
         return [
-            'content' => $this->content,
+            'id' => $this->id,
         ];
     }
 }
