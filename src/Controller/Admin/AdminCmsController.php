@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+//TODO: move lots of logic to service
+
 #[Route('/admin/cms')]
 class AdminCmsController extends AbstractController
 {
@@ -49,7 +51,7 @@ class AdminCmsController extends AbstractController
         $blocks = $em->getRepository(CmsBlock::class)->findBy([
             'page' => $cms->getId(),
             'language' => $locale,
-        ]);
+        ], ['priority' => 'ASC']);
 
         return $this->render('admin/cms/edit.html.twig', [
             'newBlocks' => [Headline::getType()->name, Paragraph::getType()->name, Text::getType()->name, Image::getType()->name],
@@ -104,11 +106,11 @@ class AdminCmsController extends AbstractController
         $payload = $request->getPayload()->all();
         $locale = $request->get('editLocale');
         $blockType = $request->get('blockType');
-
         $blockObject = $this->getBlock($blockType, $payload);
 
         $cmsBlock = new CmsBlock();
         $cmsBlock->setLanguage($locale);
+        $cmsBlock->setPriority($em->getRepository(CmsBlock::class)->getMaxPriority() + 1);
         $cmsBlock->setType($blockObject->getType());
         $cmsBlock->setJson($blockObject->toArray());
 
@@ -125,17 +127,31 @@ class AdminCmsController extends AbstractController
     #[Route('/block/down', name: 'app_admin_cms_edit_block_down', methods: ['GET'])]
     public function cmsBlockMoveDown(Request $request, EntityManagerInterface $em): Response
     {
-        dump($request->get('id'));
-        dump($request->get('blockId'));
-        exit;
+        $pageId = $request->get('id');
+        $blockId = $request->get('blockId');
+        $locale = $request->get('locale');
+
+        $this->adjustPrio($em, $pageId, $blockId, $locale, 1.5);
+
+        return $this->redirectToRoute('app_admin_cms_edit', [
+            'id' => $pageId,
+            'locale' => $locale,
+        ]);
     }
 
     #[Route('/block/up', name: 'app_admin_cms_edit_block_up', methods: ['GET'])]
     public function cmsBlockMoveUp(Request $request, EntityManagerInterface $em): Response
     {
-        dump($request->get('id'));
-        dump($request->get('blockId'));
-        exit;
+        $pageId = $request->get('id');
+        $blockId = $request->get('blockId');
+        $locale = $request->get('locale');
+
+        $this->adjustPrio($em, $pageId, $blockId, $locale, -1.5);
+
+        return $this->redirectToRoute('app_admin_cms_edit', [
+            'id' => $pageId,
+            'locale' => $locale,
+        ]);
     }
 
     #[Route('/block/save', name: 'app_admin_cms_edit_block_save', methods: ['POST'])]
@@ -183,5 +199,35 @@ class AdminCmsController extends AbstractController
             Text::getType()->name => Text::fromJson($payload),
             Image::getType()->name => Image::fromJson($payload),
         };
+    }
+
+    private function adjustPrio(EntityManagerInterface $em, mixed $pageId, mixed $blockId, mixed $locale, float $value): void
+    {
+        // update half up or down
+        $repo = $em->getRepository(CmsBlock::class);
+        $block = $repo->find($blockId);
+        if ($block) {
+            $block->setPriority($block->getPriority()+$value);
+            $em->persist($block);
+            $em->flush();
+        } else {
+            throw new RuntimeException('Could not load block');
+        }
+
+
+        // rebuild order
+        $priority = 1;
+        $blocks = $em->getRepository(CmsBlock::class)->findBy([
+            'page' => $pageId,
+            'language' => $locale,
+        ], ['priority' => 'ASC']);
+
+        foreach ($blocks as $block) {
+            $block->setPriority($priority);
+            $priority++;
+            $em->persist($block);
+        }
+        $em->flush();
+
     }
 }

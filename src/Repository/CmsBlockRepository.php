@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Cms;
 use App\Entity\CmsBlock;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -14,6 +15,14 @@ class CmsBlockRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CmsBlock::class);
+    }
+
+    public function getMaxPriority(): float
+    {
+        return $this->createQueryBuilder('b')
+            ->select('MAX(b.priority)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     //    /**
