@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\BlockType\BlockType;
 use App\Entity\BlockType\Headline;
 use App\Entity\BlockType\Image;
 use App\Entity\BlockType\Paragraph;
@@ -14,7 +15,6 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,8 +35,8 @@ class AdminCmsController extends AbstractController
         ]);
     }
 
-    #[Route('/edit/{id}/{locale}', name: 'app_admin_cms_edit', requirements: ['locale' => 'en|de|cn'], methods: ['GET', 'POST'])]
-    public function cmsEdit(Request $request, Cms $cms, EntityManagerInterface $em, string $locale = 'en'): Response
+    #[Route('/{id}/edit/{locale}/{blockId}', name: 'app_admin_cms_edit', requirements: ['locale' => 'en|de|cn'], methods: ['GET', 'POST'])]
+    public function cmsEdit(Request $request, Cms $cms, EntityManagerInterface $em, string $locale = 'en', int $blockId = null): Response
     {
         $form = $this->createForm(CmsType::class, $cms);
         $form->handleRequest($request);
@@ -46,18 +46,25 @@ class AdminCmsController extends AbstractController
             return $this->redirectToRoute('app_admin_cms');
         }
 
+        $blocks = $em->getRepository(CmsBlock::class)->findBy([
+            'page' => $cms->getId(),
+            'language' => $locale,
+        ]);
+
         return $this->render('admin/cms/edit.html.twig', [
             'newBlocks' => [Headline::getType()->name, Paragraph::getType()->name, Text::getType()->name, Image::getType()->name],
             'editLocale' => $locale,
+            'editBlock' => $blockId,
+            'blocks' => $blocks,
             'form' => $form,
             'cms' => $cms,
-            'blocks' => $cms->getLanguageFilteredBlockJsonList($locale),
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'app_admin_cms_delete', methods: ['GET'])]
-    public function cmsDelete(CmsRepository $repo, EntityManagerInterface $em, int $id): Response
+    #[Route('/delete', name: 'app_admin_cms_delete', methods: ['GET'])]
+    public function cmsDelete(Request $request, CmsRepository $repo, EntityManagerInterface $em): Response
     {
+        $id = $request->query->get('id');
         $cmsPage = $repo->find($id);
         if ($cmsPage !== null) {
             $em->remove($cmsPage);
@@ -86,7 +93,7 @@ class AdminCmsController extends AbstractController
     }
 
     #[Route('/block/{id}/add', name: 'app_admin_cms_add_block', methods: ['POST'])]
-    public function cmsAddBlock(Request $request, EntityManagerInterface $em, int $id): Response
+    public function cmsBlockAdd(Request $request, EntityManagerInterface $em, int $id): Response
     {
         $cmsRepo = $em->getRepository(Cms::class);
         $cmsPage = $cmsRepo->find($id);
@@ -98,12 +105,7 @@ class AdminCmsController extends AbstractController
         $locale = $request->get('editLocale');
         $blockType = $request->get('blockType');
 
-        $blockObject = match($blockType) {
-            Headline::getType()->name => Headline::fromJson($payload),
-            Paragraph::getType()->name => Paragraph::fromJson($payload),
-            Text::getType()->name => Text::fromJson($payload),
-            Image::getType()->name => Image::fromJson($payload),
-        };
+        $blockObject = $this->getBlock($blockType, $payload);
 
         $cmsBlock = new CmsBlock();
         $cmsBlock->setLanguage($locale);
@@ -120,11 +122,66 @@ class AdminCmsController extends AbstractController
         ]);
     }
 
-    private function createFormView(string $class, int $id): FormView
+    #[Route('/block/down', name: 'app_admin_cms_edit_block_down', methods: ['GET'])]
+    public function cmsBlockMoveDown(Request $request, EntityManagerInterface $em): Response
     {
+        dump($request->get('id'));
+        dump($request->get('blockId'));
+        exit;
+    }
 
-        return $this->createForm($class, null, [
-            'action' => $this->generateUrl('app_admin_cms_add_block', ['id' => $id]),
-        ])->createView();
+    #[Route('/block/up', name: 'app_admin_cms_edit_block_up', methods: ['GET'])]
+    public function cmsBlockMoveUp(Request $request, EntityManagerInterface $em): Response
+    {
+        dump($request->get('id'));
+        dump($request->get('blockId'));
+        exit;
+    }
+
+    #[Route('/block/save', name: 'app_admin_cms_edit_block_save', methods: ['POST'])]
+    public function cmsBlockSave(Request $request, EntityManagerInterface $em): Response
+    {
+        $repo = $em->getRepository(CmsBlock::class);
+        $block = $repo->find($request->get('blockId'));
+        if ($block) {
+            $block->setJson($this->getBlock($request->get('blockType'), $request->getPayload()->all())->toArray());
+            $em->persist($block);
+            $em->flush();
+        } else {
+            throw new RuntimeException('Could not load block');
+        }
+
+        return $this->redirectToRoute('app_admin_cms_edit', [
+            'id' => $request->get('id'),
+            'locale' => $request->get('locale'),
+        ]);
+    }
+
+    #[Route('/block/delete', name: 'app_admin_cms_block_delete', methods: ['GET'])]
+    public function cmsBlockDelete(Request $request, EntityManagerInterface $em): Response
+    {
+        $repo = $em->getRepository(CmsBlock::class);
+        $block = $repo->find($request->get('blockId'));
+        if ($block) {
+            $em->remove($block);
+            $em->flush();
+        } else {
+            throw new RuntimeException('Could not load block');
+        }
+
+        return $this->redirectToRoute('app_admin_cms_edit', [
+            'id' => $request->get('id'),
+            'locale' => $request->get('locale'),
+        ]);
+    }
+
+    private function getBlock(string $blockType, array $payload): BlockType
+    {
+        return match ($blockType) {
+            Headline::getType()->name => Headline::fromJson($payload),
+            Paragraph::getType()->name => Paragraph::fromJson($payload),
+            Text::getType()->name => Text::fromJson($payload),
+            Image::getType()->name => Image::fromJson($payload),
+        };
     }
 }

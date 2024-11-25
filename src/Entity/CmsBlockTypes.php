@@ -11,6 +11,4 @@ enum CmsBlockTypes: int
     case Paragraph = 5;
     case Events = 6;
     case Gallery = 7;
-    case TwoColumns = 8;
-    case ThreeColumns = 9;
 }

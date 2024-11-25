@@ -14,7 +14,7 @@ class CmsBlock
     private ?int $id = null;
 
     #[ORM\Column(length: 2)]
-    private ?string $Language = null;
+    private ?string $language = null;
 
     #[ORM\Column(enumType: CmsBlockTypes::class)]
     private ?CmsBlockTypes $Type = null;
@@ -33,12 +33,12 @@ class CmsBlock
 
     public function getLanguage(): ?string
     {
-        return $this->Language;
+        return $this->language;
     }
 
-    public function setLanguage(string $Language): static
+    public function setLanguage(string $language): static
     {
-        $this->Language = $Language;
+        $this->language = $language;
 
         return $this;
     }
