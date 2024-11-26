@@ -24,10 +24,6 @@ class EventService
     {
         $structuredList = [];
 
-        //if ($pastEvents) {
-            //
-        //}
-
         $events = $this->repo->findBy([], ['start' => 'ASC']);
         foreach ($events as $event) {
             $key = $event->getStart()->format('Y-m');
@@ -92,6 +88,7 @@ class EventService
             $recurringEvent = new Event();
             $recurringEvent->setUser($event->getUser());
             $recurringEvent->setLocation($event->getLocation());
+            $recurringEvent->setPreviewImage($event->getPreviewImage());
             $recurringEvent->setInitial(false);
             $recurringEvent->setStart($this->updateDate($event->getStart(), $occurrence));
             $recurringEvent->setStop($this->updateDate($event->getStop(), $occurrence));

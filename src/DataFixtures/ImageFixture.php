@@ -30,6 +30,17 @@ class ImageFixture extends Fixture implements DependentFixtureInterface
 
         $manager->persist($defaultImage);
 
+        $regularMeetup = new Image();
+        $regularMeetup->setHash('71a185614cb3c6315672b3a450b768a6f5ef4d87');
+        $regularMeetup->setExtension('jpg');
+        $regularMeetup->setMimeType('image/jpg');
+        $regularMeetup->setSize(0);
+        $regularMeetup->setAlt('Regular meetup picture');
+        $regularMeetup->setCreatedAt(new DateTimeImmutable());
+        $regularMeetup->setUploader($this->getReference('user_' . md5('import')));
+
+        $manager->persist($regularMeetup);
+
         $manager->flush();
         $this->imageService->createThumbnails($defaultImage, [[400, 400], [600, 400]]);
     }

@@ -4,6 +4,7 @@ reset:
 	php bin/console doctrine:schema:drop --force -q
 	php bin/console doctrine:schema:create -q
 	php bin/console doctrine:fixtures:load --append -q
+	just extendEvents
 
 
 deploy:
