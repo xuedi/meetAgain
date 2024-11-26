@@ -2,12 +2,16 @@
 
 namespace App\Controller;
 
+use App\Entity\Event;
+use App\Entity\User;
 use App\Repository\EventRepository;
 use App\Service\EventService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 class EventController extends AbstractController
 {
@@ -27,5 +31,27 @@ class EventController extends AbstractController
         return $this->render('events/details.html.twig', [
             'event' => $repo->findOneBy(['id' => $id]),
         ]);
+    }
+
+    #[Route('/event/toggleRsvp/{event}/', name: 'app_event_toggle_rsvp')]
+    public function toggleRsvp(Event $event, EntityManagerInterface $em): Response
+    {
+        $event->toggleRsvp($this->getAuthedUser());
+        $em->persist($event);
+        $em->flush();
+
+        return $this->redirectToRoute('app_event_details', ['id' => $event->getId()]);
+    }
+
+    private function getAuthedUser(): User
+    { // just to avoid phpstorms nullpointer warning
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw new AuthenticationCredentialsNotFoundException(
+                "Should never happen, see: config/packages/security.yaml"
+            );
+        }
+
+        return $user;
     }
 }
