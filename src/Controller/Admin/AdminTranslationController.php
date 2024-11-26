@@ -28,6 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
 
 #[Route('/admin/translations')]
 class AdminTranslationController extends AbstractController
@@ -61,8 +62,12 @@ class AdminTranslationController extends AbstractController
     #[Route('/publish', name: 'app_admin_translation_publish')]
     public function translationsPublish(TranslationService $translationService): Response
     {
-        return $this->render('admin/translations/publish.html.twig', [
-            'result' => $translationService->publish(),
-        ]);
+        try {
+            return $this->render('admin/translations/publish.html.twig', [
+                'result' => $translationService->publish(),
+            ]);
+        } catch (Throwable $exception) {
+            $logger->info('I just got the logger');
+        }
     }
 }
