@@ -21,6 +21,7 @@ use App\Service\EventService;
 use App\Service\TranslationService;
 use App\Service\UploadService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\Packages as AssertManager;
 use Symfony\Component\Filesystem\Filesystem;
@@ -52,22 +53,28 @@ class AdminTranslationController extends AbstractController
     }
 
     #[Route('/extract', name: 'app_admin_translation_extract')]
-    public function translationsExtract(TranslationService $translationService): Response
+    public function translationsExtract(TranslationService $translationService, LoggerInterface $logger): Response
     {
-        return $this->render('admin/translations/extract.html.twig', [
-            'result' => $translationService->extract(),
-        ]);
+        try {
+            return $this->render('admin/translations/extract.html.twig', [
+                'result' => $translationService->extract(),
+            ]);
+        } catch (Throwable $exception) {
+            $logger->info('translationsPublish(): I got an error: ' . $exception->getMessage());
+            return $this->redirectToRoute('app_admin_translation');
+        }
     }
 
     #[Route('/publish', name: 'app_admin_translation_publish')]
-    public function translationsPublish(TranslationService $translationService): Response
+    public function translationsPublish(TranslationService $translationService, LoggerInterface $logger): Response
     {
         try {
             return $this->render('admin/translations/publish.html.twig', [
                 'result' => $translationService->publish(),
             ]);
         } catch (Throwable $exception) {
-            $logger->info('I just got the logger');
+            $logger->info('translationsPublish(): I got an error: ' . $exception->getMessage());
+            return $this->redirectToRoute('app_admin_translation');
         }
     }
 }
