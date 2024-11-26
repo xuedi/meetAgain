@@ -27,7 +27,7 @@
 
         <hr class="dropdown-divider"/>
         {% if is_granted('ROLE_USER') %}
-            <a class="navbar-item" href="{{ path('app_profile_logout') }}">
+            <a class="navbar-item" href="/logout">
                 <span class="icon mr-2"><i class="fa fa-sign-out"></i></span>
                 {{ "menu_profile_logout" | trans }}
             </a>

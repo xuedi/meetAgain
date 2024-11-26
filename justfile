@@ -33,11 +33,6 @@ translationsExtract:
     php bin/console translation:extract --force --format php cn
 
 
-createMigration:
-    php bin/console doctrine:migrations:version --add 'DoctrineMigrations\Version20241124200359'
-    php bin/console doctrine:migrations:diff
-
-
 clearCache:
     composer dump-autoload
     php bin/console cache:clear

@@ -78,14 +78,6 @@ class ProfileController extends AbstractController
         return $this->render('profile/config.html.twig');
     }
 
-    #[Route('/logout', name: 'app_profile_logout')]
-    public function logout(Security $security): Response
-    {
-        $security->logout(false);
-
-        return $this->forward('App\Controller\IndexController::index');
-    }
-
     private function getAuthedUser(): User
     { // just to avoid phpstorms nullpointer warning
         $user = $this->getUser();
