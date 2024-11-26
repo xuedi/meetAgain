@@ -29,7 +29,6 @@ readonly class TranslationService
     public function getMatrix(): array
     {
         $structuredList = [];
-
         $translations = $this->translationRepo->findAll();
         foreach ($translations as $translation) {
             $id = $translation->getId();
