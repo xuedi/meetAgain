@@ -80,7 +80,8 @@ readonly class TranslationService
         $finder->files()->in($path)->depth(0)->name(['messages*.php']);
         foreach ($finder as $file) {
             [$name, $lang, $ext] = explode('.', $file->getFilename());
-            foreach (include($file->getPathname()) as $placeholder => $translationMessage) {
+            $translations = $this->removeDuplicates(include($file->getPathname()));
+            foreach ($translations as $placeholder => $translationMessage) {
                 if (!in_array($placeholder, $dataBase[$lang], true)) {
                     $translation = new Translation();
                     $translation->setLanguage($lang);
@@ -140,5 +141,16 @@ readonly class TranslationService
             'published' => $published,
             'languages' => $locales,
         ];
+    }
+
+    private function removeDuplicates(array $translations): array
+    {
+        $cleanedList = [];
+        foreach ($translations as $key => $translation) {
+            if(!isset($cleanedList[strtolower($key)])) {
+                $cleanedList[strtolower($key)] = $translation;
+            }
+        }
+        return $cleanedList;
     }
 }

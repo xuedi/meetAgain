@@ -29,7 +29,7 @@ class TranslationRepository extends ServiceEntityRepository
     {
         $list = [];
         foreach ($this->findAll() as $translation) {
-            $list[$translation->getLanguage()][] = $translation->getPlaceholder();
+            $list[$translation->getLanguage()][] = strtolower($translation->getPlaceholder());
         }
         return $list;
     }
