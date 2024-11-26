@@ -11,24 +11,11 @@
                 {% for member in members %}
 
                     <div class="column is-1">
-
-                        <div class="card">
-                            <div class="card-image">
-                                <figure class="image is-2">
-                                    {% include '_block/image.html.twig' with {'image': member.image, 'size': '400x400'} %}
-                                </figure>
-                            </div>
-                            <div class="card-content p-3 has-text-centered">
-                                <p>{{ member.name }}</p>
-                            </div>
-                        </div>
-
-
+                        {% include '_block/usercard.html.twig' with {'user': member} %}
                     </div>
 
                 {% endfor %}
             </div>
-
 
         </div>
     </section>

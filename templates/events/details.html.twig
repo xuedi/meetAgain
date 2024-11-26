@@ -6,14 +6,58 @@
 
     <section class="section">
         <div class="container">
-
-
+            <h1 class="title">{{ event.name }}</h1>
             <div class="columns">
-                <div class="column is-2">
-                    {{ event.name }}
+                <div class="column is-9">
+                    {{ event.description|nl2br }}
+                    <div class="mt-5">
+                        <h2 class="title is-4">RSVP</h2>
+                        <div class="columns is-multiline">
+                            {% for rsvp in event.rsvp %}
+                                <div class="column is-2">
+                                    {% include '_block/usercard.html.twig' with {'user': rsvp} %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mt-5">
+                        <h2 class="title is-4">Images</h2>
+                        ...
+                    </div>
+                    <div class="mt-5">
+                        <h2 class="title is-4">Comments</h2>
+                        ...
+                    </div>
                 </div>
-                <div class="column is-10">
-                    {{ event.description }}
+                <div class="column is-3">
+                    {% include '_block/image.html.twig' with {'image': event.previewImage, 'size': '600x400'} %}
+                    <div class="box mt-5">
+                        <strong>{{ event.start|date('d. F Y') }}</strong>
+                        <p>
+                            {{ event.start|date('H:i') }} to {{ event.start|date('H:i') }}<br>
+                            {% if event.recurringRule is defined and event.recurringRule.name is defined %}
+                                Recurring: {{ event.recurringRule.name }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="mt-5">
+                        <h2 class="title is-4">Hosts</h2>
+                        <div class="columns is-multiline">
+                            {% for host in event.host %}
+                                <div class="column is-6">
+                                    {% include '_block/usercard.html.twig' with {'user': host.user} %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="box mt-5">
+                        <h2 class="title is-4">Location</h2>
+                        <strong>{{ event.location.name }}</strong>
+                        <p>
+                            {{ event.location.street }}<br>
+                            {{ event.location.postcode }} {{ event.location.city }}
+                        </p>
+                    </div>
                 </div>
             </div>
 
