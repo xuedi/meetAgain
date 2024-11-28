@@ -44,7 +44,7 @@ class EventController extends AbstractController
     }
 
     private function getAuthedUser(): User
-    { // just to avoid phpstorms nullpointer warning
+    { // just to avoid phpstorms nullpointer warning TODO: put into custom abstract
         $user = $this->getUser();
         if (!$user instanceof User) {
             throw new AuthenticationCredentialsNotFoundException(
