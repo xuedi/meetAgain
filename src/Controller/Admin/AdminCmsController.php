@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\BlockType\BlockType;
 use App\Entity\BlockType\Headline;
+use App\Entity\BlockType\Hero;
 use App\Entity\BlockType\Image;
 use App\Entity\BlockType\Paragraph;
 use App\Entity\BlockType\Text;
@@ -53,8 +54,16 @@ class AdminCmsController extends AbstractController
             'language' => $locale,
         ], ['priority' => 'ASC']);
 
+        $newBlocks = [
+            Headline::getType()->name,
+            Paragraph::getType()->name,
+            Text::getType()->name,
+            Image::getType()->name,
+            Hero::getType()->name,
+        ];
+
         return $this->render('admin/cms/edit.html.twig', [
-            'newBlocks' => [Headline::getType()->name, Paragraph::getType()->name, Text::getType()->name, Image::getType()->name],
+            'newBlocks' => $newBlocks,
             'editLocale' => $locale,
             'editBlock' => $blockId,
             'blocks' => $blocks,
@@ -198,6 +207,7 @@ class AdminCmsController extends AbstractController
             Paragraph::getType()->name => Paragraph::fromJson($payload),
             Text::getType()->name => Text::fromJson($payload),
             Image::getType()->name => Image::fromJson($payload),
+            Hero::getType()->name => Hero::fromJson($payload),
         };
     }
 

@@ -83,11 +83,7 @@
                     {% endif %}
                 {% endif %}
                 </div>
-                {% if editBlock == block.id %}
-                    {% include 'admin/cms/blocks/' ~ block.type.name ~ '.html.twig' with {'block': block.json} %}
-                {% else %}
-                    {% include 'cms/blocks/' ~ block.type.name ~ '.html.twig' with {'block': block.json} %}
-                {% endif %}
+                {% include 'admin/cms/blocks/' ~ block.type.name ~ '.html.twig' with {'block': block.json, 'blockId': block.id} %}
                 </form>
             </div>
         {% endfor %}

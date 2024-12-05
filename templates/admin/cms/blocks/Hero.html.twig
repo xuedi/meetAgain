@@ -1,0 +1,56 @@
+{# not defined: new block  #}
+{% if block is not defined or editBlock == blockId %}
+
+    <div class="field">
+        <label class="label">Headline</label>
+        <div class="control">
+            <input class="input" name="headline" type="text" value="{% if block is defined %}{{ block.headline }}{% endif %}">
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">SubHeadline</label>
+        <div class="control">
+            <input class="input" name="subHeadline" type="text" value="{% if block is defined %}{{ block.subHeadline }}{% endif %}">
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Text</label>
+        <div class="control">
+            <textarea class="textarea" name="text" placeholder="Textarea">{% if block is defined %}{{ block.text }}{% endif %}</textarea>
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Button Link</label>
+        <div class="control">
+            <input class="input" name="buttonLink" type="text" value="{% if block is defined %}{{ block.buttonLink }}{% endif %}">
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Button Text</label>
+        <div class="control">
+            <input class="input" name="buttonText" type="text" value="{% if block is defined %}{{ block.buttonText }}{% endif %}">
+        </div>
+    </div>
+
+{% else %}
+
+    <div class="columns is-vcentered">
+        <div class="column is-7">
+            <h1 class="title is-4">{{ block.headline }}</h1>
+            <h2 class="title is-6">{{ block.subHeadline }}</h2>
+            <p>{{ block.text|nl2br }}</p>
+            <span class="button">{{ block.buttonText }}</span>
+        </div>
+        <div class="column is-1"></div>
+        <div class="column is-4">
+            <img class="homepage-dragon" src="{{ asset('/images/dragon.jpg') }}" alt="Dragon image">
+        </div>
+    </div>
+
+
+
+{% endif %}

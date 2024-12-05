@@ -1,7 +1,15 @@
+{# not defined: new block  #}
+{% if block is not defined or editBlock == blockId %}
 
-<div class="field">
-    <label class="label">Id</label>
-    <div class="control">
-        <input class="input" name="id" type="text" value="{% if block is defined %}{{ block.id }}{% endif %}">
+    <div class="field">
+        <label class="label">Id</label>
+        <div class="control">
+            <input class="input" name="id" type="text" value="{% if block is defined %}{{ block.id }}{% endif %}">
+        </div>
     </div>
-</div>
+
+{% else %}
+
+    <p>Image: {{ block.id }}</p>
+
+{% endif %}

@@ -6,6 +6,7 @@ use App\Entity\BlockType\Headline as HeadlineBlockType;
 use App\Entity\BlockType\Image as ImageBlockType;
 use App\Entity\BlockType\Text as TextBlockType;
 use App\Entity\BlockType\Paragraph as ParagraphBlockType;
+use App\Entity\BlockType\Hero as HeroBlockType;
 use App\Repository\CmsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -115,6 +116,7 @@ class Cms
                     CmsBlockTypes::Headline => HeadlineBlockType::fromJson($block->getJson()),
                     CmsBlockTypes::Image => ImageBlockType::fromJson($block->getJson()),
                     CmsBlockTypes::Text => TextBlockType::fromJson($block->getJson()),
+                    CmsBlockTypes::Hero => HeroBlockType::fromJson($block->getJson()),
                     default => throw new Exception('To be implemented'),
                 };
             }

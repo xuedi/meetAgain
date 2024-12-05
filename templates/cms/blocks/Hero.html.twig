@@ -1,0 +1,21 @@
+
+<section class="hero has-background-danger">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns is-vcentered">
+                <div class="column is-6 has-text-white">
+                    <h1 class="title has-text-white">{{ block.headline }}</h1>
+                    <p class="subtitle has-text-white">{{ block.subHeadline }}</p>
+                    <p>{{ block.text|nl2br }}</p>
+                    <p class="pt-5">
+                        <a class="button" href="\{{ app.request.locale }}{{ block.buttonLink }}">{{ block.buttonText }}</a>
+                    </p>
+                </div>
+                <div class="column is-2"></div>
+                <div class="column is-4">
+                    <img class="homepage-dragon" src="{{ asset('/images/dragon.jpg') }}" alt="Dragon image">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
