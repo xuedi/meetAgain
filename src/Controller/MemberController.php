@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\UserStatus;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +14,7 @@ class MemberController extends AbstractController
     public function index(UserRepository $repo): Response
     {
         return $this->render('member/index.html.twig', [
-            'members' => $repo->findAll(),
+            'members' => $repo->findBy(['status' => UserStatus::Active, 'public' => true], ['createdAt' => 'ASC']),
         ]);
     }
 
