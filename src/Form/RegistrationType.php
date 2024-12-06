@@ -23,8 +23,8 @@ class RegistrationType extends AbstractType
                 'label' => 'Username',
                 'constraints' => [
                     new Length([
-                        'maxMessage' => 'usernames cant be longer than 16 characters (less with chinese)',
-                        'max' => 16,
+                        'maxMessage' => 'usernames cant be longer than 64 characters (less with chinese)',
+                        'max' => 64,
                     ]),
                 ],
             ])
