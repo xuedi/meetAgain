@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Event;
 use App\Entity\Image;
 use App\Entity\User;
+use App\Form\ChangePassword;
 use App\Form\ProfileType;
 use App\Repository\EventRepository;
 use App\Service\UploadService;
@@ -13,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
@@ -73,9 +75,26 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/config', name: 'app_profile_config')]
-    public function config(): Response
+    public function config(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
     {
-        return $this->render('profile/config.html.twig');
+        $form = $this->createForm(ChangePassword::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getAuthedUser();
+            if($hasher->isPasswordValid($user, $form->get('oldPassword')->getData())) {
+                $user->setPassword($hasher->hashPassword($user, $form->get('newPassword')->getData()));
+
+                $em->persist($user);
+                $em->flush();
+
+                $this->addFlash('success', 'Password was changed');
+            } else {
+                $this->addFlash('error', 'The old password does not match');
+            }
+        }
+        return $this->render('profile/config.html.twig', [
+            'form' => $form,
+        ]);
     }
 
     private function getAuthedUser(): User

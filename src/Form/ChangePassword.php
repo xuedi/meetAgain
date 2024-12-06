@@ -14,24 +14,16 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class RegistrationType extends AbstractType
+class ChangePassword extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, [
-                'label' => 'Username',
-            ])
-            ->add('email', EmailType::class)
-            ->add('agreeTerms', CheckboxType::class, [
+            ->add('oldPassword', PasswordType::class, [
                 'mapped' => false,
-                'constraints' => [
-                    new IsTrue([
-                        'message' => 'You should agree to our terms.',
-                    ]),
-                ],
+                'attr' => ['autocomplete' => 'old-password'],
             ])
-            ->add('plainPassword', PasswordType::class, [
+            ->add('newPassword', PasswordType::class, [
                 'mapped' => false,
                 'attr' => ['autocomplete' => 'new-password'],
                 'constraints' => [
@@ -44,8 +36,7 @@ class RegistrationType extends AbstractType
                         'max' => 254,
                     ]),
                 ],
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

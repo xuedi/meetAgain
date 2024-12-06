@@ -6,12 +6,49 @@
 
     <section class="section">
         <div class="container">
-            <h1 class="title">Edit Profile</h1>
 
-            <h1 class="title">Settings</h1>
+            <div class="columns">
+                <div class="column">
 
-            <h2 class="title">Privacy</h2>
+                    <div class="box">
+                        <h1 class="title is-5">Settings</h1>
+                        <p>more to come soon</p>
+                        <br>
+                        <br>
+                    </div>
 
+                    <div class="box">
+                        <h2 class="title is-5">Privacy</h2>
+                        <p>more to come soon</p>
+                        <br>
+                        <br>
+                    </div>
+
+                </div>
+                <div class="column">
+
+                    <div class="box">
+                        <h2 class="title is-5">Change Password</h2>
+                        {{ form_start(form) }}
+                        {% for flash_error in app.flashes('error') %}
+                            <div class="notification is-danger">
+                                <button class="delete"></button>{{ flash_error }}</div>
+                        {% endfor %}
+                        {% for flash_success in app.flashes('success') %}
+                            <div class="notification is-success">
+                                <button class="delete"></button>{{ flash_success }}</div>
+                        {% endfor %}
+                        {{ form_errors(form) }}
+
+                        {{ form_row(form.oldPassword) }}
+                        {{ form_row(form.newPassword) }}
+
+                        <button class="button is-primary">{{ "button_Change_Password" | trans }}</button>
+                        {{ form_end(form) }}
+                    </div>
+
+                </div>
+            </div>
 
 
         </div>
