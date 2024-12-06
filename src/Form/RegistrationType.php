@@ -21,8 +21,21 @@ class RegistrationType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Username',
+                'constraints' => [
+                    new Length([
+                        'maxMessage' => 'usernames cant be longer than 16 characters (less with chinese)',
+                        'max' => 16,
+                    ]),
+                ],
             ])
-            ->add('email', EmailType::class)
+            ->add('email', EmailType::class, [
+                'constraints' => [
+                    new Length([
+                        'maxMessage' => 'emails cant be longer than 180 characters',
+                        'max' => 180,
+                    ]),
+                ],
+            ])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
                 'constraints' => [
