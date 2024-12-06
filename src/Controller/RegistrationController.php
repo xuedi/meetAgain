@@ -12,6 +12,7 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,8 +20,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $hasher,
+        EntityManagerInterface $em,
+        MailerInterface $mailer,
+    ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationType::class, $user);
         $form->handleRequest($request);
@@ -43,16 +48,20 @@ class RegistrationController extends AbstractController
             $email->from(new Address('registration@dragon-descendants.de', 'Dragon Descendants Meetup'));
             $email->to((string) $user->getEmail());
             $email->subject('Please Confirm your Email');
-            $email->htmlTemplate('registration/confirmation_email.html.twig');
+            $email->htmlTemplate('registration/activation_email.html.twig');
+            $email->context([
+                'token' => $user->getRegcode(),
+                'lang' => $request->getLocale(),
+                'username' => $user->getName(),
+            ]);
 
-            // generate a signed url and email it to the user
-            //TODO: send an email
+            $mailer->send($email);
 
             return $this->render('registration/email_send.html.twig');
         }
 
         return $this->render('registration/index.html.twig', [
-            'registrationForm' => $form,
+            'form' => $form,
         ]);
     }
 

@@ -9,7 +9,8 @@
 
             <div class="columns">
                 <div class="column is-5">
-                    <form method="post" class="box">
+                    <div class="box">
+                        {{ form_start(form) }}
 
                         <h1 class="subtitle">{{ "p: Please register"|trans }}</h1>
 
@@ -17,18 +18,21 @@
                             <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
                         {% endfor %}
 
-                        {{ form_errors(registrationForm) }}
+                        {{ form_errors(form) }}
 
-                        {{ form_start(registrationForm) }}
-                        {{ form_row(registrationForm.email) }}
-                        {{ form_row(registrationForm.plainPassword, {
+
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.email) }}
+                        {{ form_row(form.plainPassword, {
                             label: 'Password'
                         }) }}
-                        {{ form_row(registrationForm.agreeTerms) }}
+                        {{ form_row(form.agreeTerms) }}
 
 
                         <button class="button is-primary">{{ "button_Register" | trans }}</button>
-                    </form>
+                        <a class="button" href="/{{ app.request.locale }}/terms" target="_blank">{{ "terms" | trans }}</a>
+                        {{ form_end(form) }}
+                    </div>
                 </div>
             </div>
         </div>
