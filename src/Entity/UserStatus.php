@@ -9,4 +9,5 @@ enum UserStatus: int
     case Active = 2;
     case Blocked = 3;
     case Deleted = 4;
+    case Denied = 5;
 }
