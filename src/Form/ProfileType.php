@@ -9,9 +9,11 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProfileType extends AbstractType
@@ -44,6 +46,14 @@ class ProfileType extends AbstractType
                     ],
                     'mimeTypesMessage' => 'Please upload a valid image, preferable a square format',
                 ])
+            ],
+        ])->add('name', TextType::class, [
+            'label' => 'Username',
+            'constraints' => [
+                new Length([
+                    'maxMessage' => 'usernames cant be longer than 64 characters (less with chinese)',
+                    'max' => 64,
+                ]),
             ],
         ])->add(
             'public', ChoiceType::class, [

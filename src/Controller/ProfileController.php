@@ -34,6 +34,7 @@ class ProfileController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $image = $uploadService->upload($form, 'image', $this->getAuthedUser());
             $user = $this->getAuthedUser();
+            $user->setName($form->get('name')->getData());
             $user->setBio($form->get('bio')->getData());
             $user->setLocale($form->get('languages')->getData());
             $user->setPublic($form->get('public')->getData());

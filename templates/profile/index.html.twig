@@ -21,13 +21,7 @@
                                 <small>The image should be squarish, it will be cropped</small>
                             </div>
                             <div class="column is-6">
-                                <div>
-                                    <span class="title is-4">{{ user.name }}</span>
-                                    <a class="is-pulled-right" target="_blank" href="{{ path('app_member_view', {'id': user.id}) }}">
-                                        <i class="fa fa-external-link" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                                <br>
+                                {{ form_row(form.name) }}
                                 {{ form_row(form.bio) }}
                                 {{ form_row(form.languages) }}
                                 {{ form_row(form.public) }}
