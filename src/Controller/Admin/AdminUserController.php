@@ -74,4 +74,15 @@ class AdminUserController extends AbstractController
 
         return $this->redirectToRoute('app_admin_user');
     }
+
+    #[Route('/{id}/delete', name: 'app_admin_user_delete', methods: ['GET'])]
+    public function userDelete(User $user, EntityManagerInterface $em): Response
+    {
+        $user->setStatus(UserStatus::Deleted);
+
+        $em->persist($user);
+        $em->flush();
+
+        return $this->redirectToRoute('app_admin_user');
+    }
 }

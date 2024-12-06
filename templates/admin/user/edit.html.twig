@@ -2,12 +2,39 @@
 
 {% block content %}
 
+    {% set deleteLink = path('app_admin_user_delete', {'id': user.id}) %}
+
     <div class="container">
+
+        <article class="message is-danger is-hidden" id="user-delete-warning">
+            <div class="message-header">
+                <p>Delete the user</p>
+                <button class="delete toggleTrigger" data-id="user-delete-warning" aria-label="delete"></button>
+            </div>
+            <div class="message-body">
+                <p>
+                    If a user is deleted the user will be marked and can be reactivated later, until the de-spawning
+                    tool is developed, to cleanly remove all related data. (after 30 days or so)
+                </p>
+                <div class="has-text-right">
+                    <a class="button is-danger" href="{{ deleteLink }}">
+                        <span class="icon"><i class="fa fa-trash"></i></span>
+                        <span>Yes, Delete</span>
+                    </a>
+                </div>
+            </div>
+        </article>
 
         {{ form_start(form) }}
         {{ form_widget(form) }}
         <button class="button">{{ "button_save" | trans }}</button>
         {{ form_end(form) }}
+
+        <hr>
+
+        <a class="button is-danger toggleTrigger" data-id="user-delete-warning" href="{{ deleteLink }}">
+            <span class="icon"><i class="fa fa-trash"></i></span>
+        </a>
 
     </div>
 
