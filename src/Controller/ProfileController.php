@@ -87,7 +87,7 @@ class ProfileController extends AbstractController
                 $em->persist($user);
                 $em->flush();
 
-                $this->addFlash('success', 'Password was changed');
+                $this->addFlash('success', 'Password was changed, please verify by logging in again');
             } else {
                 $this->addFlash('error', 'The old password does not match');
             }
