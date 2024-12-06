@@ -24,6 +24,10 @@ make:
     php bin/console make
 
 
+emailTest:
+    php bin/console mailer:test xuedi.beijing@gmail.com --from="dev@dragon-descendants.de" --subject="TestEmailFromDev" --body="emailBody"
+
+
 extendEvents:
     php bin/console app:event:extent
 
