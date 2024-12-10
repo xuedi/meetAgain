@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 enum UserStatus: int
 {
     case Registered = 0;
@@ -10,4 +12,17 @@ enum UserStatus: int
     case Blocked = 3;
     case Deleted = 4;
     case Denied = 5;
+
+    // TODO: should be separate translator not here in enum
+    public static function getChoices(TranslatorInterface $translator): array
+    {
+        return [
+            $translator->trans('Registered') => self::Registered,
+            $translator->trans('EmailVerified') => self::EmailVerified,
+            $translator->trans('Active') => self::Active,
+            $translator->trans('Blocked') => self::Blocked,
+            $translator->trans('Deleted') => self::Deleted,
+            $translator->trans('Denied') => self::Denied,
+        ];
+    }
 }
