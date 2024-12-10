@@ -4,9 +4,10 @@
 
     <div class="container">
 
-        <table class="table">
+        <table class="table is-fullwidth">
             <thead>
             <tr>
+                <th>CreatedAt</th>
                 <th>Uploader</th>
                 <th>Size</th>
                 <th>Type</th>
@@ -16,7 +17,8 @@
             <tbody>
             {% for image in images %}
                 <tr>
-                    <td>{{ image.uploader.id }}</td>
+                    <td>{{ image.createdAt | date('Y-m-d') }}</td>
+                    <td>{{ image.uploader.email }}</td>
                     <td>{{ image.size | format_bytes }}</td>
                     <td>{{ image.mimeType }}</td>
                     <td>{{ image.hash }}</td>
