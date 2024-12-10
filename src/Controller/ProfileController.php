@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Entity\Event;
 use App\Entity\Image;
 use App\Entity\User;
+use App\Entity\UserActivity;
 use App\Form\ChangePassword;
 use App\Form\ProfileType;
 use App\Repository\EventRepository;
+use App\Service\ActivityService;
 use App\Service\UploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,17 +29,27 @@ class ProfileController extends AbstractController
         EventRepository $repo,
         UploadService $uploadService,
         EntityManagerInterface $entityManager,
+        ActivityService $activityService,
     ): Response {
+
+        $user = $this->getAuthedUser();
+        $oldUserName = $user->getName();
 
         $form = $this->createForm(ProfileType::class, $this->getAuthedUser());
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $image = $uploadService->upload($form, 'image', $this->getAuthedUser());
-            $user = $this->getAuthedUser();
-            $user->setName($form->get('name')->getData());
+            $newUserName = $form->get('name')->getData();
+            if ($oldUserName !== $newUserName) {
+                $message = sprintf("Changed username from '%s' to '%s'", $oldUserName, $newUserName);
+                $activityService->log(UserActivity::ChangedUsername, $user, $message);
+            }
+            // TODO: add following to the form so it is handled automatically
             $user->setBio($form->get('bio')->getData());
             $user->setLocale($form->get('languages')->getData());
             $user->setPublic($form->get('public')->getData());
+
+
             if ($image instanceof Image) {
                 $user->setImage($image);
             }
@@ -45,7 +57,7 @@ class ProfileController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
             if ($image instanceof Image) {
-                $uploadService->createThumbnails($image, [[400,400]]);
+                $uploadService->createThumbnails($image, [[400, 400]]);
             }
 
             return $this->redirectToRoute('app_profile');
@@ -82,7 +94,7 @@ class ProfileController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $this->getAuthedUser();
-            if($hasher->isPasswordValid($user, $form->get('oldPassword')->getData())) {
+            if ($hasher->isPasswordValid($user, $form->get('oldPassword')->getData())) {
                 $user->setPassword($hasher->hashPassword($user, $form->get('newPassword')->getData()));
 
                 $em->persist($user);
