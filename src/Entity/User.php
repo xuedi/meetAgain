@@ -58,6 +58,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $bio = null;
 
+    #[ORM\Column]
+    private bool $verified = false;
+
     public function __construct()
     {
         $this->rsvp = new ArrayCollection();
@@ -247,6 +250,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBio(?string $bio): static
     {
         $this->bio = $bio;
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): static
+    {
+        $this->verified = $verified;
 
         return $this;
     }

@@ -12,8 +12,9 @@ class UserFixture extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        foreach ($this->getData() as [$locale, $name, $email, $password, $roles]) {
+        foreach ($this->getData() as [$locale, $name, $email, $password, $roles, $isVerified]) {
             $user = new User();
+            $user->setVerified($isVerified);
             $user->setName($name);
             $user->setEmail($email);
             $user->setPassword($password);
@@ -33,13 +34,13 @@ class UserFixture extends Fixture
     private function getData(): array
     {
         return [
-            ['en', 'import', 'system@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_SYSTEM']],
-            ['de', 'xuedi', 'admin@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN']],
-            ['en', 'yimu', 'yimu.wang.nz@gmail.com', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN']],
-            ['cn', 'xiaolong', 'xiaolong@gmail.com', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER']],
-            ['en', 'user_a', 'user_a@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER']],
-            ['en', 'user_b', 'user_b@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER']],
-            ['en', 'user_c', 'user_c@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER']],
+            ['en', 'import', 'system@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_SYSTEM'], false],
+            ['de', 'xuedi', 'admin@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN'], true],
+            ['en', 'yimu', 'yimu.wang.nz@gmail.com', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN'], true],
+            ['cn', 'xiaolong', 'xiaolong@gmail.com', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER'], true],
+            ['en', 'user_a', 'user_a@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER'], true],
+            ['en', 'user_b', 'user_b@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER'], false],
+            ['en', 'user_c', 'user_c@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER'], false],
         ];
     }
 }
