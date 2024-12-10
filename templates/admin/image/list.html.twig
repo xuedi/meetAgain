@@ -1,0 +1,31 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block content %}
+
+    <div class="container">
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Uploader</th>
+                <th>Size</th>
+                <th>Type</th>
+                <th>Hash</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for image in images %}
+                <tr>
+                    <td>{{ image.uploader.id }}</td>
+                    <td>{{ image.size | format_bytes }}</td>
+                    <td>{{ image.mimeType }}</td>
+                    <td>{{ image.hash }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock %}
+
