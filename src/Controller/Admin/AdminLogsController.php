@@ -25,7 +25,7 @@ class AdminLogsController extends AbstractController
     }
 
     #[Route('/', name: 'app_admin_logs_system')]
-    public function systemLogs(ActivityRepository $repo): Response
+    public function systemLogs(): Response
     {
         return $this->render('admin/logs/system_list.html.twig', [
             'system' => [],
