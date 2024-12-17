@@ -2,14 +2,8 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Host;
-use App\Form\HostType;
 use App\Repository\ActivityRepository;
-use App\Repository\HostRepository;
-use App\Repository\ImageRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -24,11 +18,36 @@ class AdminLogsController extends AbstractController
         ]);
     }
 
-    #[Route('/', name: 'app_admin_logs_system')]
-    public function systemLogs(): Response
+    #[Route('/{id}', name: 'app_admin_logs_system')]
+    public function systemLogs(int $id = 0): Response
     {
+        $logs = $this->getLogList();
         return $this->render('admin/logs/system_list.html.twig', [
-            'system' => [],
+            'content' => empty($logs) ? '' : $this->getLogContent($logs[$id]['source']),
+            'logs' => $logs,
         ]);
+    }
+
+    private function getLogList(): array
+    {
+        $list = [];
+        $logPath = realpath(__DIR__ . '/../../../var/log/');
+        $logFiles = glob($logPath . '/*.log');
+
+        foreach ($logFiles as $logFile) { // TODO: turn into array map function
+            $nameChunks = explode('/', $logFile);
+            $list[] = [
+                'name' => end($nameChunks),
+                'source' => $logFile,
+            ];
+        }
+
+        return $list;
+    }
+
+    // TODO: add a level filter and split content with parser like: https://packagist.org/packages/innmind/log-reader
+    private function getLogContent(string $path): string
+    {
+        return file_get_contents($path);
     }
 }
