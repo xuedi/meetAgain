@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Repository\ActivityRepository;
+use App\ValueObjects\LogEntry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -46,8 +47,18 @@ class AdminLogsController extends AbstractController
     }
 
     // TODO: add a level filter and split content with parser like: https://packagist.org/packages/innmind/log-reader
-    private function getLogContent(string $path): string
+    private function getLogContent(string $path): array
     {
-        return file_get_contents($path);
+        $content = file_get_contents($path);
+        $lines = explode("\n", $content);
+        $logList = [];
+        foreach ($lines as $line) {
+            if (empty($line)) {
+                continue;
+            }
+            $logList[] = LogEntry::fromString($line);
+        }
+
+        return $logList;
     }
 }
