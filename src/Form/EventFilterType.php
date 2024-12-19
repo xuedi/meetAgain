@@ -6,7 +6,6 @@ use App\Entity\EventFilterRsvp;
 use App\Entity\EventFilterSort;
 use App\Entity\EventFilterTime;
 use App\Entity\EventTypes;
-use App\Entity\Host;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -35,7 +34,7 @@ class EventFilterType extends AbstractType
             )
             ->add(
                 'sort', ChoiceType::class, [
-                    'data' => EventFilterSort::NewToOld,
+                    'data' => EventFilterSort::OldToNew,
                     'label' => false,
                     'choices' => [
                         $this->translator->trans('event_filter_sort_past') => EventFilterSort::OldToNew,
