@@ -32,10 +32,9 @@ class EventController extends AbstractController
             $rsvp = $form->getData()['rsvp'];
         } else {
             $time = EventFilterTime::Future;
-            $sort = EventFilterSort::NewToOld;
+            $sort = EventFilterSort::OldToNew;
             $type = EventTypes::All;
             $rsvp = EventFilterRsvp::All;
-
         }
 
         return $this->render('events/index.html.twig', [
