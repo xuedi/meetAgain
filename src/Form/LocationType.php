@@ -19,12 +19,15 @@ class LocationType extends AbstractType
             ->add('street')
             ->add('city')
             ->add('postcode')
+            ->add('longitude')
+            ->add('latitude')
             ->add('createdAt', null, [
                 'widget' => 'single_text',
             ])
             ->add('user', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'id',
+                'label' => 'CreatedBy',
+                'choice_label' => 'name',
             ])
         ;
     }
