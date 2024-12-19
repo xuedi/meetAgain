@@ -39,7 +39,16 @@
                         <p>Email: {{ user.email }}</p>
                         <p>Friends: x</p>
                         <p>Messages: x</p>
-                        <p>RSVP: x</p>
+                        <p>RSVP: {{ user.getRsvpEvents|length }}</p>
+                    </div>
+
+                    <div class="box">
+                        <h2 class="title is-5">Activity</h2>
+                        <ul>
+                            {% for activity in user.getActivities %}
+                                <li>{{ activity.createdAt|date('Y-m-d') }}: {{ activity.message }}</li>
+                            {% endfor %}
+                        </ul>
                     </div>
 
                     {{ form_end(form) }}
@@ -66,8 +75,6 @@
 
                 </div>
             </div>
-
-
 
 
         </div>
