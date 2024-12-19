@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace App\ValueObjects;
+namespace App\Entity\ValueObjects;
 
 use DateTimeImmutable;
 use Exception;

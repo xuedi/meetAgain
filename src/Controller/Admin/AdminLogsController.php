@@ -2,8 +2,8 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\ValueObjects\LogEntry;
 use App\Repository\ActivityRepository;
-use App\ValueObjects\LogEntry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
