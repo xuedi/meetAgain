@@ -60,8 +60,8 @@ class EventFilterType extends AbstractType
                     'label' => false,
                     'choices' => [
                         $this->translator->trans('event_filter_who_all') => EventFilterRsvp::All,
-                        $this->translator->trans('event_filter_who_myEvents') => EventFilterRsvp::My,
-                        $this->translator->trans('event_filter_who_myFriendsEvents') => EventFilterRsvp::Friends,
+                        $this->translator->trans('event_filter_who_my') => EventFilterRsvp::My,
+                        $this->translator->trans('event_filter_who_my_friends') => EventFilterRsvp::Friends,
                     ],
                 ]
             );
