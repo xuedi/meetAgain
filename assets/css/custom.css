@@ -10,3 +10,11 @@ body {
 .is-flag {
     height: 40px;
 }
+#eventFilter {
+    .field {
+        display: inline;
+        .control {
+            display: inline;
+        }
+    }
+}

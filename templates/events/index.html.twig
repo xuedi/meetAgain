@@ -7,23 +7,15 @@
     <section class="section mt-1 is-hidden-mobile">
         <div class="container">
 
-            <form method="POST" action="{{ path('app_event') }}">
-                <div class="select">
-                    <select class="eventOnchangeFilter" name="time">
-                        <option value="future">Upcoming Events</option>
-                        <option value="past">Past Events</option>
-                    </select>
-                </div>
-                <div class="select">
-                    <select class="eventOnchangeFilter" name="type">
-                        <option value="all">All Events</option>
-                        <option value="regular">Regular events</option>
-                        <option value="outdoor">Outdoor events</option>
-                        <option value="dinner">Dinner events</option>
-                    </select>
-                </div>
-                <button class="button is-link">Search</button>
-            </form>
+            {{ form_start(filter, {'attr': {'id': 'eventFilter'}}) }}
+
+            {{ form_row(filter.time) }}
+            {{ form_row(filter.sort) }}
+            {{ form_row(filter.type) }}
+            {{ form_row(filter.rsvp) }}
+
+            <button class="button is-link">{{ "button_filter" | trans }}</button>
+            {{ form_end(filter) }}
 
         </div>
     </section>

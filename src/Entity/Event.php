@@ -60,6 +60,9 @@ class Event
     #[ORM\ManyToOne]
     private ?Image $previewImage = null;
 
+    #[ORM\Column(nullable: true, enumType: EventTypes::class)]
+    private ?EventTypes $type = null;
+
     public function __construct()
     {
         $this->host = new ArrayCollection();
@@ -257,6 +260,18 @@ class Event
     public function setPreviewImage(?Image $previewImage): static
     {
         $this->previewImage = $previewImage;
+
+        return $this;
+    }
+
+    public function getType(): ?EventTypes
+    {
+        return $this->type;
+    }
+
+    public function setType(?EventTypes $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }

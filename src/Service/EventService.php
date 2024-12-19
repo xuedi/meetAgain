@@ -3,41 +3,48 @@
 namespace App\Service;
 
 use App\Entity\Event;
+use App\Entity\EventFilterRsvp;
+use App\Entity\EventFilterSort;
+use App\Entity\EventFilterTime;
 use App\Entity\EventIntervals;
+use App\Entity\EventTypes;
 use App\Repository\EventRepository;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManagerInterface;
 use RRule\RRule;
 use RuntimeException;
 
-class EventService
+readonly class EventService
 {
-    public function __construct(
-        private readonly EventRepository $repo,
-        private readonly EntityManagerInterface $em
-    ) {
+    public function __construct(private EventRepository $repo, private EntityManagerInterface $em) {
     }
 
-    public function getList(string $time = null, string $type = null): array
+    public function getFilteredList(
+        EventFilterTime $time,
+        EventFilterSort $sort,
+        EventTypes $type,
+        EventFilterRsvp $rsvp,
+    ): array
     {
-        $structuredList = [];
+        $criteria = new Criteria();
+        $criteria->orderBy(['start' => $sort->value]);
+        $criteria->where(match ($time) { // TODO: all should be a dummy, no idea how
+            EventFilterTime::All => Criteria::expr()->not(Criteria::expr()->eq('id', 0)),
+            EventFilterTime::Past => Criteria::expr()->lt('start', new DateTimeImmutable()),
+            EventFilterTime::Future => Criteria::expr()->gt('start', new DateTimeImmutable()),
+        });
+        $criteria->where(match ($type) {
+            EventTypes::All => Criteria::expr()->not(Criteria::expr()->eq('id', 0)),
+            EventTypes::Regular => Criteria::expr()->eq('type', EventTypes::Regular->value),
+            EventTypes::Outdoor => Criteria::expr()->eq('type', EventTypes::Outdoor->value),
+            EventTypes::Dinner => Criteria::expr()->eq('type', EventTypes::Dinner->value),
+        });
+        $result = $this->repo->matching($criteria)->toArray();
 
-        $events = $this->repo->findBy([], ['start' => 'ASC']);
-        foreach ($events as $event) {
-            $key = $event->getStart()->format('Y-m');
-            if (!isset($structuredList[$key])) {
-                $structuredList[$key] = [
-                    'year' => $event->getStart()->format('Y'),
-                    'month' => $event->getStart()->format('F'),
-                    'events' => [],
-                ];
-            }
-            $structuredList[$key]['events'][] = $event;
-        }
-
-        return $structuredList;
+        return $this->structureList($result);
     }
 
     public function extentRecurringEvents(): void
@@ -99,6 +106,7 @@ class EventService
             $recurringEvent->setDescription($event->getDescription()); // TODO: set to null
             $recurringEvent->setCreatedAt(new DateTimeImmutable());
             $recurringEvent->setHost($event->getHost());
+            $recurringEvent->setType($event->getType());
 
             $this->em->persist($recurringEvent);
             $this->em->flush();
@@ -125,5 +133,22 @@ class EventService
         }
 
         return $lastRecurringEvent->getStart()->format('Y-m-d');
+    }
+
+    private function structureList(array $events): array
+    {
+        $structuredList = [];
+        foreach ($events as $event) {
+            $key = $event->getStart()->format('Y-m');
+            if (!isset($structuredList[$key])) {
+                $structuredList[$key] = [
+                    'year' => $event->getStart()->format('Y'),
+                    'month' => $event->getStart()->format('F'),
+                    'events' => [],
+                ];
+            }
+            $structuredList[$key]['events'][] = $event;
+        }
+        return $structuredList;
     }
 }
