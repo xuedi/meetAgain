@@ -1,74 +1,7 @@
 
-Events
-------------------
-ID  | inicial | start      | recurringOf | Description (text) | Recuring Rule (text) |
-----|---------|------------|-------------|--------------------|----------------------|--------------------------------------------------
-1   | 1       | 2024-09-03 | null        | First Event        | every tuesday        |  <-- inicial event WITH recurrence
-2   | 0       | 2024-09-10 | 1           | null               | null                 |  <-- auto recurring (generated for x years)
-3   | 0       | 2024-09-17 | 1           | null               | null                 |  <-- auto recurring
-4   | 1       | 2024-09-24 | 1           | Adjustes series    | every tuesday        |  <-- edited the series (non sceduling)
-5   | 0       | 2024-10-01 | 5           | null               | null                 |  <-- auto recurring (updated all following non flaged)
-6   | 0       | 2024-10-08 | 5           | null               | null                 |  <-- auto recurring
-7   | 0       | 2024-10-15 | 5           | null               | null                 |  <-- auto recurring
-8   | 1       | 2024-10-22 | 5           | Adjustes series    | monthly              |  <-- edited the series (sceduling)
-9   | 0       | 2024-11-22 | 8           | null               | null                 |  <-- auto recurring (recreated all following)
-10  | 1       | 2024-12-20 | null        | xMas shopping      | null                 |  <-- single normal event
-11  | 0       | 2024-12-22 | 8           | null               | null                 |  <-- auto recurring
-12  | 1       | 2024-12-24 | null        | xMas               | null                 |  <-- single normal event
-13  | 1       | 2025-02-19 | null        | 10 year anav.      | null                 |  <-- single normal event
-
- when a recurring event is changed it sets a flag to be protected from meta data (desc)
- updated of an item before its own in the series not when the sceduling is changed then
- all events are recreated, there should be a warning that x follow up events where custom
- edited and lost.... pre-generate events for X months (settings: 60)
-
-
-
-
-
-Goodbye meetup.com
-2024-10-26 by xuedi
-
-By spring 2025 we will move away from meetup.com
-
-The new pricing increase of 2000% is ridiculous for a non profit meetup, so Yimu & I have decided its time to move on.
-
-This will come with some advantages, like out data is safely private hosted and anymore in control of an huge American company. We have more control about the features and tool we can add or change on the new website.
-
-Some of the disadvantages are the visibility of how people will find us, from people looking at meetup.com to people looking at google (and we have to be findable). We will start mirror events into social media like Instagram and so on for outreach. This will be surly a new experience for us.
-
-This website is into experimentation phase, we will play around with features, add community plugins and slowly open to our members.
-
-Cheers
-Xuedi & Yimu
-
-
-
-
-
-
-
-
-
-About
-
-A quick Google search for a Chinese language and culture meetup in Berlin came up with 0 results when I first moved to this city, so I thought, why not start my own?
-
-Inevitably, I made a friend at a bar — a sure-thing to happen in Berlin. Xuedi is German (even though he will convince you that he’s Chinese) and has lived in China for 7 years…and several beers later, our meetup group was born!
-
-The idea of this group is to bring people together and share our interests in China/Germany (or anywhere), speak/learn Chinese/German (or your language), make new friends, eat out, or just hang. Our group has been running on a fortnightly basis since 2015!
-
-Learning Chinese/German? Come practice and find tandem partners! Already speak it fluently? Come and hang out with us!
-
-“有朋自远方来，不亦乐乎?”
-
-*A friend comes from afar. Is that not a reason to celebrate? – Confucius
-
-Yimu & Xuedi
-
-
-
-
-
-
+TODO:
+ - add friend list & adding & approving
+ - add messages & way to block users
+ - add comments
+ - add community translation suggestions & manger approvement
 
