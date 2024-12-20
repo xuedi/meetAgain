@@ -19,6 +19,51 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
+    public function getFollowers(User $user, bool $excludeFriends = false): array
+    {
+        if ($excludeFriends === false) {
+            return $user->getFollowers()->toArray();
+        }
+        $friendLessList = [];
+        $following = $user->getFollowing();
+        foreach ($user->getFollowers() as $follower) {
+            if (!$following->contains($follower)) {
+                $friendLessList[] = $follower;
+            }
+        }
+
+        return $friendLessList;
+    }
+
+    public function getFollowing(User $user, bool $excludeFriends = false): array
+    {
+        if ($excludeFriends === false) {
+            return $user->getFollowing()->toArray();
+        }
+        $friendLessList = [];
+        $followers = $user->getFollowers();
+        foreach ($user->getFollowing() as $follow) {
+            if (!$followers->contains($follow)) {
+                $friendLessList[] = $follow;
+            }
+        }
+
+        return $friendLessList;
+    }
+
+    public function getFriends(User $user): array
+    {
+        $friendList = [];
+        $followers = $user->getFollowers();
+        foreach ($user->getFollowing() as $follow) {
+            if ($followers->contains($follow)) {
+                $friendList[] = $follow;
+            }
+        }
+
+        return $friendList;
+    }
+
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      */

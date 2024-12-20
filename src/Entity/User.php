@@ -67,10 +67,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Activity::class, mappedBy: 'user')]
     private Collection $activities;
 
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
+    private Collection $following;
+
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'following')]
+    private Collection $followers;
+
     public function __construct()
     {
         $this->rsvp = new ArrayCollection();
         $this->activities = new ArrayCollection();
+        $this->followers = new ArrayCollection();
+        $this->following = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -301,5 +309,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getFollowing(): Collection
+    {
+        return $this->following;
+    }
+
+    public function getFollowers(): Collection
+    {
+        return $this->followers;
+    }
+
+    public function addFollower(User $user): void {
+        if (!$this->followers->contains($user)) {
+            $this->followers->add($user);
+            $user->addFollowing($this);
+        }
+    }
+
+    public function addFollowing(User $user): void {
+        if (!$this->following->contains($user)) {
+            $this->following->add($user);
+        }
+    }
+
+    public function removeFollower(User $user): void {
+        if ($this->followers->contains($user)) {
+            $this->followers->removeElement($user);
+            $user->removeFollowing($this);
+        }
+    }
+
+    public function removeFollowing(User $user): void {
+        if ($this->following->contains($user)) {
+            $this->following->removeElement($user);
+        }
+    }
+
+    public function getFriends(): array {
+        return [];
     }
 }

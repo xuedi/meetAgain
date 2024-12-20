@@ -6,15 +6,18 @@
 
     <section class="section">
         <div class="container">
-            <h1>messages</h1>
-            <p>list of messages</p>
 
-            <h1>activities</h1>
-            <p>list of activities</p>
-
-
-
-        </div>
+            <div class="columns">
+                <div class="column is-2">
+                    <h1 class="title is-6">Friends</h1>
+                    {% for user in friends %}
+                        {{ user.name }}<br>
+                    {% endfor %}
+                </div>
+                <div class="column is-10">
+                    you can only message to people you are friends with, or people who allow you to message them.
+                </div>
+            </div>
     </section>
 
 {% endblock %}

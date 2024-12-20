@@ -9,6 +9,7 @@ use App\Entity\UserActivity;
 use App\Form\ChangePassword;
 use App\Form\ProfileType;
 use App\Repository\EventRepository;
+use App\Repository\UserRepository;
 use App\Service\ActivityService;
 use App\Service\UploadService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -82,9 +83,23 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/messages', name: 'app_profile_messages')]
-    public function messages(): Response
+    public function messages(UserRepository $repo): Response
     {
-        return $this->render('profile/messages.html.twig');
+        return $this->render('profile/messages.html.twig', [
+            'friends' => $repo->getFriends($this->getAuthedUser()),
+            'user' => $this->getAuthedUser(),
+        ]);
+    }
+
+    #[Route('/social', name: 'app_profile_social')]
+    public function social(UserRepository $repo): Response
+    {
+        return $this->render('profile/social.html.twig', [
+            'followers' => $repo->getFollowers($this->getAuthedUser(), true),
+            'following' => $repo->getFollowing($this->getAuthedUser(), true),
+            'friends' => $repo->getFriends($this->getAuthedUser()),
+            'user' => $this->getAuthedUser(),
+        ]);
     }
 
     #[Route('/config', name: 'app_profile_config')]

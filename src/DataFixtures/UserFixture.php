@@ -30,18 +30,86 @@ class UserFixture extends Fixture
             $this->addReference('user_' . md5((string)$name), $user);
         }
         $manager->flush();
+
+        $xuedi = $this->getReference('user_' . md5((string) 'xuedi'));
+        $xuedi->addFollower($this->getReference('user_' . md5((string) 'yimu')));
+        $xuedi->addFollower($this->getReference('user_' . md5((string) 'xiaolong')));
+        $xuedi->addFollower($this->getReference('user_' . md5((string) 'user_a')));
+        $xuedi->addFollower($this->getReference('user_' . md5((string) 'user_b')));
+        $xuedi->addFollowing($this->getReference('user_' . md5((string) 'xiaolong')));
+        $xuedi->addFollowing($this->getReference('user_' . md5((string) 'yimu')));
+        $xuedi->addFollowing($this->getReference('user_' . md5((string) 'user_c')));
+        $xuedi->addFollowing($this->getReference('user_' . md5((string) 'import')));
+        $manager->persist($xuedi);
+        $manager->flush();
     }
 
     private function getData(): array
     {
         return [
-            ['en', 'import', 'system@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_SYSTEM'], false, UserStatus::Active],
-            ['de', 'xuedi', 'admin@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN'], true, UserStatus::Active],
-            ['en', 'yimu', 'yimu.wang.nz@gmail.com', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN'], true, UserStatus::Active],
-            ['cn', 'xiaolong', 'xiaolong@gmail.com', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER', 'ROLE_MANAGER'], true, UserStatus::Active],
-            ['en', 'user_a', 'user_a@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER'], true, UserStatus::Active],
-            ['en', 'user_b', 'user_b@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER'], false, UserStatus::Active],
-            ['en', 'user_c', 'user_c@beijingcode.org', '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG', ['ROLE_USER'], false, UserStatus::Deleted],
+            [
+                'en',
+                'import',
+                'system@beijingcode.org',
+                '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG',
+                ['ROLE_SYSTEM'],
+                false,
+                UserStatus::Active,
+            ],
+            [
+                'de',
+                'xuedi',
+                'admin@beijingcode.org',
+                '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG',
+                ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN'],
+                true,
+                UserStatus::Active
+            ],
+            [
+                'en',
+                'yimu',
+                'yimu.wang.nz@gmail.com',
+                '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG',
+                ['ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN'],
+                true,
+                UserStatus::Active
+            ],
+            [
+                'cn',
+                'xiaolong',
+                'xiaolong@gmail.com',
+                '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG',
+                ['ROLE_USER', 'ROLE_MANAGER'],
+                true,
+                UserStatus::Active
+            ],
+            [
+                'en',
+                'user_a',
+                'user_a@beijingcode.org',
+                '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG',
+                ['ROLE_USER'],
+                true,
+                UserStatus::Active
+            ],
+            [
+                'en',
+                'user_b',
+                'user_b@beijingcode.org',
+                '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG',
+                ['ROLE_USER'],
+                false,
+                UserStatus::Active
+            ],
+            [
+                'en',
+                'user_c',
+                'user_c@beijingcode.org',
+                '$2y$13$4OCpKLHN5POFsrAek5RmTu6jAKLyz0xp.czPVLl4yffg91RC9u2fG',
+                ['ROLE_USER'],
+                false,
+                UserStatus::Deleted
+            ],
         ];
     }
 }

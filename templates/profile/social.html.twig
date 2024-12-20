@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "page_title_profile"|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+
+            <div class="columns">
+                <div class="column is-2">
+                    <h1 class="title is-6">Following</h1>
+                    {% for user in following %}
+                        {{ user.name }}<br>
+                    {% endfor %}
+
+                    <hr>
+
+                    <h1 class="title is-6">Followers</h1>
+                    {% for user in followers %}
+                        {{ user.name }}<br>
+                    {% endfor %}
+
+                    <hr>
+
+                    <h1 class="title is-6">Friends</h1>
+                    {% for user in friends %}
+                        {{ user.name }}<br>
+                    {% endfor %}
+                </div>
+                <div class="column is-10">
+                    activity stream of the people you follow (and share activities) and your friends. That can be posts, recent RSVPs, comments, likes, etc.
+                </div>
+            </div>
+    </section>
+
+{% endblock %}
