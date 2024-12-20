@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\UserStatus;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\FriendshipService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
@@ -38,20 +38,8 @@ class MemberController extends AbstractController
     }
 
     #[Route('/toggleFollow/{id}', name: 'app_member_toggle_follow')]
-    public function toggleFollow(UserRepository $repo, EntityManagerInterface $em, int $id): Response
+    public function toggleFollow(FriendshipService $service, int $id): Response
     {
-        $currentUser = $this->getAuthedUser();
-        $targetUser = $repo->findOneBy(['id' => $id]);
-
-        if ($currentUser->getFollowing()->contains($targetUser)) {
-            $currentUser->removeFollowing($targetUser);
-        } else {
-            $currentUser->addFollowing($targetUser);
-        }
-
-        $em->persist($currentUser);
-        $em->flush();
-
-        return $this->redirectToRoute('app_member_view', ['id' => $targetUser->getId()]);
+        return $service->toggleFollow($id, 'app_member_view');
     }
 }

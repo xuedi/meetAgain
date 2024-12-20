@@ -8,38 +8,75 @@
         <div class="container">
 
             <div class="columns">
-                <div class="column is-2">
-                    <h1 class="title is-6">Following</h1>
-                    {% for user in following %}
-                        {{ user.name }}<br>
-                    {% endfor %}
-
-                    <hr>
-
-                    <h1 class="title is-6">Followers</h1>
-                    {% for user in followers %}
-                        {{ user.name }}<br>
-                    {% endfor %}
-
-                    <hr>
-
-                    <h1 class="title is-6">Friends</h1>
-                    {% for user in friends %}
-                        {{ user.name }}<br>
-                    {% endfor %}
-                </div>
-                <div class="column is-10">
-                    activity stream of the people you follow (and share activities) and your friends. That can be posts,
-                    recent RSVPs, comments, likes, etc.
-
-                    maybe tabs?
-
-                    <h2 class="title is-5">Activity</h2>
+                <div class="column is-9">
+                    <h2 class="title is-5">Activities</h2>
+                    <p>
+                        activity stream of the people you follow (and share activities) and your friends. That can be
+                        posts,
+                        recent RSVPs, comments, likes, etc. ... the actual list is coming soon...
+                    </p>
                     <ul>
                         {% for activity in user.getActivities %}
                             <li>{{ activity.createdAt|date('Y-m-d') }}: {{ activity.message }}</li>
                         {% endfor %}
                     </ul>
+                </div>
+                <div class="column is-3">
+                    <h2 class="title is-5">Connections</h2>
+
+                    <table class="table is-fullwidth mt-3">
+                        <tbody>
+                        <tr>
+                            <td class="has-text-grey has-text-centered pt-6" colspan="2">I am friends with</td>
+                        </tr>
+                        {% for user in friends %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td class="has-text-right">
+                                    <a href="{{ path('app_profile_social_toggle_follow', {'id': user.id}) }}"
+                                       class="button is-danger is-small">
+                                        <span class="icon"><i class="fa fa-minus"></i></span><span>Unfriend</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td class="has-text-grey has-text-centered pt-6" colspan="2">I am following</td>
+                        </tr>
+                        {% for user in following %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td class="has-text-right">
+                                    <a href="{{ path('app_profile_social_toggle_follow', {'id': user.id}) }}"
+                                       class="button is-danger is-small">
+                                        <span class="icon"><i class="fa fa-minus"></i></span><span>Unfollow</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td class="has-text-grey has-text-centered pt-6" colspan="2">People who follow me</td>
+                        </tr>
+                        {% for user in followers %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td class="has-text-right">
+                                    <a href="{{ path('app_profile_social_toggle_follow', {'id': user.id}) }}"
+                                       class="button is-success is-small">
+                                        <span class="icon"><i class="fa fa-plus"></i></span><span>Follow back</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <p class="mt-6">
+                        Friends means that you both follow each other (unfriend = unfollow)
+                    </p>
+                    <p class="mt-4">
+                        Find more people to follow at the members page
+                    </p>
 
                 </div>
             </div>

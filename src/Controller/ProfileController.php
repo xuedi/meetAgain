@@ -10,6 +10,7 @@ use App\Form\ProfileType;
 use App\Repository\EventRepository;
 use App\Repository\UserRepository;
 use App\Service\ActivityService;
+use App\Service\FriendshipService;
 use App\Service\UploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,14 +89,27 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/social', name: 'app_profile_social')]
-    public function social(UserRepository $repo): Response
+    public function social(UserRepository $repo, string $show = 'friends'): Response
     {
         return $this->render('profile/social.html.twig', [
             'followers' => $repo->getFollowers($this->getAuthedUser(), true),
             'following' => $repo->getFollowing($this->getAuthedUser(), true),
             'friends' => $repo->getFriends($this->getAuthedUser()),
             'user' => $this->getAuthedUser(),
+            'show' => $show,
         ]);
+    }
+
+    #[Route('/social/friends/', name: 'app_profile_social_friends')]
+    public function socialFriends(UserRepository $repo): Response
+    {
+        return $this->social($repo, 'friends');
+    }
+
+    #[Route('/social/toggleFollow/{id}/', name: 'app_profile_social_toggle_follow')]
+    public function toggleFollow(FriendshipService $service, int $id): Response
+    {
+        return $service->toggleFollow($id, 'app_profile_social');
     }
 
     #[Route('/config', name: 'app_profile_config')]
