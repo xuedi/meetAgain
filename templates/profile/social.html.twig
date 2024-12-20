@@ -15,6 +15,7 @@
                         posts,
                         recent RSVPs, comments, likes, etc. ... the actual list is coming soon...
                     </p>
+                    <hr>
                     <ul>
                         {% for activity in user.getActivities %}
                             <li>{{ activity.createdAt|date('Y-m-d') }}: {{ activity.message }}</li>
@@ -22,12 +23,10 @@
                     </ul>
                 </div>
                 <div class="column is-3">
-                    <h2 class="title is-5">Connections</h2>
-
                     <table class="table is-fullwidth mt-3">
                         <tbody>
                         <tr>
-                            <td class="has-text-grey has-text-centered pt-6" colspan="2">I am friends with</td>
+                            <td class="has-text-grey has-text-centered" colspan="2">We follow each other</td>
                         </tr>
                         {% for user in friends %}
                             <tr>
@@ -35,7 +34,7 @@
                                 <td class="has-text-right">
                                     <a href="{{ path('app_profile_social_toggle_follow', {'id': user.id}) }}"
                                        class="button is-danger is-small">
-                                        <span class="icon"><i class="fa fa-minus"></i></span><span>Unfriend</span>
+                                        <span class="icon"><i class="fa fa-minus"></i></span><span>Unfollow</span>
                                     </a>
                                 </td>
                             </tr>
@@ -71,11 +70,8 @@
                         </tbody>
                     </table>
 
-                    <p class="mt-6">
-                        Friends means that you both follow each other (unfriend = unfollow)
-                    </p>
                     <p class="mt-4">
-                        Find more people to follow at the members page
+                        Find more people to follow at the members page or ask for their username at next meetup.
                     </p>
 
                 </div>
