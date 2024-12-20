@@ -4,49 +4,44 @@
 
 {% block body %}
 
+    {% set followLink = path('app_member_toggle_follow', {'id': userDetails.id}) %}
+
     <section class="section">
         <div class="container">
-            <h1>View public profile</h1>
-
-            <p>images, activities, everything that the users shares in privacy setttings</p>
-
-
-
-            <div class="card">
-                <div class="card-image">
-                    <figure class="image is-4by3">
-                        <img
-                                src="https://bulma.io/assets/images/placeholders/128x128.png"
-                                alt="Top Banner"
-                        />
-                    </figure>
+            <div class="columns">
+                <div class="column is-4">
+                    {% include '_block/image.html.twig' with {'image': userDetails.image, 'size': '400x400'} %}
                 </div>
-                <div class="card-content">
-                    <div class="media">
-                        <div class="media-left">
-                            <figure class="image is-48x48">
-                                <img
-                                        src="https://bulma.io/assets/images/placeholders/96x96.png"
-                                        alt="profile picture"
-                                />
-                            </figure>
-                        </div>
-                        <div class="media-content">
-                            <p class="title is-4">xuedi</p>
-                            <p class="subtitle is-6">ROLES</p>
-                        </div>
+
+                <div class="column is-7">
+                    <div class="mb-4">
+                        <h1 class="title is-3 is-inline">{{ userDetails.name }}</h1>
+                        {% if userDetails.id != currentUser.id %}
+                            {% if isFollow %}
+                                <a href="{{ followLink }}" class="button is-danger is-small ml-4 mt-1">
+                                    <span class="icon"><i class="fa fa-minus"></i></span><span>Unfollow</span>
+                                </a>
+                            {% else %}
+                                <a href="{{ followLink }}" class="button is-success is-small ml-4 mt-1">
+                                    <span class="icon"><i class="fa fa-plus"></i></span><span>Follow</span>
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <div class="button is-warning is-small ml-4 mt-1">
+                                <span class="icon"><i class="fa fa-circle-exclamation"></i></span><span>follow</span>
+                            </div>
+                        {% endif %}
                     </div>
 
-                    <div class="content">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec
-                        iaculis mauris. <a>@bulmaio</a>. <a href="#">#css</a>
-                        <a href="#">#responsive</a>
-                        <br/>
-                        <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
-                    </div>
+
+                    <p>some member details to come</p>
+
+                    <a href="#" class="button is-small mt-4">
+                        <span class="icon"><i class="fa fa-envelope"></i></span><span>Message</span>
+                    </a>
                 </div>
+
             </div>
-
 
         </div>
     </section>

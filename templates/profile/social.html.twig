@@ -29,9 +29,22 @@
                     {% endfor %}
                 </div>
                 <div class="column is-10">
-                    activity stream of the people you follow (and share activities) and your friends. That can be posts, recent RSVPs, comments, likes, etc.
+                    activity stream of the people you follow (and share activities) and your friends. That can be posts,
+                    recent RSVPs, comments, likes, etc.
+
+                    maybe tabs?
+
+                    <h2 class="title is-5">Activity</h2>
+                    <ul>
+                        {% for activity in user.getActivities %}
+                            <li>{{ activity.createdAt|date('Y-m-d') }}: {{ activity.message }}</li>
+                        {% endfor %}
+                    </ul>
+
                 </div>
             </div>
+
+        </div>
     </section>
 
 {% endblock %}

@@ -15,6 +15,7 @@ enum UserActivity: int
         return [
             $translator->trans('ChangedUsername') => self::ChangedUsername,
             $translator->trans('Login') => self::Login,
+            // TODO: send message, did rsvp, wrote comment
         ];
     }
 }

@@ -12,7 +12,6 @@ use App\Form\EventFilterType;
 use App\Repository\EventRepository;
 use App\Service\EventService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -59,17 +58,5 @@ class EventController extends AbstractController
         $em->flush();
 
         return $this->redirectToRoute('app_event_details', ['id' => $event->getId()]);
-    }
-
-    private function getAuthedUser(): User
-    { // just to avoid phpstorms nullpointer warning TODO: put into custom abstract
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            throw new AuthenticationCredentialsNotFoundException(
-                "Should never happen, see: config/packages/security.yaml"
-            );
-        }
-
-        return $user;
     }
 }

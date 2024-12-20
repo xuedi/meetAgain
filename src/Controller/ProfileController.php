@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Event;
 use App\Entity\Image;
-use App\Entity\User;
 use App\Entity\UserActivity;
 use App\Form\ChangePassword;
 use App\Form\ProfileType;
@@ -13,13 +12,10 @@ use App\Repository\UserRepository;
 use App\Service\ActivityService;
 use App\Service\UploadService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 #[Route('/profile')]
 class ProfileController extends AbstractController
@@ -123,17 +119,5 @@ class ProfileController extends AbstractController
         return $this->render('profile/config.html.twig', [
             'form' => $form,
         ]);
-    }
-
-    private function getAuthedUser(): User
-    { // just to avoid phpstorms nullpointer warning
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            throw new AuthenticationCredentialsNotFoundException(
-                "Should never happen, see: config/packages/security.yaml"
-            );
-        }
-
-        return $user;
     }
 }
