@@ -18,7 +18,7 @@
                     <hr>
                     <ul>
                         {% for activity in user.getActivities %}
-                            <li>{{ activity.createdAt|date('Y-m-d') }}: <b>{{ activity.user.name }}</b> {{ activity.message }}</li>
+                            <li>{{ activity.createdAt|date('Y-m-d') }}: <b>{{ activity.user.name }}</b> - {{ activity.message }}</li>
                         {% endfor %}
                     </ul>
                 </div>
