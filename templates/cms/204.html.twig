@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ "page_title_error"|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+
+            <h1 class="title">Error: No content</h1>
+            <p class="mb-5">
+                {{ message|trans }}
+            </p>
+
+        </div>
+    </section>
+
+{% endblock %}

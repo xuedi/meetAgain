@@ -6,13 +6,13 @@ use App\Service\CmsService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 
-// TODO: make to get all pattern
 class DefaultController extends AbstractController
 {
-    #[Route('/{slug}', name: 'app_catch_all', priority: -10)]
-    public function index(Request $request, CmsService $cms, string $slug): Response
+    #[Route('/{page}', name: 'app_catch_all', requirements: ['page' => Requirement::CATCH_ALL], priority: -20)]
+    public function catchAll(Request $request, CmsService $cms, string $page): Response
     {
-        return $cms->handle($request->getLocale(), $slug);
+        return $cms->handle($request->getLocale(), $page);
     }
 }

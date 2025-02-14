@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Service;
 
+use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Translation;
 use App\Repository\TranslationRepository;
 use App\Repository\UserRepository;
@@ -48,7 +49,7 @@ class TranslationServiceTest extends TestCase
         );
     }
 
-    public function testGetMatix(): void
+    public function testGetMatrix(): void
     {
         $expected = [
             'a_translation' => [
@@ -98,5 +99,27 @@ class TranslationServiceTest extends TestCase
         $actual = $this->subject->getMatrix();
 
         $this->assertEquals($expected, $actual);
+    }
+
+    public function testSaveMatrix(): void
+    {
+        $dataBase = [
+
+        ];
+        $payload = [
+
+        ];
+
+        $request = $this->createMock(Request::class);
+        $request->expects($this->once())
+            ->method('getPayload')
+            ->willReturn($payload);
+
+        $this->translationRepositoryMock
+            ->expects($this->once())
+            ->method('buildKeyValueList')
+            ->willReturn($dataBase);
+
+        $this->subject->saveMatrix($request);
     }
 }
