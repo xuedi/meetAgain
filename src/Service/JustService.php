@@ -7,7 +7,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Stopwatch\Stopwatch;
 
-readonly class JustService
+class JustService
 {
     public function __construct(private KernelInterface $appKernel)
     {
