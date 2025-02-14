@@ -43,7 +43,7 @@ class EventController extends AbstractController
     }
 
     #[Route('/event/{id}', name: 'app_event_details', requirements: ['id' => '\d+'])]
-    public function details(EventRepository $repo, int $id = null): Response
+    public function details(EventRepository $repo, ?int $id = null): Response
     {
         return $this->render('events/details.html.twig', [
             'event' => $repo->findOneBy(['id' => $id]),

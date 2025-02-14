@@ -39,7 +39,7 @@ class AdminCmsController extends AbstractController
     }
 
     #[Route('/{id}/edit/{locale}/{blockId}', name: 'app_admin_cms_edit', requirements: ['locale' => 'en|de|cn'], methods: ['GET', 'POST'])]
-    public function cmsEdit(Request $request, Cms $cms, EntityManagerInterface $em, string $locale = 'en', int $blockId = null): Response
+    public function cmsEdit(Request $request, Cms $cms, EntityManagerInterface $em, string $locale = 'en', ?int $blockId = null): Response
     {
         $form = $this->createForm(CmsType::class, $cms);
         $form->handleRequest($request);
