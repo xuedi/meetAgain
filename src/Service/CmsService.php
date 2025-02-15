@@ -12,6 +12,11 @@ class CmsService
     {
     }
 
+    public function getSites(): array
+    {
+        return $this->repo->findAll();
+    }
+
     public function handle(string $locale, string $slug): Response
     {
         $cms = $this->repo->findOneBy([
