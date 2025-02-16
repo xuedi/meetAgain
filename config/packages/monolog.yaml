@@ -37,5 +37,4 @@ when@prod:
                 path:  '%kernel.logs_dir%/%kernel.environment%.log'
                 handler: nested
                 level: error
-                excluded_http_codes: [404]
 
