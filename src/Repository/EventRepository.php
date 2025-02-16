@@ -16,6 +16,17 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
+    // TODO: get via builder straight as keyValue
+    public function getEventNameList(): array
+    {
+        $list = [];
+        foreach ($this->findAll() as $event) {
+            $list[$event->getId()] = $event->getName();
+        }
+
+        return $list;
+    }
+
     public function getUpcomingEvents(int $number = 3): array
     {
         $query = $this->getEntityManager()->createQuery(

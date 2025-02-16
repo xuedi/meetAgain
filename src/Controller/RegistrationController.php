@@ -16,6 +16,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
+// TODO: add logging for registration & activation
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]

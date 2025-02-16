@@ -13,12 +13,12 @@
                     <p>
                         activity stream of the people you follow (and share activities) and your friends. That can be
                         posts,
-                        recent RSVPs, comments, likes, etc. ... the actual list is coming soon...
+                        recent RSVPs, comments, likes, etc.
                     </p>
                     <hr>
                     <ul>
-                        {% for activity in user.getActivities %}
-                            <li>{{ activity.createdAt|date('Y-m-d') }}: <b>{{ activity.user.name }}</b> - {{ activity.message }}</li>
+                        {% for activity in activities %}
+                            <li>{{ activity.createdAt|date('Y-m-d') }}: {{ activity.message }}</li>
                         {% endfor %}
                     </ul>
                 </div>

@@ -21,13 +21,16 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/profile')]
 class ProfileController extends AbstractController
 {
+    public function __construct(private readonly ActivityService $activityService)
+    {
+    }
+
     #[Route('/', name: 'app_profile')]
     public function index(
         Request $request,
         EventRepository $repo,
         UploadService $uploadService,
         EntityManagerInterface $entityManager,
-        ActivityService $activityService,
     ): Response {
 
         $user = $this->getAuthedUser();
@@ -40,7 +43,7 @@ class ProfileController extends AbstractController
             $newUserName = $form->get('name')->getData();
             if ($oldUserName !== $newUserName) {
                 $message = sprintf("Changed username from '%s' to '%s'", $oldUserName, $newUserName);
-                $activityService->log(UserActivity::ChangedUsername, $user, $message);
+                $this->activityService->log(UserActivity::ChangedUsername, $user, ['old' => $oldUserName, 'new' => $newUserName]);
             }
             // TODO: add following to the form so it is handled automatically
             $user->setBio($form->get('bio')->getData());
@@ -72,9 +75,16 @@ class ProfileController extends AbstractController
     #[Route('/toggleRsvp/{event}/', name: 'app_profile_toggle_rsvp')]
     public function toggleRsvp(Event $event, EntityManagerInterface $em): Response
     {
-        $event->toggleRsvp($this->getAuthedUser());
+        $user = $this->getAuthedUser();
+        $event->toggleRsvp($user);
         $em->persist($event);
         $em->flush();
+
+        if ($event->hasRsvp($user)) {
+            $this->activityService->log(UserActivity::RsvpYes, $user, ['event_id' => $event->getId()]);
+        } else {
+            $this->activityService->log(UserActivity::RsvpNo, $user, ['event_id' => $event->getId()]);
+        }
 
         return $this->redirectToRoute('app_profile');
     }
@@ -95,6 +105,7 @@ class ProfileController extends AbstractController
             'followers' => $repo->getFollowers($this->getAuthedUser(), true),
             'following' => $repo->getFollowing($this->getAuthedUser(), true),
             'friends' => $repo->getFriends($this->getAuthedUser()),
+            'activities' => $this->activityService->getUserList($this->getAuthedUser()),
             'user' => $this->getAuthedUser(),
             'show' => $show,
         ]);

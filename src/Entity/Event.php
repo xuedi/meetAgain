@@ -245,6 +245,11 @@ class Event
         return $this;
     }
 
+    public function hasRsvp(User $user): bool
+    {
+        return $this->rsvp->contains($user);
+    }
+
     public function removeRsvp(User $user): static
     {
         $this->rsvp->removeElement($user);

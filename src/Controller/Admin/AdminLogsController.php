@@ -3,7 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\ValueObjects\LogEntry;
-use App\Repository\ActivityRepository;
+use App\Service\ActivityService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,10 +12,10 @@ use Symfony\Component\Routing\Attribute\Route;
 class AdminLogsController extends AbstractController
 {
     #[Route('/activity', name: 'app_admin_logs_activity')]
-    public function activityList(ActivityRepository $repo): Response
+    public function activityList(ActivityService $activityService): Response
     {
         return $this->render('admin/logs/activity_list.html.twig', [
-            'activities' => $repo->findAll(),
+            'activities' => $activityService->getAdminList(),
         ]);
     }
 

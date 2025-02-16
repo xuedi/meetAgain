@@ -26,6 +26,12 @@ class Activity
     #[ORM\Column(enumType: UserActivity::class)]
     private ?UserActivity $type = null;
 
+    #[ORM\Column]
+    private ?bool $visible = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?array $Meta = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +81,30 @@ class Activity
     public function setType(UserActivity $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function isVisible(): ?bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): static
+    {
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+    public function getMeta(): ?array
+    {
+        return $this->Meta;
+    }
+
+    public function setMeta(?array $Meta): static
+    {
+        $this->Meta = $Meta;
 
         return $this;
     }

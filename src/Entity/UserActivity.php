@@ -8,6 +8,11 @@ enum UserActivity: int
 {
     case ChangedUsername = 0;
     case Login = 1;
+    case RsvpYes = 2;
+    case RsvpNo = 3;
+    case Registered = 4;
+    case FollowedUser = 5;
+    case UnFollowedUser = 6;
 
     // TODO: should be separate translator not here in enum
     public static function getChoices(TranslatorInterface $translator): array
@@ -15,6 +20,8 @@ enum UserActivity: int
         return [
             $translator->trans('ChangedUsername') => self::ChangedUsername,
             $translator->trans('Login') => self::Login,
+            $translator->trans('RsvpYes') => self::RsvpYes,
+            $translator->trans('RsvpNo') => self::RsvpNo,
             // TODO: send message, did rsvp, wrote comment
         ];
     }
