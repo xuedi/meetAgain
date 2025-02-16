@@ -13,6 +13,7 @@ deploy:
     APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
 
 run:
+    truncate -s 0 var/log/dev.log
     symfony server:start --no-tls
 
 make:
@@ -28,6 +29,9 @@ translationsExtract:
     php bin/console translation:extract --force --format php de
     php bin/console translation:extract --force --format php en
     php bin/console translation:extract --force --format php cn
+
+clearLogs:
+    truncate -s 0 var/log/dev.log
 
 clearCache:
     composer dump-autoload
