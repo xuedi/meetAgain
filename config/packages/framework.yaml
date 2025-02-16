@@ -3,6 +3,7 @@ framework:
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
     session: true
+    error_controller: App\Controller\ErrorController::show
 
 when@test:
     framework:

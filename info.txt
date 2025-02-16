@@ -1,7 +1,0 @@
-
-TODO:
- - add friend list & adding & approving
- - add messages & way to block users
- - add comments
- - add community translation suggestions & manger approvement
-

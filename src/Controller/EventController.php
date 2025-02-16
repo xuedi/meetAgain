@@ -7,7 +7,6 @@ use App\Entity\EventFilterRsvp;
 use App\Entity\EventFilterSort;
 use App\Entity\EventFilterTime;
 use App\Entity\EventTypes;
-use App\Entity\User;
 use App\Form\EventFilterType;
 use App\Repository\EventRepository;
 use App\Service\EventService;
@@ -15,7 +14,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 class EventController extends AbstractController
 {
