@@ -8,6 +8,7 @@ use App\Entity\EventFilterSort;
 use App\Entity\EventFilterTime;
 use App\Entity\EventTypes;
 use App\Form\EventFilterType;
+use App\Repository\CommentRepository;
 use App\Repository\EventRepository;
 use App\Service\EventService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,9 +42,10 @@ class EventController extends AbstractController
     }
 
     #[Route('/event/{id}', name: 'app_event_details', requirements: ['id' => '\d+'])]
-    public function details(EventRepository $repo, ?int $id = null): Response
+    public function details(EventRepository $repo, CommentRepository $comments, ?int $id = null): Response
     {
         return $this->render('events/details.html.twig', [
+            'comments' => $comments->findBy(['event' => $id]), // TODO: use custom repo with builder so userInfos are not lazy load
             'event' => $repo->findOneBy(['id' => $id]),
         ]);
     }

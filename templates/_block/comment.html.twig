@@ -1,0 +1,18 @@
+<div class="box">
+    <article class="media">
+        <div class="media-left">
+            <figure class="image is-64x64">
+                {% include '_block/image.html.twig' with {'image': comment.user.image, 'size': '400x400'} %}
+            </figure>
+        </div>
+        <div class="media-content">
+            <div class="content">
+                <p>
+                    <strong>{{ comment.user.name }}</strong> <small>{{ comment.createdAt | time_diff }}</small>
+                    <br/>
+                    {{ comment.content }}
+                </p>
+            </div>
+        </div>
+    </article>
+</div>
