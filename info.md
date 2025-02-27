@@ -7,3 +7,4 @@
  - add comments
  - add community translation suggestions & manger approval
  - admin Log display: checkbox level & type, 3 stage subselect: year, month, day 
+ - Center footer with mobile breaking via: https://bulma.io/documentation/layout/level/

@@ -7,10 +7,51 @@
         </div>
         <div class="media-content">
             <div class="content">
+                <nav class="level mb-2">
+                    <div class="level-left">
+                        <strong class="level-item">{{ comment.user.name }}</strong>
+                        <small class="level-item">{{ comment.createdAt | time_diff }}</small>
+                    </div>
+                    {% if is_granted('ROLE_USER') %}
+                        <div class="level-right">
+                            {% if comment.user.id == user.id %}
+                                {% set delete = path('app_event_delete_comment', {'id': comment.id, 'event': event.id}) %}
+                                {#
+                                <a class="level-item">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                                #}
+                                <a class="level-item" href="{{ delete }}">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                            {% else %}
+                                <a class="level-item replyButton" data-comment="{{ comment.content }}">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-reply" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                                {#
+                                <a class="level-item">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-heart" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                                <a class="level-item">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-flag" aria-hidden="true"></i>
+                                    </span>
+                                </a>
+                                #}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </nav>
                 <p>
-                    <strong>{{ comment.user.name }}</strong> <small>{{ comment.createdAt | time_diff }}</small>
-                    <br/>
-                    {{ comment.content }}
+                    {{ comment.content|nl2br }}
                 </p>
             </div>
         </div>
