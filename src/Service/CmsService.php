@@ -25,9 +25,7 @@ class CmsService
         ]);
 
         if ($cms === null) {
-            return new Response($this->twig->render('cms/404.html.twig', [
-                'message' => "These aren't the droids you're looking for!",
-            ]), Response::HTTP_NOT_FOUND);
+            return $this->createNotFoundPage();
         }
 
         $blocks = $cms->getLanguageFilteredBlockJsonList($locale);
@@ -40,5 +38,12 @@ class CmsService
         return new Response($this->twig->render('cms/index.html.twig', [
             'blocks' => $blocks,
         ]), Response::HTTP_OK);
+    }
+
+    public function createNotFoundPage(): Response
+    {
+        return new Response($this->twig->render('cms/404.html.twig', [
+            'message' => "These aren't the droids you're looking for!",
+        ]), Response::HTTP_NOT_FOUND);
     }
 }
