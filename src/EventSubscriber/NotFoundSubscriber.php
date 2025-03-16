@@ -2,7 +2,11 @@
 
 namespace App\EventSubscriber;
 
+use App\Entity\NotFoundLog;
 use App\Service\CmsService;
+use DateTime;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -12,8 +16,11 @@ use Symfony\Component\Routing\RouterInterface;
 
 readonly class NotFoundSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private CmsService $cms, private RouterInterface $router)
-    {
+    public function __construct(
+        private CmsService $cms,
+        private RouterInterface $router,
+        private EntityManagerInterface $em,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -30,7 +37,15 @@ readonly class NotFoundSubscriber implements EventSubscriberInterface
         $exception = $event->getThrowable();
         if ($exception instanceof NotFoundHttpException) {
             $path = $event->getRequest()->getPathInfo();
-            dump($path);
+            $ip = $event->getRequest()->getClientIp() ?? '';
+
+            $notFoundLog = new NotFoundLog();
+            $notFoundLog->setCreatedAt(new DateTimeImmutable());
+            $notFoundLog->setIp($ip);
+            $notFoundLog->setUrl($path);
+
+            $this->em->persist($notFoundLog);
+            $this->em->flush();
 
             $context = new RequestContext();
             $context->setParameter('_locale', 'en');
