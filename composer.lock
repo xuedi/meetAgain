@@ -393,16 +393,16 @@
         },
         {
             "name": "doctrine/doctrine-bundle",
-            "version": "2.17.0",
+            "version": "2.17.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineBundle.git",
-                "reference": "bb618a135102fa9d7de74ba371e37f3ff542fd66"
+                "reference": "254358971bae7ba80cebc819c8b6752358fc9319"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/bb618a135102fa9d7de74ba371e37f3ff542fd66",
-                "reference": "bb618a135102fa9d7de74ba371e37f3ff542fd66",
+                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/254358971bae7ba80cebc819c8b6752358fc9319",
+                "reference": "254358971bae7ba80cebc819c8b6752358fc9319",
                 "shasum": ""
             },
             "require": {
@@ -494,7 +494,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/DoctrineBundle/issues",
-                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.17.0"
+                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.17.2"
             },
             "funding": [
                 {
@@ -510,7 +510,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-10-07T15:38:43+00:00"
+            "time": "2025-10-11T04:40:56+00:00"
         },
         {
             "name": "doctrine/doctrine-fixtures-bundle",
