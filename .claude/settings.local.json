@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just test)",
+      "WebSearch",
+      "Bash(just composer update:*)",
+      "Bash(just --list:*)",
+      "Bash(just app:*)",
+      "Bash(just do \"composer update\")",
+      "Bash(just clearCache:*)",
+      "Bash(just test-functional:*)",
+      "Bash(just test-unit:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "github"
+  ],
+  "enableAllProjectMcpServers": true
+}
