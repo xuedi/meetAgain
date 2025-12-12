@@ -11,6 +11,7 @@ Last updated: 2025-10-19 01:16 (local)
 - Run `just` without arguments to see all available commands.
 - Read the comments in the `justfile` to understand what each command does.
 - Always use `just test` to run tests, not `just do "vendor/bin/phpunit ..."`.
+- Always use `just clearCache` to clear cache (clears all environments).
 
 ## General Principles
 - Prefer clarity over cleverness. Choose explicit, readable solutions.
