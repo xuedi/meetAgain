@@ -9,11 +9,12 @@
       "Bash(just do \"composer update\")",
       "Bash(just clearCache:*)",
       "Bash(just test-functional:*)",
-      "Bash(just test-unit:*)"
+      "Bash(just test-unit:*)",
+      "Bash(just do \"composer outdated --direct\")"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "github"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
