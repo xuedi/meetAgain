@@ -5,6 +5,11 @@ Last updated: 2025-10-19 01:16 (local)
 - Maintain code quality, security, and consistency across the project.
 - Preserve project conventions: Symfony (PHP), Twig, Doctrine, PSR standards, and existing tooling.
 
+## Development Environment
+- All services run in Docker containers. Never run commands directly on the host.
+- Always use `just` (justfile) commands to interact with the project (e.g., `just test`, `just shell`, `just composer`).
+- Run `just` without arguments to see all available commands.
+
 ## General Principles
 - Prefer clarity over cleverness. Choose explicit, readable solutions.
 - Follow existing patterns in the codebase. When in doubt, search for similar implementations.
