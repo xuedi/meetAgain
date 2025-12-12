@@ -10,7 +10,8 @@
       "Bash(just clearCache:*)",
       "Bash(just test-functional:*)",
       "Bash(just test-unit:*)",
-      "Bash(just do \"composer outdated --direct\")"
+      "Bash(just do \"composer outdated --direct\")",
+      "Bash(just checkStan:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
