@@ -12,7 +12,8 @@
       "Bash(just test-unit:*)",
       "Bash(just do \"composer outdated --direct\")",
       "Bash(just checkStan:*)",
-      "Bash(just checkDeptrac:*)"
+      "Bash(just checkDeptrac:*)",
+      "Bash(just start)"
     ]
   },
   "enableAllProjectMcpServers": true,
