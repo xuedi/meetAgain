@@ -34,4 +34,6 @@
 
 ## Testing
 - Prefer unit tests for services and functional tests for controllers/routes.
+- Use descriptive comments in unit tests to explain the purpose of each section (e.g., "Arrange", "Act", "Assert" or describing what is being tested and why).
+- Use `createStub()` for test doubles that don't need expectations; use `createMock()` only when verifying method calls.
 - Ignore the command `just update_coverage_badge` this is only for the CI to create badges for humans
