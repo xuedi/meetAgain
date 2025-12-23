@@ -3,6 +3,7 @@
 ## Development Environment
 - All services run in Docker containers. Never run commands directly on the host.
 - Always use `just` (justfile) commands to interact with the project (e.g., `just test`, `just app`).
+- To run a database query use `just dockerDatabase {statement}`
 
 ## Coding Standards
 - PHP: PSR-12, strict types where feasible.
