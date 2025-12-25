@@ -22,7 +22,9 @@
       "mcp__puppeteer__puppeteer_click",
       "mcp__puppeteer__puppeteer_fill",
       "Bash(just dockerDatabase:*)",
-      "Bash(just appMigrate:*)"
+      "Bash(just appMigrate:*)",
+      "Bash(docker-compose -f docker/installer-test/docker-compose.yml exec php bash -c \"cd /var/www/html/public/install && php index.php 2>&1 | head -50\":*)",
+      "Bash(docker-compose:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
