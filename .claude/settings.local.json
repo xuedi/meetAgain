@@ -1,32 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Bash(just test)",
       "WebSearch",
-      "Bash(just --list:*)",
-      "Bash(just app:*)",
-      "Bash(just do \"composer update\")",
-      "Bash(just clearCache:*)",
-      "Bash(just test-functional:*)",
-      "Bash(just test-unit:*)",
-      "Bash(just do \"composer outdated --direct\")",
-      "Bash(just checkStan:*)",
-      "Bash(just checkDeptrac:*)",
+      "Bash(just)",
       "Bash(just start)",
-      "Bash(just test-db-create:*)",
-      "Bash(just test-db-reset:*)",
-      "Bash(just dockerDatabase:*)",
+      "Bash(just clearCache:*)",
+      "Bash(just app:*)",
       "Bash(just appMigrate:*)",
-      "Bash(docker-compose -f docker/installer-test/docker-compose.yml exec php bash -c \"cd /var/www/html/public/install && php index.php 2>&1 | head -50\":*)",
-      "Bash(docker-compose:*)",
-      "Bash(just testInstaller:*)",
+      "Bash(just do \"composer update\")",
+      "Bash(just do \"composer outdated --direct\")",
       "Bash(just do \"composer install\")",
+      "Bash(just test)",
+      "Bash(just testFunctional:*)",
+      "Bash(just testUnit:*)",
+      "Bash(just testInstaller:*)",
+      "Bash(just checkStan:*)",
       "Bash(just checkPhpcs:*)",
+      "Bash(just checkDeptrac:*)",
       "Bash(just checkPhpCsFixer:*)"
     ]
-  },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "github"
-  ]
+  }
 }
