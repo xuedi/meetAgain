@@ -1,32 +1,23 @@
 {
   "permissions": {
     "allow": [
-      "Bash(just test)",
       "WebSearch",
-      "Bash(just composer update:*)",
-      "Bash(just --list:*)",
-      "Bash(just app:*)",
-      "Bash(just do \"composer update\")",
-      "Bash(just clearCache:*)",
-      "Bash(just test-functional:*)",
-      "Bash(just test-unit:*)",
-      "Bash(just do \"composer outdated --direct\")",
-      "Bash(just checkStan:*)",
-      "Bash(just checkDeptrac:*)",
+      "Bash(just)",
       "Bash(just start)",
-      "Bash(just test-db-create:*)",
-      "Bash(just test-db-reset:*)",
-      "mcp__puppeteer__puppeteer_navigate",
-      "mcp__puppeteer__puppeteer_screenshot",
-      "mcp__puppeteer__puppeteer_evaluate",
-      "mcp__puppeteer__puppeteer_click",
-      "mcp__puppeteer__puppeteer_fill",
-      "Bash(just dockerDatabase:*)",
-      "Bash(just appMigrate:*)"
+      "Bash(just clearCache:*)",
+      "Bash(just app:*)",
+      "Bash(just appMigrate:*)",
+      "Bash(just do \"composer update\")",
+      "Bash(just do \"composer outdated --direct\")",
+      "Bash(just do \"composer install\")",
+      "Bash(just test)",
+      "Bash(just testFunctional:*)",
+      "Bash(just testUnit:*)",
+      "Bash(just testInstaller:*)",
+      "Bash(just checkStan:*)",
+      "Bash(just checkPhpcs:*)",
+      "Bash(just checkDeptrac:*)",
+      "Bash(just checkPhpCsFixer:*)"
     ]
-  },
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "github"
-  ]
+  }
 }
