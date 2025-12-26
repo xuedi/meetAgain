@@ -27,6 +27,7 @@
 - Separate rendering (Twig) from sending
 
 ## Testing
+- **Always add tests when developing new code**
 - Unit tests for services, functional for controllers
 - Comment test sections: Arrange/Act/Assert
 - `createStub()` for no expectations, `createMock()` for verification only
