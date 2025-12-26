@@ -21,7 +21,8 @@
       "Bash(docker-compose:*)",
       "Bash(just testInstaller:*)",
       "Bash(just do \"composer install\")",
-      "Bash(just checkPhpcs:*)"
+      "Bash(just checkPhpcs:*)",
+      "Bash(just checkPhpCsFixer:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
