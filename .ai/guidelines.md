@@ -36,9 +36,3 @@
 - `just showCoverage --threshold=50` - show only files below 50%
 - `just fixCoverageBadge` - update badge (runs all tests, auto-stages)
 - Target HIGH/MED impact files first (shown in report)
-
-### Test Workflow
-1. `just showCoverage` to find gaps
-2. Write tests (use existing patterns from similar services)
-3. `just testUnit` to verify
-4. `just fixCoverageBadge` to update
