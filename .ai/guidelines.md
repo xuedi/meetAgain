@@ -1,41 +1,33 @@
 # AI Contribution Guidelines
 
-## Development Environment
-- All services run in Docker containers. Never run commands directly on the host.
-- Always use `just` (justfile) commands to interact with the project (e.g., `just test`, `just app`).
-- To run a database query use `just dockerDatabase {statement}`
+## Environment
+- Use Docker only - never run commands on host
+- Use `just` commands: `just test`, `just app`, `just dockerDatabase {statement}`
 
-## Coding Standards
-- PHP: PSR-12, strict types where feasible.
-- Strickly avoid parameter docblocks if they are already typed by php native code hints.
-- Twig: Keep templates simple; push logic to controllers/services when appropriate.
+## Code Style
+- PHP: PSR-12, strict types, omit `@param`/`@return` when native type hints exist
+- Twig: Simple templates, logic in controllers/services
+- Frontend: No inline scripts, Bulma components only
 
-## Symfony Conventions
-- Controllers: Thin; delegate to services.
-- Services: Register via Symfony autowiring and attributes as per existing patterns.
-- Configuration: Use config/packages and environment variables (.env, .env.local), never hard-code secrets.
+## Symfony
+- Controllers: Thin, delegate to services
+- Services: Autowiring + attributes
+- Config: `.env` + `config/packages`, never hard-code secrets
 
-## Security and Privacy
-- Input validation: Validate and sanitize input; use Symfony Validator and CSRF protection.
-- Authentication/Authorization: Use security voters/attributes consistently. Least privilege.
-
-## Error Handling
-- Exceptions: Throw domain-specific exceptions where helpful.
+## Security
+- Validate/sanitize input, use Symfony Validator + CSRF
+- Security voters/attributes, least privilege
 
 ## Performance
-- Consider the complexity of queries and N+1 issues (use joins, eager loading when needed).
-- Cache where appropriate (Symfony cache pools) but avoid premature optimization.
+- Avoid N+1 queries (joins/eager loading)
+- Use Symfony cache pools, no premature optimization
 
-## Emails and Notifications
-- Use the existing EmailService and NotificationService patterns; avoid duplicating logic.
-- Separate rendering (Twig templates) from sending; inject dependencies.
-
-## Frontend Templates
-- Dont use inline scripts.
-- Use minimalist Bulma elements.
+## Email/Notifications
+- Use existing EmailService/NotificationService patterns
+- Separate rendering (Twig) from sending
 
 ## Testing
-- Prefer unit tests for services and functional tests for controllers/routes.
-- Use descriptive comments in unit tests to explain the purpose of each section (e.g., "Arrange", "Act", "Assert" or describing what is being tested and why).
-- Use `createStub()` for test doubles that don't need expectations; use `createMock()` only when verifying method calls.
-- Ignore the command `just update_coverage_badge` this is only for the CI to create badges for humans
+- Unit tests for services, functional for controllers
+- Comment test sections: Arrange/Act/Assert
+- `createStub()` for no expectations, `createMock()` for verification only
+- Ignore `just update_coverage_badge` (CI only)
