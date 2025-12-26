@@ -23,7 +23,7 @@
 - Exceptions: Throw domain-specific exceptions where helpful.
 
 ## Performance
-- Consider complexity of queries and N+1 issues (use joins, eager loading when needed).
+- Consider the complexity of queries and N+1 issues (use joins, eager loading when needed).
 - Cache where appropriate (Symfony cache pools) but avoid premature optimization.
 
 ## Emails and Notifications
