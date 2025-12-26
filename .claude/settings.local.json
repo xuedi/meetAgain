@@ -3,7 +3,6 @@
     "allow": [
       "Bash(just test)",
       "WebSearch",
-      "Bash(just composer update:*)",
       "Bash(just --list:*)",
       "Bash(just app:*)",
       "Bash(just do \"composer update\")",
@@ -16,17 +15,10 @@
       "Bash(just start)",
       "Bash(just test-db-create:*)",
       "Bash(just test-db-reset:*)",
-      "mcp__puppeteer__puppeteer_navigate",
-      "mcp__puppeteer__puppeteer_screenshot",
-      "mcp__puppeteer__puppeteer_evaluate",
-      "mcp__puppeteer__puppeteer_click",
-      "mcp__puppeteer__puppeteer_fill",
       "Bash(just dockerDatabase:*)",
       "Bash(just appMigrate:*)",
       "Bash(docker-compose -f docker/installer-test/docker-compose.yml exec php bash -c \"cd /var/www/html/public/install && php index.php 2>&1 | head -50\":*)",
       "Bash(docker-compose:*)",
-      "Bash(curl:*)",
-      "Bash(cat:*)",
       "Bash(just testInstaller:*)",
       "Bash(just do \"composer install\")"
     ]
