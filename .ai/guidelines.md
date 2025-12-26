@@ -7,6 +7,7 @@
 
 ## Coding Standards
 - PHP: PSR-12, strict types where feasible.
+- Strickly avoid parameter docblocks if they are already typed by php native code hints.
 - Twig: Keep templates simple; push logic to controllers/services when appropriate.
 
 ## Symfony Conventions
