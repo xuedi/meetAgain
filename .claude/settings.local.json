@@ -17,7 +17,8 @@
       "Bash(just checkStan:*)",
       "Bash(just checkPhpcs:*)",
       "Bash(just checkDeptrac:*)",
-      "Bash(just checkPhpCsFixer:*)"
+      "Bash(just checkPhpCsFixer:*)",
+      "Bash(just fixCoverageBadge:*)"
     ]
   }
 }
