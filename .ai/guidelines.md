@@ -32,17 +32,13 @@
 - `createStub()` for no expectations, `createMock()` for verification only
 
 ### Coverage Analysis
-- **Check coverage**: `just showCoverage` - runs all tests + shows AI-readable report
-- **Find opportunities**: `just showCoverage --threshold=50` - show files below 50%
-- **Sort by impact**: `just showCoverage --sort=uncovered` - biggest impact first
-- **Update badge**: `just fixCoverageBadge` - runs all tests + updates badge (auto-stages)
-- Focus on low-hanging fruit: files with <60% coverage and many uncovered elements
-- Tool outputs color-coded sections (🔴 Low, 🟡 Medium, 🟢 High) with impact ratings
-- Note: `just showCoverage` automatically runs tests first, no need to run separately
+- `just showCoverage` - runs tests + shows compact report (files <80% coverage)
+- `just showCoverage --threshold=50` - show only files below 50%
+- `just fixCoverageBadge` - update badge (runs all tests, auto-stages)
+- Target HIGH/MED impact files first (shown in report)
 
-### Test Creation Workflow
-1. Run `just showCoverage --threshold=60` to find opportunities
-2. Look for 🔥 HIGH IMPACT files in the output
-3. Create tests using existing test patterns (check similar service tests)
-4. Verify with `just testUnit` or `just test`
-5. Update coverage: `just fixCoverageBadge`
+### Test Workflow
+1. `just showCoverage` to find gaps
+2. Write tests (use existing patterns from similar services)
+3. `just testUnit` to verify
+4. `just fixCoverageBadge` to update
