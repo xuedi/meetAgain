@@ -30,4 +30,19 @@
 - Unit tests for services, functional for controllers
 - Comment test sections: Arrange/Act/Assert
 - `createStub()` for no expectations, `createMock()` for verification only
-- Ignore `just update_coverage_badge` (CI only)
+
+### Coverage Analysis
+- **Check coverage**: `just showCoverage` - runs all tests + shows AI-readable report
+- **Find opportunities**: `just showCoverage --threshold=50` - show files below 50%
+- **Sort by impact**: `just showCoverage --sort=uncovered` - biggest impact first
+- **Update badge**: `just fixCoverageBadge` - runs all tests + updates badge (auto-stages)
+- Focus on low-hanging fruit: files with <60% coverage and many uncovered elements
+- Tool outputs color-coded sections (🔴 Low, 🟡 Medium, 🟢 High) with impact ratings
+- Note: `just showCoverage` automatically runs tests first, no need to run separately
+
+### Test Creation Workflow
+1. Run `just showCoverage --threshold=60` to find opportunities
+2. Look for 🔥 HIGH IMPACT files in the output
+3. Create tests using existing test patterns (check similar service tests)
+4. Verify with `just testUnit` or `just test`
+5. Update coverage: `just fixCoverageBadge`
