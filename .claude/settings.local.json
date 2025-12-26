@@ -18,7 +18,8 @@
       "Bash(just checkPhpcs:*)",
       "Bash(just checkDeptrac:*)",
       "Bash(just checkPhpCsFixer:*)",
-      "Bash(just fixCoverageBadge:*)"
+      "Bash(just fixCoverageBadge:*)",
+      "Bash(just showCoverage:*)"
     ]
   }
 }
