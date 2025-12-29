@@ -18,10 +18,10 @@
       "Bash(just checkPhpcs:*)",
       "Bash(just checkDeptrac:*)",
       "Bash(just checkPhpCsFixer:*)",
+      "Bash(just checkA11y:*)",
       "Bash(just fixCoverageBadge:*)",
       "Bash(just showCoverage:*)",
-      "Bash(just --list:*)",
-      "Bash(just checkA11y:*)"
+      "Bash(just --list:*)"
     ]
   }
 }
