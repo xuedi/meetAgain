@@ -21,7 +21,8 @@
       "Bash(just checkA11y:*)",
       "Bash(just fixCoverageBadge:*)",
       "Bash(just showCoverage:*)",
-      "Bash(just --list:*)"
+      "Bash(just --list:*)",
+      "Bash(just routeMetrics:*)"
     ]
   }
 }
