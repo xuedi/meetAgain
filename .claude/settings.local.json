@@ -20,7 +20,8 @@
       "Bash(just checkPhpCsFixer:*)",
       "Bash(just fixCoverageBadge:*)",
       "Bash(just showCoverage:*)",
-      "Bash(just --list:*)"
+      "Bash(just --list:*)",
+      "Bash(just checkA11y:*)"
     ]
   }
 }
