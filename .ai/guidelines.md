@@ -8,6 +8,7 @@
 - PHP: PSR-12, strict types, omit `@param`/`@return` when native type hints exist
 - Twig: Simple templates, logic in controllers/services
 - Frontend: No inline scripts, Bulma components only
+- Always use the php `use` statement & avoid fully qualified class names for readibility in the code
 
 ## Symfony
 - Controllers: Thin, delegate to services
