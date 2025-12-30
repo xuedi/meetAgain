@@ -12,6 +12,7 @@
       "Bash(just do \"composer install\")",
       "Bash(just test)",
       "Bash(just testFunctional:*)",
+      "Bash(just testFunctional:AdminPagesTest:*)",
       "Bash(just testUnit:*)",
       "Bash(just testInstaller:*)",
       "Bash(just checkStan:*)",
