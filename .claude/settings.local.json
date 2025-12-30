@@ -25,7 +25,9 @@
       "Bash(just --list:*)",
       "Bash(just routeMetrics:*)",
       "WebFetch(domain:github.com)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(done)"
     ]
   }
 }
