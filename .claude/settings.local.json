@@ -23,7 +23,9 @@
       "Bash(just fixCoverageBadge:*)",
       "Bash(just showCoverage:*)",
       "Bash(just --list:*)",
-      "Bash(just routeMetrics:*)"
+      "Bash(just routeMetrics:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(cat:*)"
     ]
   }
 }
