@@ -32,6 +32,10 @@
 - Comment test sections: Arrange/Act/Assert
 - `createStub()` for no expectations, `createMock()` for verification only
 
+### Performance Analysis
+- `just routeMetrics` - analyzes all routes for SQL queries, timing, and memory
+- `just routeMetrics --filter=app_admin` - filter metrics for specific route names or patterns
+
 ### Coverage Analysis
 - `just showCoverage` - runs tests + shows compact report (files <80% coverage)
 - `just showCoverage --threshold=50` - show only files below 50%
