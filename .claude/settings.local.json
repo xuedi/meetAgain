@@ -30,7 +30,9 @@
       "Bash(grep:*)",
       "Bash(done)",
       "Bash(just appClearCache:*)",
-      "Bash(just appRsvpNotify:*)"
+      "Bash(just appRsvpNotify:*)",
+      "Bash(just devModeFixtures:*)",
+      "Bash(just checkRector:*)"
     ]
   }
 }
