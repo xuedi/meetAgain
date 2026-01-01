@@ -1,11 +1,15 @@
 # Docker configuration - all commands run inside containers
 # Read the comments in this file to understand what each command does.
 # Always use `just test` to run tests, not `just do "vendor/bin/phpunit ..."`.
+# In CI, commands run directly (no Docker wrapper).
 set dotenv-load
 
+# Detect CI environment (GitHub Actions sets CI=true)
+IS_CI := env_var_or_default("CI", "false")
+
 DOCKER := "docker-compose --env-file .env -f docker/docker-compose.yml"
-PHP := DOCKER + " exec -e XDEBUG_MODE=coverage php"
-DB := DOCKER + " exec mariadb"
+PHP := if IS_CI == "true" { "XDEBUG_MODE=coverage " } else { DOCKER + " exec -e XDEBUG_MODE=coverage php " }
+DB := if IS_CI == "true" { "" } else { DOCKER + " exec mariadb " }
 JUST := just_executable() + " --justfile=" + justfile()
 
 # Show available commands
@@ -63,6 +67,12 @@ dockerRestart: dockerStop dockerStart
 [group('docker')]
 dockerRebuild:
     {{DOCKER}} build --no-cache php
+
+# Build and publish PHP image to GitHub Container Registry (requires: docker login ghcr.io)
+[group('docker')]
+dockerPublish:
+    docker build -t ghcr.io/xuedi/meetagain/php:latest docker/php --build-arg UNAME=runner --build-arg UID=1001 --build-arg GID=1001
+    docker push ghcr.io/xuedi/meetagain/php:latest
 
 # Open an interactive bash shell inside the PHP container
 [group('docker')]
