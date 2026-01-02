@@ -32,8 +32,7 @@
       "Bash(just appClearCache:*)",
       "Bash(just appRsvpNotify:*)",
       "Bash(just devModeFixtures:*)",
-      "Bash(just checkRector:*)",
-      "Bash(just appMigrate:up:*)"
+      "Bash(just checkRector:*)"
     ]
   }
 }
