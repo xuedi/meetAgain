@@ -35,6 +35,7 @@
 | Command                              | Purpose                              |
 |--------------------------------------|--------------------------------------|
 | `just test`                          | Run all tests                        |
+| `just devModeFixtures`               | Reset dev environment with fixtures  |
 | `just routeMetrics`                  | Analyze routes (SQL, timing, memory) |
 | `just routeMetrics --filter=pattern` | Filter by route name                 |
 | `just showCoverage`                  | Show files <80% coverage             |
