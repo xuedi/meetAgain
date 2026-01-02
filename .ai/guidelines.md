@@ -32,11 +32,13 @@
 - `createStub()` for test doubles, `createMock()` only when verifying interactions
 
 ## Analysis Commands
-| Command | Purpose |
-|---------|---------|
-| `just test` | Run all tests |
-| `just routeMetrics` | Analyze routes (SQL, timing, memory) |
-| `just routeMetrics --filter=pattern` | Filter by route name |
-| `just showCoverage` | Show files <80% coverage |
-| `just showCoverage --threshold=N` | Custom threshold |
-| `just fixCoverageBadge` | Update badge (auto-stages) |
+| Command                              | Purpose                              |
+|--------------------------------------|--------------------------------------|
+| `just test`                          | Run all tests                        |
+| `just routeMetrics`                  | Analyze routes (SQL, timing, memory) |
+| `just routeMetrics --filter=pattern` | Filter by route name                 |
+| `just showCoverage`                  | Show files <80% coverage             |
+| `just showCoverage --threshold=N`    | Custom threshold                     |
+| `just fixCoverageBadge`              | Update badge (auto-stages)           |
+| `just app app:translation:missing`   | Find all missing translations        |
+
