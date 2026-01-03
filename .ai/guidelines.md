@@ -2,7 +2,7 @@
 
 ## Environment
 - Docker only via `just` (command runner) - never run on host
-- Key commands: `just test`, `just app`, `just dockerDatabase {statement}`
+- Run `just` to see all available commands with descriptions (don't read the justfile)
 
 ## Code Style
 - PHP: PSR-12, strict types, use `use` statements (no FQCNs), omit `@param`/`@return` when native types exist
