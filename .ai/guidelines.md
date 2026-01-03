@@ -22,6 +22,7 @@
 - Main code must not depend on plugin code
 - Plugin tables must not have foreign keys to main tables
 - Plugins must be deactivatable without breaking the app
+- Integration into the main app via plugin interface
 
 ## Performance
 - Avoid N+1 queries (use joins/eager loading)
