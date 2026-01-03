@@ -18,6 +18,10 @@
 - Validate input: Symfony Validator + CSRF
 - Use security voters/attributes, least privilege
 
+## Plugins
+- Never allow the main code access or rely on plugin-specific code
+- Avoid plugin-specific dependencies in core code
+
 ## Performance
 - Avoid N+1 queries (use joins/eager loading)
 - Use Symfony cache pools
