@@ -19,8 +19,9 @@
 - Use security voters/attributes, least privilege
 
 ## Plugins
-- Never allow the main code access or rely on plugin-specific code
-- Avoid plugin-specific dependencies in core code
+- Main code must not depend on plugin code
+- Plugin tables must not have foreign keys to main tables
+- Plugins must be deactivatable without breaking the app
 
 ## Performance
 - Avoid N+1 queries (use joins/eager loading)
