@@ -37,6 +37,23 @@
 - Use Arrange/Act/Assert comments
 - `createStub()` for test doubles, `createMock()` only when verifying interactions
 
+## Architecture & Software Choices
+
+### Date/Time Picker
+- **Library**: Flatpickr (https://flatpickr.js.org)
+- **Styling**: Bulma theme (`/stylesheet/flatpickr-bulma.min.css`)
+- **Localization**: Language files in `/javascript/flatpickr-l10n/{locale}.js`
+- **Configuration**: Uses `get_date_format_flatpickr()` Twig function for format
+- **Usage**:
+  - Use `DateTimeType::class` with `'widget' => 'single_text'` in Symfony forms
+  - The form theme (`_form/bulma.html.twig`) wraps datetime fields with `.flatpickr-field` class
+  - Include CSS/JS and initialization script in templates (see `templates/admin/base.html.twig`)
+
+### Frontend Framework
+- **CSS Framework**: Bulma (no custom CSS frameworks)
+- **Icons**: Font Awesome
+- **Tables**: JSTable for sortable/searchable tables in admin
+
 ## Analysis Commands
 | Command                              | Purpose                              |
 |--------------------------------------|--------------------------------------|
