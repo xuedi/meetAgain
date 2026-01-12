@@ -294,29 +294,86 @@ public function testCreateEventWithValidData(): void
 
 ## Fixtures
 
-### Fixture Organization
+### Custom AbstractFixture
 
+This project uses a custom `AbstractFixture` with type-safe magic methods for managing references.
+
+**Pattern:**
 ```php
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Persistence\ObjectManager;
+use App\DataFixtures\AbstractFixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
-class EventFixture extends Fixture
+class EventFixture extends AbstractFixture implements DependentFixtureInterface
 {
-    public const EVENT_MEETING_1 = 'event_meeting_1';
+    public const string WEDNESDAY_MEETUP = 'Regular Wednesday meetup';
 
     public function load(ObjectManager $manager): void
     {
+        $this->start();  // Helper: prints "Creating Event ..."
+
         $event = new Event();
-        $event->setTitle('Weekly Team Meeting');
+        $event->setTitle(self::WEDNESDAY_MEETUP);
         $event->setStart(new DateTimeImmutable('+1 week'));
-        $event->setType(EventTypes::Meeting);
+
+        // ✅ Custom reference system - type-safe
+        $event->setUser($this->getRefUser('john_doe'));
+        $event->setLocation($this->getRefLocation('office'));
+        $event->addHost($this->getRefHost('engineering_team'));
 
         $manager->persist($event);
-        $this->addReference(self::EVENT_MEETING_1, $event);
+        $this->addRefEvent(self::WEDNESDAY_MEETUP, $event);
 
+        $this->tick();   // Helper: prints "."
         $manager->flush();
+        $this->stop();   // Helper: prints " OK\n"
+    }
+
+    public function getDependencies(): array
+    {
+        return [UserFixture::class, LocationFixture::class, HostFixture::class];
     }
 }
+```
+
+**How the custom reference system works:**
+
+```php
+// AbstractFixture provides magic methods:
+$user = $this->getRefUser('john_doe');      // Get User by name
+$this->addRefUser('jane_doe', $userEntity); // Store User reference
+
+$event = $this->getRefEvent('meetup');      // Get Event by name
+$this->addRefEvent('meetup', $eventEntity); // Store Event reference
+```
+
+**Benefits:**
+- Type-safe (PHPDoc hints for PHPStan)
+- No constant keys needed
+- Cleaner syntax: `getRefUser('name')` vs `getReference(UserFixture::USER_1)`
+- Auto-generates internal keys: `UserFixture::md5($name)`
+
+**Available magic methods:**
+```php
+// Defined in AbstractFixture PHPDoc:
+getRefUser(string $name): User
+addRefUser(string $name, User $entity): void
+getRefHost(string $name): Host
+addRefHost(string $name, Host $entity): void
+getRefLocation(string $name): Location
+addRefLocation(string $name, Location $entity): void
+getRefCms(string $name): Cms
+addRefCms(string $name, Cms $entity): void
+getRefEvent(string $name): Event
+addRefEvent(string $name, Event $entity): void
+```
+
+**Helper methods:**
+```php
+$this->start();  // Prints "Creating FixtureName ..."
+$this->tick();   // Prints "." (for progress)
+$this->stop();   // Prints " OK\n"
+
+$text = $this->getText('filename'); // Reads from DataFixtures/FixtureName/filename.txt
 ```
 
 ---
@@ -326,19 +383,25 @@ class EventFixture extends Fixture
 ```php
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
-class CommentFixture extends Fixture implements DependentFixtureInterface
+class CommentFixture extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        /** @var Event $event */
-        $event = $this->getReference(EventFixture::EVENT_MEETING_1);
+        $this->start();
+
+        // ✅ Use custom reference system
+        $event = $this->getRefEvent('Regular Wednesday meetup');
+        $user = $this->getRefUser('john_doe');
 
         $comment = new Comment();
         $comment->setEvent($event);
+        $comment->setUser($user);
         $comment->setContent('Looking forward to it!');
 
         $manager->persist($comment);
+        $this->tick();
         $manager->flush();
+        $this->stop();
     }
 
     public function getDependencies(): array

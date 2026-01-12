@@ -211,6 +211,35 @@ class Event
 **Can depend on:** Entity, Repository, Service
 **Purpose:** Test data (allowed more flexibility)
 
+**Custom AbstractFixture:**
+This project uses a custom `AbstractFixture` base class with type-safe reference methods:
+
+```php
+class EventFixture extends AbstractFixture
+{
+    public function load(ObjectManager $manager): void
+    {
+        // ✅ Type-safe reference system
+        $user = $this->getRefUser('john_doe');
+        $location = $this->getRefLocation('office');
+
+        $event = new Event();
+        $event->setUser($user);
+        $event->setLocation($location);
+
+        $this->addRefEvent('meetup', $event);
+    }
+}
+```
+
+**Benefits:**
+- Type-safe magic methods: `getRefUser()`, `addRefEvent()`, etc.
+- No constant keys needed
+- PHPDoc hints for PHPStan
+- Helper methods: `start()`, `tick()`, `stop()`, `getText()`
+
+See [testing.md](testing.md#custom-abstractfixture) for detailed usage.
+
 ---
 
 ## Plugin Architecture
