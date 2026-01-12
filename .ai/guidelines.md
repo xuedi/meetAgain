@@ -48,6 +48,14 @@
 - Symfony Validator + CSRF for input
 - Security voters/attributes for authorization
 
+## Token Efficiency
+
+- Use `subagent_type: "Bash"` with `model: "haiku"` for running tests
+- Prefer asking user to run tests locally over AI execution
+- For codebase exploration, use `subagent_type: "Explore"` over multiple greps
+- Only read files that are directly relevant to the task
+- Use offset/limit when reading large files
+
 ## Commands
 
 | Command                | Purpose                       |
@@ -57,3 +65,14 @@
 | `just routeMetrics`    | Analyze routes (SQL, timing)  |
 | `just showCoverage`    | Show files below 80% coverage |
 | `just dockerDatabase`  | run a query on the database   |
+
+## Quick References
+
+| Pattern         | Example File                                 | Why                                    |
+|-----------------|----------------------------------------------|----------------------------------------|
+| Service         | `src/Service/CleanupService.php`             | Focused SRP, minimal dependencies      |
+| Controller      | `src/Controller/ManageController.php`        | Thin, pure delegation (30 lines)       |
+| Repository      | `src/Repository/EventRepository.php`         | Intent-revealing names, query builder  |
+| Entity + Enums  | `src/Entity/Event.php`                       | Proper attributes, enum usage          |
+| Plugin          | `src/Plugin.php`                             | Interface contract definition          |
+| Unit test (AAA) | `tests/Unit/Service/ActivityServiceTest.php` | Excellent AAA comments, mock/stub use  |  
