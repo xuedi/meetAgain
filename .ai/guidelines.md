@@ -1,4 +1,4 @@
-# Junie Guidelines
+# AI Guidelines
 
 See Claude Code guidelines in [`.claude/`](../.claude/) directory:
 
