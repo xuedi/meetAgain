@@ -314,13 +314,54 @@ templates/
 
 ### JavaScript
 
+**Progressive Enhancement - Website must work without JavaScript:**
+
+JavaScript is for UX enhancement only (smoother, faster interactions). The website MUST be fully functional with JavaScript disabled.
+
+```twig
+{# ✅ Good - Works with and without JavaScript #}
+<a href="{{ path('app_event_toggle_rsvp', {event: event.id}) }}"
+   class="button is-primary"
+   data-action="ajax-toggle-rsvp">
+    RSVP
+</a>
+
+{# Without JS: Navigates to controller, does action, redirects back
+   With JS: AJAX call intercepts, updates UI without page reload #}
+```
+
+**Pattern:**
+1. `href` points to controller that performs the action server-side
+2. JavaScript intercepts the link and enhances with AJAX
+3. If JavaScript fails/disabled, the fallback controller handles it
+
+```javascript
+// modal-handler.js - Enhancement, not requirement
+document.querySelectorAll('[data-action="ajax-toggle-rsvp"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();  // Stop normal navigation
+
+        fetch(link.href, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                // Update UI without page reload
+                link.textContent = data.rsvp ? 'Cancel RSVP' : 'RSVP';
+            })
+            .catch(() => {
+                // If AJAX fails, fallback to normal navigation
+                window.location.href = link.href;
+            });
+    });
+});
+```
+
 **No inline scripts:**
 
 ```twig
-{# ❌ Bad #}
+{# ❌ Bad - No fallback #}
 <button onclick="alert('clicked')">Click</button>
 
-{# ✅ Good #}
+{# ✅ Good - Progressive enhancement #}
 <button data-action="show-modal" data-id="{{ event.id }}">View</button>
 <script src="{{ asset('js/modal-handler.js') }}"></script>
 ```
