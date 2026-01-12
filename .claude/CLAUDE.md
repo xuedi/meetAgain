@@ -51,12 +51,52 @@
 
 ## Token Efficiency
 
-- Default to `model: "sonnet"` for subagents, use `model: "opus"` only for planning/architecture
+- Default to `model: "sonnet"` for subagents
 - **Always use `model: "haiku"` for running `just` commands** (see Haiku Agent section below)
 - Prefer asking user to run tests locally over AI execution
 - For codebase exploration, use `subagent_type: "Explore"` over multiple greps
 - Only read files that are directly relevant to the task
 - Use offset/limit when reading large files
+
+## Planning Workflow (Opus Model)
+
+When the user asks to "make a plan" or requests architectural planning:
+
+1. **Use Opus model** for the planning task
+2. **Write the plan** to `.claude/plans/YYYY-MM-DD-feature-name.md`
+   - Break down "Implementation Steps" into logical, testable chunks
+   - Each step should be a coherent unit that delivers value and can be verified
+3. **Stop and ask for approval** before executing any code changes
+4. After approval, proceed with implementation using Sonnet
+   - Execute one step from the plan
+   - **Stop and ask to continue** before next step
+   - Unless user explicitly says "do it all in one go"
+
+**Plan file structure:**
+```markdown
+# Feature: [Name]
+Date: YYYY-MM-DD
+Model: opus
+
+## Objective
+[What needs to be done]
+
+## Analysis
+[Current state, dependencies, constraints]
+
+## Approach
+[High-level strategy]
+
+## Implementation Steps
+1. Step one with affected files
+2. Step two...
+
+## Testing Strategy
+[How to verify the changes]
+
+## Risks & Considerations
+[Potential issues, trade-offs]
+```
 
 ## Haiku Agent for `just` Commands
 
