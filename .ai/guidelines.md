@@ -2,6 +2,7 @@
 
 ## Environment
 - Docker only via `just` command runner - never run commands on host
+- Use `just dockerDatabase` to access the database
 - Run `just` to see available commands (don't read the justfile)
 - Run `just test` before committing
 
