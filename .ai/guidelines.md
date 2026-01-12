@@ -50,6 +50,7 @@
 
 ## Token Efficiency
 
+- Default to `model: "sonnet"` for subagents, use `model: "opus"` only for planning/architecture
 - Use `subagent_type: "Bash"` with `model: "haiku"` for running tests
 - Prefer asking user to run tests locally over AI execution
 - For codebase exploration, use `subagent_type: "Explore"` over multiple greps
