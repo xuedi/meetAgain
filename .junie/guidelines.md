@@ -1,5 +1,8 @@
-See [../.ai/guidelines.md](../.ai/guidelines.md) for project guidelines.
+# Junie Guidelines
 
-## Instructions
-- Run ALL commands via `justfile` (Docker isolation). Check existing recipes before suggesting new ones.
-- Minimize comments; omit if code is self-explanatory.
+See Claude Code guidelines in [`.claude/`](../.claude/) directory:
+
+- [CLAUDE.md](../.claude/CLAUDE.md) - Overview, commands, token efficiency, planning workflow
+- [architecture.md](../.claude/architecture.md) - Layer dependencies, design patterns, Symfony 8 features
+- [conventions.md](../.claude/conventions.md) - PHP style, Doctrine, Frontend, Security, Performance
+- [testing.md](../.claude/testing.md) - PHPUnit patterns, fixtures, coverage
