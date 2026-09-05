@@ -4,7 +4,6 @@ namespace Plugin\Voting\Service;
 
 use App\Entity\Event;
 use App\Item\CandidateProviderInterface;
-use App\Service\Item\AssociationService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Plugin\Voting\Entity\Poll;
@@ -12,6 +11,7 @@ use Plugin\Voting\Entity\PollOption;
 use Plugin\Voting\Entity\PollStatus;
 use Plugin\Voting\Entity\Vote;
 use Plugin\Voting\Filter\PollFilterService;
+use Plugin\Voting\Outcome\OutcomeRegistry;
 use Plugin\Voting\Repository\PollRepository;
 use Plugin\Voting\Repository\VoteRepository;
 use Plugin\Voting\ValueObject\PollClosure;
@@ -27,7 +27,7 @@ readonly class PollService
         private EntityManagerInterface $em,
         private PollRepository $pollRepo,
         private VoteRepository $voteRepo,
-        private AssociationService $itemAssociations,
+        private OutcomeRegistry $outcomes,
         private ConfigService $config,
         private PollFilterService $pollFilter,
         #[AutowireIterator(CandidateProviderInterface::class)]
@@ -143,12 +143,7 @@ readonly class PollService
         $this->em->persist($poll);
         $this->em->flush();
 
-        $eventId = $poll->getEventId();
-        if ($eventId === null) {
-            return;
-        }
-
-        $this->itemAssociations->attach($eventId, (string) $poll->getItemType(), $chosenItemId, (int) $poll->getCreatedBy());
+        $this->outcomes->providerFor((string) $poll->getItemType())?->commit($poll, $chosenItemId);
     }
 
     /**

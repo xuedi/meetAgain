@@ -4,12 +4,12 @@ namespace Plugin\Voting\Controller;
 
 use App\Activity\ActivityService;
 use App\Controller\AbstractController;
-use App\Item\TypeRegistry;
 use App\Repository\EventRepository;
 use Plugin\Voting\Activity\Messages\PollClosed;
 use Plugin\Voting\Activity\Messages\PollCreated;
 use Plugin\Voting\Activity\Messages\VoteCast;
 use Plugin\Voting\Entity\PollStatus;
+use Plugin\Voting\Outcome\OutcomeRegistry;
 use Plugin\Voting\Service\ConfigService;
 use Plugin\Voting\Service\PollService;
 use RuntimeException;
@@ -26,7 +26,7 @@ final class PollController extends AbstractController
         private readonly PollService $pollService,
         private readonly ConfigService $config,
         private readonly EventRepository $eventRepo,
-        private readonly TypeRegistry $registry,
+        private readonly OutcomeRegistry $outcomes,
         private readonly ActivityService $activityService,
     ) {}
 
@@ -51,7 +51,7 @@ final class PollController extends AbstractController
     public function create(int $eventId, string $itemType, Request $request): Response
     {
         $event = $this->eventRepo->find($eventId);
-        if ($event === null || !$this->registry->has($itemType)) {
+        if ($event === null || !$this->outcomes->supports($itemType)) {
             throw $this->createNotFoundException('Event or item type not found');
         }
 
@@ -78,12 +78,10 @@ final class PollController extends AbstractController
             }
         }
 
-        $provider = $this->registry->providerFor($itemType);
-
         return $this->render('@Voting/poll/create.html.twig', [
             'event' => $event,
             'itemType' => $itemType,
-            'itemTypeLabelKey' => $provider?->getLabelKey(),
+            'itemTypeLabelKey' => $this->outcomes->providerFor($itemType)?->getLabelKey($itemType),
             'candidateItemIds' => $this->pollService->getCandidateItemIds($itemType),
             'defaultDurationDays' => $this->config->getConfig()->getDefaultDurationDays(),
         ]);

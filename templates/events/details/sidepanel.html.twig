@@ -36,24 +36,42 @@
     </div>
 </div>
 <div class="box mt-5">
-    <h2 class="title is-4">{{ 'events.label_location'|trans }}</h2>
-    <strong>{{ event.location.name }}</strong>
-    <p>
-        {{ event.location.street }}<br>
-        {{ event.location.postcode }} {{ event.location.city }}
-    </p>
-    {% if event.location.description != '' %}
-        <p class="mt-5">
-            {{ event.location.description }}
+    <div class="level is-mobile mb-3">
+        <div class="level-left">
+            <h2 class="title is-4 mb-0">{{ 'events.label_location'|trans }}</h2>
+        </div>
+        {% if is_granted('ROLE_USER') and event.location %}
+            <div class="level-right">
+                <a href="{{ path('app_location_propose', {id: event.location.id}) }}"
+                   class="icon has-text-grey"
+                   title="{{ 'location.link_edit_venue'|trans }}"
+                   aria-label="{{ 'location.link_edit_venue'|trans }}">
+                    <i class="fas fa-pen"></i>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    {% if event.location %}
+        <strong>{{ event.location.name }}</strong>
+        <p>
+            {{ event.location.street }}<br>
+            {{ event.location.postcode }} {{ event.location.city }}
         </p>
-    {% endif %}
-    {% if event.hasMap and show_osm() %}
-        <div class="mt-3" id="osm-map"
-             data-osm-map
-             data-lat="{{ event.location.latitude }}"
-             data-lng="{{ event.location.longitude }}"
-             data-marker-icon="{{ asset('images/leaflet/marker-icon.png') }}"
-             data-marker-shadow="{{ asset('images/leaflet/marker-shadow.png') }}"></div>
+        {% if event.location.description != '' %}
+            <p class="mt-5">
+                {{ event.location.description }}
+            </p>
+        {% endif %}
+        {% if event.hasMap and show_osm() %}
+            <div class="mt-3" id="osm-map"
+                 data-osm-map
+                 data-lat="{{ event.location.latitude }}"
+                 data-lng="{{ event.location.longitude }}"
+                 data-marker-icon="{{ asset('images/leaflet/marker-icon.png') }}"
+                 data-marker-shadow="{{ asset('images/leaflet/marker-shadow.png') }}"></div>
+        {% endif %}
+    {% else %}
+        <p class="has-text-grey">{{ 'location.box_no_venue'|trans }}</p>
     {% endif %}
 </div>
 {% for tile in pluginBottomSidebarTiles %}

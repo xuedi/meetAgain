@@ -1,0 +1,25 @@
+<h1 class="title is-4">{{ 'location.propose_page_title'|trans }}</h1>
+<p class="subtitle is-6">{{ 'location.propose_intro'|trans({'%name%': location.name}) }}</p>
+
+{{ form_start(form) }}
+<div class="box">
+    {{ form_widget(form) }}
+    <div class="field mt-5">
+        <div class="control">
+            <button type="submit" class="button is-primary">
+                {{ 'location.button_propose'|trans }}
+            </button>
+        </div>
+    </div>
+</div>
+{{ form_end(form) }}
+
+{% if pendingProposals is not empty %}
+    <h2 class="title is-5">{{ 'location.pending_proposals_heading'|trans }}</h2>
+    {% for card in pendingProposals %}
+        {{ include('review/_proposal_card.html.twig', {
+            card: card|merge({isProposer: card.proposal.proposedBy.id == app.user.id}),
+            canReview: false,
+        }) }}
+    {% endfor %}
+{% endif %}

@@ -3,8 +3,10 @@ voting:
 
 voting_attach:
     put_to_vote: '发起投票'
+    venue_decided_by_vote: '由投票决定'
 
 voting_poll:
+    subject_location: '场地'
     page_title_list: '投票'
     page_title_create: '创建投票'
     page_title_vote: '投出你的一票'

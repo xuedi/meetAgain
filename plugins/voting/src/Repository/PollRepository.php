@@ -71,6 +71,19 @@ class PollRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
+    public function findActiveForEventAndType(int $eventId, string $itemType): ?Poll
+    {
+        return $this
+            ->createQueryBuilder('p')
+            ->where('p.event = :eventId AND p.status = :status AND p.itemType = :itemType')
+            ->setParameter('eventId', $eventId)
+            ->setParameter('status', PollStatus::Active)
+            ->setParameter('itemType', $itemType)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     /**
      * @param list<int>|null $allowedIds
      *

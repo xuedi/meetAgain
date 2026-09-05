@@ -41,7 +41,6 @@ class Event
     private ?User $user = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
     private ?Location $location = null;
 
     #[ORM\Column]

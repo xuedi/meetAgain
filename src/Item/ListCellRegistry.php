@@ -7,6 +7,8 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class ListCellRegistry
 {
+    private const string CORE_PLUGIN_KEY = '';
+
     /**
      * @var array<string, ListCellProviderInterface>|null
      */
@@ -43,7 +45,8 @@ class ListCellRegistry
         $enabledPlugins = $this->pluginService->getActiveList();
         $map = [];
         foreach ($this->providers as $provider) {
-            if (!in_array($provider->getPluginKey(), $enabledPlugins, true)) {
+            $pluginKey = $provider->getPluginKey();
+            if ($pluginKey !== self::CORE_PLUGIN_KEY && !in_array($pluginKey, $enabledPlugins, true)) {
                 continue;
             }
 

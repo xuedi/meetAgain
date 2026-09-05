@@ -176,6 +176,13 @@ readonly class ChangeProposalService
         return $reviewable;
     }
 
+    public function canProposeTarget(string $targetType, int $targetId, User $user): bool
+    {
+        $provider = $this->registry->providerFor($targetType);
+
+        return $provider !== null && $provider->canPropose($user, $targetId);
+    }
+
     public function canReviewTarget(string $targetType, int $targetId, User $user): bool
     {
         $provider = $this->registry->providerFor($targetType);

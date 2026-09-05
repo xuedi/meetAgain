@@ -3,8 +3,10 @@ voting:
 
 voting_attach:
     put_to_vote: 'Zur Abstimmung stellen'
+    venue_decided_by_vote: 'Per Abstimmung entschieden'
 
 voting_poll:
+    subject_location: 'Ort'
     page_title_list: 'Abstimmungen'
     page_title_create: 'Abstimmung erstellen'
     page_title_vote: 'Stimme abgeben'

@@ -14,14 +14,12 @@ use App\Admin\Top\Actions\AdminTopActionDropdown;
 use App\Admin\Top\Actions\AdminTopActionDropdownOption;
 use App\Admin\Top\AdminTop;
 use App\Admin\Top\Infos\AdminTopInfoHtml;
-use App\Emails\Types\EventUpdateNotificationEmail;
 use App\Emails\Types\SeriesRescheduledEmail;
 use App\Entity\Event;
 use App\Entity\EventSeries;
 use App\Entity\EventTranslation;
 use App\Entity\Host;
 use App\Entity\Image;
-use App\Entity\Location;
 use App\Entity\User;
 use App\EntityActionDispatcher;
 use App\Enum\EntityAction;
@@ -32,6 +30,7 @@ use App\Enum\RecurrenceMode;
 use App\Enum\RecurrenceOrdinal;
 use App\Enum\RecurrencePeriod;
 use App\Enum\Weekday;
+use App\Event\LocationChoiceService;
 use App\Exception\Event\InvalidRecurrencePatternException;
 use App\Filter\Admin\Event\AdminEventListFilterService;
 use App\Form\EventType;
@@ -40,6 +39,7 @@ use App\Repository\EventRepository;
 use App\Repository\EventTranslationRepository;
 use App\Security\Permission\Attribute\PermissionAttribute;
 use App\Service\Config\LanguageService;
+use App\Service\Event\AttendeeUpdateNotifier;
 use App\Service\Event\EventService;
 use App\Service\Media\ImageLocationService;
 use App\Service\Media\ImageService;
@@ -102,7 +102,7 @@ final class EventController extends AbstractController implements AdminNavigatio
         private readonly ActivityService $activityService,
         private readonly ImageLocationService $imageLocationService,
         private readonly TranslatorInterface $translator,
-        private readonly EventUpdateNotificationEmail $eventUpdateNotificationEmail,
+        private readonly AttendeeUpdateNotifier $attendeeNotifier,
         private readonly SeriesRescheduledEmail $seriesRescheduledEmail,
         private readonly HtmlSanitizerInterface $cmsContent,
         private readonly EventCanonicalRebuildService $canonicalRebuildService,
@@ -110,6 +110,7 @@ final class EventController extends AbstractController implements AdminNavigatio
         private readonly RecurrenceResolver $recurrenceResolver,
         private readonly RecurrenceDescriber $recurrenceDescriber,
         private readonly RecurrenceBuilderStateResolver $recurrenceBuilderStateResolver,
+        private readonly LocationChoiceService $locationChoices,
     ) {}
 
     #[Route('/recurrence/preview', name: 'app_admin_event_recurrence_preview', methods: ['GET'])]
@@ -421,11 +422,11 @@ final class EventController extends AbstractController implements AdminNavigatio
         $form = $this->createForm(EventType::class, $event);
 
         if ($request->isMethod('GET')) {
-            $form->get('location')->setData($event->getLocation());
+            $form->get('location')->setData($this->locationChoices->activeValueFor($event) ?? (string) $event->getLocation()?->getId());
             $form->get('host')->setData($event->getHost());
         }
 
-        $beforeSnapshot = $this->captureEventSnapshot($event);
+        $beforeSnapshot = $this->attendeeNotifier->snapshot($event);
         $oldStart = DateTimeImmutable::createFromInterface($event->getStart());
         $oldStop = $event->getStop() !== null ? DateTimeImmutable::createFromInterface($event->getStop()) : null;
         $oldRule = $event->getSeries()?->getRule();
@@ -495,10 +496,7 @@ final class EventController extends AbstractController implements AdminNavigatio
                 $event->setSeries($this->createSeries($seriesName, $newRule, $newRuleSpec));
             }
 
-            $locationData = $form->get('location')->getData();
-            if ($locationData instanceof Location) {
-                $event->setLocation($locationData);
-            }
+            $venueProvider = $this->locationChoices->apply($event, (string) $form->get('location')->getData());
 
             $event->getHost()->clear();
             $hostsData = $form->get('host')->getData();
@@ -539,10 +537,10 @@ final class EventController extends AbstractController implements AdminNavigatio
 
             $this->activityService->log(AdminEventEdited::TYPE, $user, ['event_id' => $event->getId()]);
             $this->entityActionDispatcher->dispatch(EntityAction::UpdateEvent, $event->getId());
+            $this->locationChoices->commit($event, $venueProvider);
 
             if ($form->get('notifyAttendees')->getData() === true) {
-                $afterSnapshot = $this->captureEventSnapshot($event);
-                $this->dispatchEventUpdateNotifications($event, $user, $beforeSnapshot, $afterSnapshot);
+                $this->attendeeNotifier->notify($event, $user, $beforeSnapshot, $this->attendeeNotifier->snapshot($event));
             }
 
             if ($image instanceof Image) {
@@ -615,7 +613,7 @@ final class EventController extends AbstractController implements AdminNavigatio
                     icon: 'arrow-left',
                 ),
             ]),
-            'notifiableAttendeeCount' => $this->countNotifiableAttendees($event),
+            'notifiableAttendeeCount' => $this->attendeeNotifier->countNotifiable($event),
             'recurrence' => $this->buildRecurrenceContext($event),
             'venueForm' => $this->createForm(LocationType::class),
         ]);
@@ -681,73 +679,6 @@ final class EventController extends AbstractController implements AdminNavigatio
                 array_values(array_filter(RecurrencePeriod::cases(), static fn(RecurrencePeriod $case): bool => $case->carriesDayRule())),
             ),
         ];
-    }
-
-    /**
-     * @return array{start: int, startFormatted: string, locationId: ?int, locationName: string, canceled: bool}
-     */
-    private function captureEventSnapshot(Event $event): array
-    {
-        return [
-            'start' => $event->getStart()->getTimestamp(),
-            'startFormatted' => $event->getStart()->format('Y-m-d H:i'),
-            'locationId' => $event->getLocation()?->getId(),
-            'locationName' => $event->getLocation()?->getName() ?? '',
-            'canceled' => $event->isCanceled(),
-        ];
-    }
-
-    /**
-     * @param array{start: int, startFormatted: string, locationId: ?int, locationName: string, canceled: bool} $before
-     * @param array{start: int, startFormatted: string, locationId: ?int, locationName: string, canceled: bool} $after
-     */
-    private function dispatchEventUpdateNotifications(Event $event, User $editor, array $before, array $after): void
-    {
-        if ($before === $after) {
-            return;
-        }
-        if ($event->getStart() <= new DateTime()) {
-            return;
-        }
-
-        foreach ($event->getRsvp() as $recipient) {
-            if (!$recipient instanceof User) {
-                continue;
-            }
-            if ($recipient->getId() === $editor->getId()) {
-                continue;
-            }
-            $this->eventUpdateNotificationEmail->send([
-                'user' => $recipient,
-                'event' => $event,
-                'before' => $before,
-                'after' => $after,
-            ]);
-        }
-    }
-
-    private function countNotifiableAttendees(Event $event): int
-    {
-        if ($event->getStart() <= new DateTime()) {
-            return 0;
-        }
-
-        $creatorId = $event->getUser()?->getId();
-        $count = 0;
-        foreach ($event->getRsvp() as $recipient) {
-            if (!$recipient instanceof User) {
-                continue;
-            }
-            if ($recipient->getId() === $creatorId) {
-                continue;
-            }
-            if (!$recipient->getNotificationSettings()->isActive('attendedEventUpdate')) {
-                continue;
-            }
-            $count++;
-        }
-
-        return $count;
     }
 
     #[Route('/{id}/delete', name: 'app_admin_event_delete', methods: ['POST'])]
@@ -832,10 +763,7 @@ final class EventController extends AbstractController implements AdminNavigatio
                 ));
             }
 
-            $locationData = $form->get('location')->getData();
-            if ($locationData instanceof Location) {
-                $event->setLocation($locationData);
-            }
+            $venueProvider = $this->locationChoices->apply($event, (string) $form->get('location')->getData());
 
             $hostsData = $form->get('host')->getData();
             if (is_iterable($hostsData)) {
@@ -853,6 +781,7 @@ final class EventController extends AbstractController implements AdminNavigatio
 
             $this->activityService->log(AdminEventCreated::TYPE, $user, ['event_id' => $event->getId()]);
             $this->entityActionDispatcher->dispatch(EntityAction::CreateEvent, $event->getId());
+            $this->locationChoices->commit($event, $venueProvider);
 
             return $this->redirectToRoute('app_admin_event_edit', ['id' => $event->getId()]);
         }

@@ -1,0 +1,28 @@
+{#
+    Venue cell rendered by the shared item-list component (core wraps it in the chosen layout).
+    A venue has no member-facing page, so the row variant is text, not a link.
+
+    Used in:    item_list_cell('location', id, mode)
+    Parameters:
+        - location (Location, required) -- the venue to render
+        - viewMode (string|null)        -- 'row' for the compact inline form, anything else tiles
+    Depends on: the .item-row rules in custom.scss
+#}
+{% set mode = viewMode ?? 'tiles' %}
+
+{% if mode == 'row' %}
+    <span class="item-row">
+        <span class="item-row__title">{{ location.name }}</span>
+        <span class="item-row__subtitle has-text-grey">{{ location.street }}, {{ location.postcode }} {{ location.city }}</span>
+    </span>
+{% else %}
+    <div class="card" style="height: 100%;">
+        <div class="card-content">
+            <p class="title is-5">{{ location.name }}</p>
+            <p class="subtitle is-6 has-text-grey">
+                {{ location.street }}<br>
+                {{ location.postcode }} {{ location.city }}
+            </p>
+        </div>
+    </div>
+{% endif %}

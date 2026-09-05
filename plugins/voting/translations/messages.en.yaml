@@ -3,8 +3,10 @@ voting:
 
 voting_attach:
     put_to_vote: 'Put it to a vote'
+    venue_decided_by_vote: 'Decided by vote'
 
 voting_poll:
+    subject_location: 'Venue'
     page_title_list: 'Votes'
     page_title_create: 'Create a vote'
     page_title_vote: 'Cast your vote'

@@ -31,10 +31,12 @@
                 <span class="icon is-small has-text-grey-light"><i class="far fa-clock"></i></span>
                 <span>{{ event.start|date('H:i') }}</span>
             </span>
-            <span class="icon-text">
-                <span class="icon is-small has-text-grey-light"><i class="fas fa-location-dot"></i></span>
-                <span>{{ event.location.name }}</span>
-            </span>
+            {% if event.location %}
+                <span class="icon-text">
+                    <span class="icon is-small has-text-grey-light"><i class="fas fa-location-dot"></i></span>
+                    <span>{{ event.location.name }}</span>
+                </span>
+            {% endif %}
         </div>
     </div>
 </a>
