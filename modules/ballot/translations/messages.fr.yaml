@@ -1,0 +1,21 @@
+ballot:
+    notification_open: '%count% vote(s) ouvert(s) attendent votre voix'
+    status_open: 'Ouvert'
+    status_tallied: 'Dépouillé'
+    status_settled: 'Décidé'
+    status_abandoned: 'Retiré'
+    tally_approval: 'Approuvez toutes celles que vous accepteriez'
+    tally_single: 'Choisissez-en une'
+    settlement_automatic: 'Décidé automatiquement à la date limite'
+    settlement_confirmed: 'Confirmé par une personne après la date limite'
+    page_title: 'Décisions ouvertes'
+    none_open: "Rien n'attend votre voix pour le moment."
+    you_voted: 'Vous avez voté'
+    awaiting_you: 'Attend votre voix'
+    closes: 'clôture le %date%'
+    voters: '%count% membre(s) ont voté'
+    submit: 'Enregistrer mon vote'
+    back: 'Retour à toutes les décisions'
+    tied: 'Le résultat est à égalité, une personne doit donc trancher.'
+    flash_recorded: 'Votre vote a été enregistré.'
+    flash_closed: "Ce vote n'accepte plus de voix."

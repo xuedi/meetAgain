@@ -128,6 +128,7 @@ excludes = [
     "tests/Smoke/",
     "tests/bootstrap.php",
     "modules/trust/tests/",
+    "modules/ballot/tests/",
 ]
 
 ignore = [
@@ -214,6 +215,10 @@ allow-from = ["Module\\*\\**"]
 dependency = "Module\\Trust\\Internal\\**"
 allow-from = ["Module\\Trust\\**"]
 
+[[guard.perimeter.restrictions]]
+dependency = "Module\\Ballot\\Internal\\**"
+allow-from = ["Module\\Ballot\\**"]
+
 # Outbound: `[[guard.perimeter.rules]]` puts the whole project into allowlist mode, so every
 # namespace below needs an entry or all of its dependencies are reported as unruled. The three
 # `**` catch-alls state the current reality: core and plugins are not perimeter-guarded yet.
@@ -253,6 +258,28 @@ permit = [
 [[guard.perimeter.rules]]
 namespace = "Module\\Trust\\Tests\\"
 permit = ["Module\\Trust\\**", "@global", "App\\**", "PHPUnit\\**", "Doctrine\\**", "Symfony\\**", "Psr\\**"]
+
+[[guard.perimeter.rules]]
+namespace = "Module\\Ballot\\"
+permit = [
+    "Module\\Ballot\\**",
+    "@global",                                                  # DateTimeImmutable, Override, PHP's own functions
+    "App\\Entity\\User",                                        # the vote FK - the one sanctioned core entity
+    "App\\Controller\\AbstractController",                      # module controllers extend core's, as plugin controllers do
+    "App\\CronTaskInterface",                                   # the deadline task registers on core's cron chain
+    "App\\ValueObject\\CronTaskResult",                         # that chain's return type
+    "App\\Enum\\CronTaskStatus",                                # that chain's status enum
+    "App\\Service\\Notification\\User\\NotificationProviderInterface", # members hear about open ballots on core's bell
+    "App\\Service\\Notification\\User\\NotificationItem",              # that chain's item type
+    "Doctrine\\**",
+    "Symfony\\**",
+    "Twig\\**",
+    "Psr\\**",
+]
+
+[[guard.perimeter.rules]]
+namespace = "Module\\Ballot\\Tests\\"
+permit = ["Module\\Ballot\\**", "@global", "App\\**", "PHPUnit\\**", "Doctrine\\**", "Symfony\\**", "Psr\\**"]
 
 # Shape: the contract carries interfaces, enums and readonly value objects, nothing else.
 [[guard.structural.rules]]

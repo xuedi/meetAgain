@@ -1,0 +1,14 @@
+doctrine:
+    orm:
+        entity_managers:
+            default:
+                mappings:
+                    Ballot:
+                        dir: "%kernel.project_dir%/modules/ballot/src/Internal/Entity"
+                        is_bundle: false
+                        prefix: Module\Ballot\Internal\Entity
+                        alias: Ballot
+
+doctrine_migrations:
+    migrations_paths:
+        ModuleBallotMigrations: "%kernel.project_dir%/modules/ballot/migrations"

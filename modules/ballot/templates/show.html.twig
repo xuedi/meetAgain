@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'ballot.page_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+            <h1 class="title">{{ ballot.tallyMode.label()|trans }}</h1>
+            <p class="subtitle">
+                <span class="tag is-light">{{ ballot.status.label()|trans }}</span>
+                {{ 'ballot.closes'|trans({'%date%': ballot.deadline|date('Y-m-d H:i')}) }}
+                &middot; {{ 'ballot.voters'|trans({'%count%': ballot.voterCount}) }}
+            </p>
+
+            {% if ballot.viewerMayVote %}
+                <form method="post" action="{{ path('app_ballot_vote', {'id': ballot.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('ballot_vote' ~ ballot.id) }}">
+                    {% for candidate in ballot.candidates %}
+                        <label class="panel-block">
+                            <input type="{{ singleChoice ? 'radio' : 'checkbox' }}"
+                                   name="candidates[]"
+                                   value="{{ candidate.key }}"
+                                   {{ candidate.key in ballot.viewerSelection ? 'checked' : '' }}>
+                            <span class="ml-2">{{ candidate.label }}</span>
+                        </label>
+                    {% endfor %}
+                    <button type="submit" class="button is-primary mt-4">{{ 'ballot.submit'|trans }}</button>
+                </form>
+            {% else %}
+                <table class="table is-fullwidth">
+                    <tbody>
+                    {% for candidate in ballot.candidates %}
+                        <tr{% if candidate.key == ballot.winningKey %} class="has-background-success-light"{% endif %}>
+                            <td>{{ candidate.label }}</td>
+                            <td class="has-text-right">{{ ballot.votesFor(candidate.key) }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if ballot.isTied %}
+                    <article class="message is-warning">
+                        <div class="message-body">{{ 'ballot.tied'|trans }}</div>
+                    </article>
+                {% endif %}
+            {% endif %}
+
+            <a class="button is-light mt-4" href="{{ path('app_ballot_index') }}">{{ 'ballot.back'|trans }}</a>
+        </div>
+    </section>
+
+{% endblock %}
