@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'review_suggestion.page_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-two-thirds">
+
+                    <h1 class="title is-4">{{ 'review_suggestion.page_title'|trans }}</h1>
+                    <p class="subtitle is-6">
+                        {{ 'review_suggestion.submitted_by'|trans({
+                            '%proposer%': suggestion.proposedBy.name ?? suggestion.proposedBy.email,
+                            '%type%': labelKey|trans,
+                        }) }}
+                        <span class="has-text-grey">{{ suggestion.createdAt|time_diff }}</span>
+                    </p>
+
+                    {% if not suggestion.pending %}
+                        <div class="notification">
+                            {{ 'review_suggestion.resolved_state'|trans({'%status%': suggestion.status.label()|trans}) }}
+                        </div>
+                    {% endif %}
+
+                    {% if canReview and suggestion.pending %}
+                        <p class="has-text-grey mb-4">{{ 'review_suggestion.intro'|trans }}</p>
+
+                        {{ form_start(form, {action: path('app_review_suggestion_approve', {id: suggestion.id})}) }}
+                        <div class="box">
+                            {{ form_widget(form) }}
+                            <div class="field mt-5">
+                                <div class="control">
+                                    <button type="submit" class="button is-success">
+                                        {{ 'review_suggestion.button_save_approve'|trans }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {{ form_end(form) }}
+
+                        <div class="box">
+                            <a href="{{ path('app_review_suggestion_reject', {id: suggestion.id}) }}"
+                               class="button is-danger is-outlined"
+                               data-post
+                               data-csrf-token="{{ csrf_token('suggestion' ~ suggestion.id) }}">
+                                {{ 'review_suggestion.button_reject'|trans }}
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="box">
+                            <table class="table is-fullwidth is-narrow">
+                                <tbody>
+                                {% for row in rows %}
+                                    <tr>
+                                        <th style="width: 30%;">{{ row.label }}</th>
+                                        <td>{{ row.value|default('-')|nl2br }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            {% if isProposer and suggestion.pending %}
+                                <div class="has-text-right">
+                                    <a href="{{ path('app_review_suggestion_withdraw', {id: suggestion.id}) }}"
+                                       class="button is-small"
+                                       data-post
+                                       data-csrf-token="{{ csrf_token('suggestion' ~ suggestion.id) }}">
+                                        {{ 'review_suggestion.button_withdraw'|trans }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <a href="{{ path('app_profile_review') }}" class="is-size-7">
+                        {{ 'review_suggestion.link_back'|trans }}
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

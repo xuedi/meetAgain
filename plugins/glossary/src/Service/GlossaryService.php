@@ -18,7 +18,6 @@ use Plugin\Glossary\Item\GlossaryTaggableTypeProvider;
 use Plugin\Glossary\Repository\GlossaryRepository;
 use Plugin\Glossary\Review\GlossaryChangeTarget;
 use RuntimeException;
-use Symfony\Bundle\SecurityBundle\Security;
 
 readonly class GlossaryService
 {
@@ -31,7 +30,6 @@ readonly class GlossaryService
         private TagService $tagService,
         private ActionDispatcher $itemActionDispatcher,
         private ChangeProposalService $changeProposalService,
-        private Security $security,
     ) {}
 
     /** @return list<int> */
@@ -58,38 +56,9 @@ readonly class GlossaryService
         return array_values(array_map(intval(...), array_filter(explode(',', $value), static fn(string $id): bool => trim($id) !== '')));
     }
 
-    public function approveNew(int $id): void
-    {
-        $item = $this->findIncludingUnapproved($id);
-        if ($item === null) {
-            return;
-        }
-
-        $item->setApproved(true);
-        $this->em->persist($item);
-        $this->em->flush();
-    }
-
-    public function deleteNew(int $id): void
-    {
-        $item = $this->findIncludingUnapproved($id);
-        if ($item === null) {
-            return;
-        }
-        if ($item->getApproved()) {
-            throw new RuntimeException('Cannot delete approved item');
-        }
-
-        $this->em->remove($item);
-        $this->em->flush();
-        $this->dispatcher->dispatch(EntityAction::DeleteGlossary, $id);
-        $this->itemActionDispatcher->dispatch(ItemAction::Deleted, GlossaryTaggableTypeProvider::ITEM_TYPE, $id);
-        $this->changeProposalService->removeForTarget(GlossaryTaggableTypeProvider::ITEM_TYPE, $id);
-    }
-
     public function delete(int $id): void
     {
-        $item = $this->findIncludingUnapproved($id);
+        $item = $this->getManaged($id);
         if ($item === null) {
             return;
         }
@@ -104,7 +73,7 @@ readonly class GlossaryService
     /** @param list<int> $tagIds */
     public function update(Glossary $newGlossary, int $id, array $tagIds): void
     {
-        $current = $this->findIncludingUnapproved($id);
+        $current = $this->getManaged($id);
         if ($current === null) {
             return;
         }
@@ -121,7 +90,7 @@ readonly class GlossaryService
 
     public function applyChange(int $id, string $field, ?string $value): void
     {
-        $item = $this->findIncludingUnapproved($id);
+        $item = $this->getManaged($id);
         if ($item === null) {
             throw new RuntimeException('Item not found');
         }
@@ -149,14 +118,12 @@ readonly class GlossaryService
     }
 
     /**
-     * @param bool      $autoApprove Whether to auto-approve (for managers)
      * @param list<int> $tagIds
      */
-    public function create(Glossary $glossary, int $userId, bool $autoApprove = false, array $tagIds = []): void
+    public function create(Glossary $glossary, int $userId, array $tagIds = []): void
     {
         $glossary->setCreatedBy($userId);
         $glossary->setCreatedAt(new DateTimeImmutable());
-        $glossary->setApproved($autoApprove);
 
         $this->em->persist($glossary);
         $this->em->flush();
@@ -169,18 +136,18 @@ readonly class GlossaryService
 
     public function get(int $id): ?Glossary
     {
-        return $this->repo->findOneAllowed($id, $this->allowedIds(), !$this->canSeeUnapproved());
+        return $this->repo->findOneAllowed($id, $this->allowedIds());
     }
 
     public function getManaged(int $id): ?Glossary
     {
-        return $this->repo->findOneAllowed($id, $this->managedIds(), !$this->canSeeUnapproved());
+        return $this->repo->findOneAllowed($id, $this->managedIds());
     }
 
     /** @return Glossary[] */
     public function getList(): array
     {
-        return $this->repo->findAllowed($this->allowedIds(), ['phrase' => 'ASC'], !$this->canSeeUnapproved());
+        return $this->repo->findAllowed($this->allowedIds());
     }
 
     public function detach(Glossary $newGlossary): void
@@ -194,11 +161,6 @@ readonly class GlossaryService
         $this->tagService->setTags(GlossaryTaggableTypeProvider::ITEM_TYPE, $id, $tagIds);
     }
 
-    private function findIncludingUnapproved(int $id): ?Glossary
-    {
-        return $this->repo->findOneAllowed($id, $this->managedIds());
-    }
-
     /** @return list<int>|null */
     private function allowedIds(): ?array
     {
@@ -209,10 +171,5 @@ readonly class GlossaryService
     private function managedIds(): ?array
     {
         return $this->adminItemFilter->getAllowedItemIds(GlossaryTaggableTypeProvider::ITEM_TYPE);
-    }
-
-    private function canSeeUnapproved(): bool
-    {
-        return $this->security->isGranted('ROLE_ORGANIZER');
     }
 }

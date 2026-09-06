@@ -15,7 +15,7 @@ photos_config:
     field_event_box: 'Show a photo box on event pages'
     help_event_box: 'Replaces the plain image box on the event page. Uploads there become real photos with camera settings, comments and a place on the photos page.'
     field_contest: 'Enable the photo contest'
-    help_contest: 'Members submit photos to a queue; a steward opens a ballot over them. Needs the voting plugin.'
+    help_contest: 'Members submit photos to a queue; a steward opens a ballot over them.'
     field_contest_submissions: 'Submissions per member'
     help_contest_submissions: 'How many photos one member may have queued for the next contest.'
 
@@ -124,10 +124,10 @@ photos_event:
 
 photos_contest:
     browser_title: 'Photo contest'
+    ballot_title: 'Photo contest'
     page_title: 'Photo contest'
     heading_open: 'A contest is running'
     open_body: 'Voting is open until %date%.'
-    button_vote: 'Go and vote'
     heading_queue: 'Next contest'
     queue_body: '%count% photo is queued for the next contest.|%count% photos are queued for the next contest.'
     button_start: 'Open the contest'
@@ -145,4 +145,7 @@ photos_contest:
     flash_withdrawn: 'Photo withdrawn.'
     flash_cap_reached: 'You have already queued as many photos as this group allows.'
     flash_no_entries: 'Nobody has submitted a photo yet, so there is nothing to vote on.'
+    flash_too_few_entries: 'A contest needs at least two entries.'
     flash_already_open: 'A photo contest is already running.'
+    flash_voted: 'Your vote has been recorded.'
+    flash_vote_refused: 'This contest no longer accepts votes.'

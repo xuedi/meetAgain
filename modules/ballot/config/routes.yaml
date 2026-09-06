@@ -1,0 +1,6 @@
+ballot_controllers:
+    type: attribute
+    prefix: /{_locale}
+    resource:
+        path: ../src/Internal/Controller/
+        namespace: Module\Ballot\Internal\Controller

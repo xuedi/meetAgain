@@ -93,8 +93,6 @@ class GetRoutesContractTest extends WebTestCase
         yield 'member restrict' => ['/en/members/restrict/1'];
         yield 'member verify' => ['/en/members/verify/1'];
         yield 'glossary delete' => ['/en/glossary/delete/1'];
-        yield 'glossary approval approve' => ['/en/glossary/approval/approve/1'];
-        yield 'glossary approval deny' => ['/en/glossary/approval/deny/1'];
     }
 
     public static function provideNonLocaleRoutes(): iterable

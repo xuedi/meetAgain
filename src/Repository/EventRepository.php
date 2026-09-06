@@ -697,6 +697,20 @@ class EventRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /** @return list<int> */
+    public function findIdsByLocation(int $locationId): array
+    {
+        $rows = $this
+            ->createQueryBuilder('e')
+            ->select('e.id')
+            ->where('e.location = :location')
+            ->setParameter('location', $locationId)
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_map(intval(...), $rows);
+    }
+
     public function findOneForDetails(int $id): ?Event
     {
         return $this

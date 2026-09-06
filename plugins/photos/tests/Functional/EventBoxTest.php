@@ -22,7 +22,7 @@ class EventBoxTest extends WebTestCase
 {
     private const string HOST = 'weiqi.meetagain.local';
     private const string EVENT_TITLE = EventFixture::BEGINNER_WORKSHOP;
-    private const string MEMBER_EMAIL = 'Maxwell.Tan@example.org';
+    private const string MEMBER_EMAIL = 'Adem.Lane@example.org';
 
     public function testThePluginBoxTakesOverTheEventImageBox(): void
     {

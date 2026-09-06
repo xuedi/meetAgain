@@ -18,7 +18,6 @@ class GlossaryTest extends TestCase
         $glossary->setPhrase('干嘛')
             ->setPinyin('gàn má')
             ->setExplanation('how is it going?')
-            ->setApproved(true)
             ->setCreatedBy(2)
             ->setCreatedAt($createdAt);
 
@@ -26,7 +25,6 @@ class GlossaryTest extends TestCase
         self::assertSame('干嘛', $glossary->getPhrase());
         self::assertSame('gàn má', $glossary->getPinyin());
         self::assertSame('how is it going?', $glossary->getExplanation());
-        self::assertTrue($glossary->getApproved());
         self::assertSame(2, $glossary->getCreatedBy());
         self::assertSame($createdAt, $glossary->getCreatedAt());
     }

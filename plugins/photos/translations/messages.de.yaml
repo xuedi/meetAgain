@@ -15,7 +15,7 @@ photos_config:
     field_event_box: 'Fotobox auf Veranstaltungsseiten zeigen'
     help_event_box: 'Ersetzt die einfache Bildbox auf der Veranstaltungsseite. Uploads dort werden zu echten Fotos mit Kameradaten, Kommentaren und einem Platz auf der Fotoseite.'
     field_contest: 'Fotowettbewerb aktivieren'
-    help_contest: 'Mitglieder reichen Fotos in eine Warteschlange ein; ein Steward eröffnet eine Abstimmung darüber. Benötigt das Voting-Plugin.'
+    help_contest: 'Mitglieder reichen Fotos in eine Warteschlange ein; ein Steward eröffnet eine Abstimmung darüber.'
     field_contest_submissions: 'Einreichungen pro Mitglied'
     help_contest_submissions: 'Wie viele Fotos ein Mitglied für den nächsten Wettbewerb vormerken darf.'
 
@@ -124,10 +124,10 @@ photos_event:
 
 photos_contest:
     browser_title: 'Fotowettbewerb'
+    ballot_title: 'Fotowettbewerb'
     page_title: 'Fotowettbewerb'
     heading_open: 'Ein Wettbewerb läuft'
     open_body: 'Die Abstimmung läuft bis %date%.'
-    button_vote: 'Jetzt abstimmen'
     heading_queue: 'Nächster Wettbewerb'
     queue_body: '%count% Foto ist für den nächsten Wettbewerb vorgemerkt.|%count% Fotos sind für den nächsten Wettbewerb vorgemerkt.'
     button_start: 'Wettbewerb eröffnen'
@@ -145,4 +145,7 @@ photos_contest:
     flash_withdrawn: 'Foto zurückgezogen.'
     flash_cap_reached: 'Du hast bereits so viele Fotos vorgemerkt, wie diese Gruppe erlaubt.'
     flash_no_entries: 'Es wurde noch kein Foto eingereicht, es gibt also nichts abzustimmen.'
+    flash_too_few_entries: 'Ein Wettbewerb braucht mindestens zwei Einreichungen.'
     flash_already_open: 'Es läuft bereits ein Fotowettbewerb.'
+    flash_voted: 'Deine Stimme wurde gespeichert.'
+    flash_vote_refused: 'Dieser Wettbewerb nimmt keine Stimmen mehr an.'

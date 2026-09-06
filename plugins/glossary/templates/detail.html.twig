@@ -37,19 +37,18 @@
                     </table>
 
                     <div class="mt-4 buttons">
-                        {% if is_granted('ROLE_USER') %}
+                        {% if is_granted('ROLE_ORGANIZER') %}
                             <a href="{{ path('app_plugin_glossary_edit', {id: entry.id}) }}" class="button is-small">
                                 <span class="icon"><i class="fa fa-edit"></i></span>
-                                <span>{{ is_granted('ROLE_ORGANIZER') ? ('glossary.button_edit'|trans) : ('glossary.button_suggest_change'|trans) }}</span>
+                                <span>{{ 'glossary.button_edit'|trans }}</span>
+                            </a>
+                        {% elseif is_granted('ROLE_USER') %}
+                            <a href="{{ path('app_contribution_correct', {type: 'glossary', id: entry.id}) }}" class="button is-small">
+                                <span class="icon"><i class="fa fa-edit"></i></span>
+                                <span>{{ 'glossary.button_suggest_change'|trans }}</span>
                             </a>
                         {% endif %}
                         {% if is_granted('ROLE_ORGANIZER') %}
-                            {% if not entry.approved %}
-                                <a href="{{ path('app_plugin_glossary_approval_list', {id: entry.id}) }}" class="button is-small is-success is-light">
-                                    <span class="icon"><i class="fa fa-check"></i></span>
-                                    <span>{{ 'glossary.button_review_approval'|trans }}</span>
-                                </a>
-                            {% endif %}
                             {% if pending_change_proposals('glossary', entry.id) > 0 %}
                                 <a href="{{ path('app_review_proposals', {targetType: 'glossary', targetId: entry.id}) }}" class="button is-small is-warning is-light">
                                     <span class="icon"><i class="fa fa-edit"></i></span>

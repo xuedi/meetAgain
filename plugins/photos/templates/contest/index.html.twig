@@ -18,11 +18,14 @@
 <div class="box">
     {% if openContest %}
         <h2 class="title is-5">{{ 'photos_contest.heading_open'|trans }}</h2>
-        <p class="content">{{ 'photos_contest.open_body'|trans({'%date%': openContest.endDate|date(get_date_format())}) }}</p>
-        <a class="button is-primary" href="{{ path('app_voting_poll_show', {id: openContest.id}) }}">
-            <span class="icon"><i class="fa-solid fa-check-to-slot"></i></span>
-            <span>{{ 'photos_contest.button_vote'|trans }}</span>
-        </a>
+        <p class="content">{{ 'photos_contest.open_body'|trans({'%date%': openContest.deadline|date(get_date_format())}) }}</p>
+
+        {% include '_components/ballot_tiles.html.twig' with {
+            ballot: openContest,
+            itemType: itemType,
+            voteUrl: path('app_plugin_photos_contest_vote', {id: openContest.id}),
+            tokenId: 'app_plugin_photos_contest_vote' ~ openContest.id,
+        } only %}
     {% else %}
         <h2 class="title is-5">{{ 'photos_contest.heading_queue'|trans }}</h2>
         <p class="content">{{ 'photos_contest.queue_body'|trans({'%count%': queued}) }}</p>
@@ -56,7 +59,7 @@
                         <p class="is-size-7 has-text-grey">
                             {{ 'photos_contest.winner_meta'|trans({
                                 '%name%': get_user_name(winner.photo.createdBy),
-                                '%date%': winner.poll.closedAt|date(get_date_format()),
+                                '%date%': winner.contest.settledAt|date(get_date_format()),
                             }) }}
                         </p>
                     </div>

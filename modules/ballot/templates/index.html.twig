@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'ballot.page_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+            <h1 class="title">{{ 'ballot.page_title'|trans }}</h1>
+
+            {% if ballots is empty %}
+                <article class="message">
+                    <div class="message-body">{{ 'ballot.none_open'|trans }}</div>
+                </article>
+            {% else %}
+                <div class="panel">
+                    {% for ballot in ballots %}
+                        <a class="panel-block is-justify-content-space-between" href="{{ path('app_ballot_show', {'id': ballot.id}) }}">
+                            <span>
+                                <span class="panel-icon"><i class="fas fa-check-to-slot" aria-hidden="true"></i></span>
+                                {{ ballot.title ?? (ballot.tallyMode.label()|trans) }}
+                            </span>
+                            <span>
+                                {% if ballot.hasVoted %}
+                                    <span class="tag is-success is-light">{{ 'ballot.you_voted'|trans }}</span>
+                                {% else %}
+                                    <span class="tag is-warning is-light">{{ 'ballot.awaiting_you'|trans }}</span>
+                                {% endif %}
+                                <span class="has-text-grey">{{ 'ballot.closes'|trans({'%date%': ballot.deadline|date('Y-m-d H:i')}) }}</span>
+                            </span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+{% endblock %}

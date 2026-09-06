@@ -4,10 +4,10 @@ namespace App\Form;
 
 use App\Entity\Event;
 use App\Entity\Host;
-use App\Entity\Location;
 use App\Enum\EventInterval;
 use App\Enum\EventStatus;
 use App\Enum\EventType as EventTypeEnum;
+use App\Event\LocationChoiceService;
 use App\Filter\Admin\Host\AdminHostListFilterService;
 use App\Filter\Admin\Location\AdminLocationListFilterService;
 use App\Repository\EventTranslationRepository;
@@ -39,6 +39,7 @@ class EventType extends AbstractType
         private readonly EventTranslationRepository $eventTransRepo,
         private readonly AdminLocationListFilterService $locationFilterService,
         private readonly LocationRepository $locationRepository,
+        private readonly LocationChoiceService $locationChoices,
         private readonly AdminHostListFilterService $hostFilterService,
         private readonly HostRepository $hostRepository,
     ) {}
@@ -107,18 +108,15 @@ class EventType extends AbstractType
                 'expanded' => false,
                 'multiple' => false,
             ])
-            ->add('location', EntityType::class, [
-                'class' => Location::class,
-                'choice_label' => 'name',
+            ->add('location', ChoiceType::class, [
                 'label' => $this->translator->trans('admin_event.form_label_location'),
                 'required' => true,
                 'mapped' => false,
-                'query_builder' => function () {
-                    $filterResult = $this->locationFilterService->getLocationIdFilter();
-                    $locationIds = $filterResult->getLocationIds();
-
-                    return $this->locationRepository->createQueryBuilderForAdmin($locationIds);
-                },
+                'choices' => $this->locationChoices($event),
+                'choice_translation_domain' => false,
+            ])
+            ->add('ballotTerms', BallotTermsType::class, [
+                'notice' => $this->venueBallotNotice(),
             ])
             ->add('host', EntityType::class, [
                 'class' => Host::class,
@@ -182,6 +180,31 @@ class EventType extends AbstractType
                 ]);
             }
         }
+    }
+
+    private function venueBallotNotice(): ?string
+    {
+        $venues = $this->locationRepository->findAllForAdmin($this->locationFilterService->getLocationIdFilter()->getLocationIds());
+
+        return count($venues) === 1 ? $this->translator->trans('admin_event.venue_ballot_single_notice') : null;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function locationChoices(?Event $event): array
+    {
+        $choices = [];
+        $visible = $this->locationRepository->findAllForAdmin($this->locationFilterService->getLocationIdFilter()->getLocationIds());
+        foreach ($visible as $location) {
+            $choices[(string) $location->getName()] = (string) $location->getId();
+        }
+
+        foreach ($this->locationChoices->availableFor($event) as $provider) {
+            $choices[$this->translator->trans($provider->getLabelKey())] = $provider->getValue();
+        }
+
+        return $choices;
     }
 
     #[Override]

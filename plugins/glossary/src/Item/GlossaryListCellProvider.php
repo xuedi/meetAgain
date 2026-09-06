@@ -67,7 +67,7 @@ final readonly class GlossaryListCellProvider implements ListCellProviderInterfa
         $needsAttention = [];
         $rest = [];
         foreach ($entries as $entry) {
-            if (!$entry->getApproved() || in_array((int) $entry->getId(), $pendingProposalIds, true)) {
+            if (in_array((int) $entry->getId(), $pendingProposalIds, true)) {
                 $needsAttention[] = (int) $entry->getId();
                 continue;
             }

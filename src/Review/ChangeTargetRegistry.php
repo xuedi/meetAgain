@@ -9,6 +9,8 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 // every host a reviewer works from
 class ChangeTargetRegistry
 {
+    private const string CORE_PLUGIN_KEY = '';
+
     /**
      * @var array<string, ChangeTargetProviderInterface>|null
      */
@@ -58,7 +60,8 @@ class ChangeTargetRegistry
         $enabledPlugins = $this->pluginService->getGloballyActiveList();
         $map = [];
         foreach ($this->providers as $provider) {
-            if (!in_array($provider->getPluginKey(), $enabledPlugins, true)) {
+            $pluginKey = $provider->getPluginKey();
+            if ($pluginKey !== self::CORE_PLUGIN_KEY && !in_array($pluginKey, $enabledPlugins, true)) {
                 continue;
             }
 

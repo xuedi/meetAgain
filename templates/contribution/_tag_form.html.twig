@@ -1,0 +1,62 @@
+{#
+    Contribution hub - the tag pane
+
+    One vocabulary, single-locale, as a member sees it: a text field per tag plus a field for a new
+    tag, and one for a new sub-tag wherever the depth limit still allows one. The submit becomes one
+    change proposal per tag it touches. The steward's editor is a different page entirely
+    (App\Controller\ItemTagController).
+
+    Rendered by: App\Controller\ContributionController::correctTags
+    Parameters:
+        - itemType, typeLabelKey (string)
+        - rows (list of {id, label, depth, canAddChild}), usage (tag id => count)
+        - pendingProposals (list of {proposal, rows})
+#}
+<h1 class="title is-4">{{ 'item.tag_page_title'|trans({'%type%': typeLabelKey|trans}) }}</h1>
+<p class="subtitle is-6">{{ 'item.tag_page_intro'|trans }}</p>
+
+<form method="post" class="box">
+    <input type="hidden" name="_token" value="{{ csrf_token('item_tag_suggest') }}">
+    {% for row in rows %}
+        <div class="field has-addons" style="padding-left: {{ (row.depth - 1) * 1.5 }}rem;">
+            <div class="control is-expanded">
+                <input class="input" type="text" name="suggest[edit][{{ row.id }}]" value="{{ row.label }}">
+            </div>
+            {% if usage[row.id]|default(0) > 0 %}
+                <div class="control">
+                    <span class="button is-static" title="{{ 'item.tag_usage_hint'|trans({'%count%': usage[row.id]}) }}">{{ usage[row.id] }}</span>
+                </div>
+            {% endif %}
+        </div>
+        {% if row.canAddChild %}
+            <div class="field" style="padding-left: {{ row.depth * 1.5 }}rem;">
+                <div class="control">
+                    <input class="input is-small" type="text" name="suggest[addBelow][{{ row.id }}][]"
+                           placeholder="{{ 'item.tag_suggest_add_child_placeholder'|trans({'%parent%': row.label}) }}">
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    <div class="field">
+        <div class="control">
+            <input class="input" type="text" name="suggest[add][]"
+                   placeholder="{{ 'item.tag_suggest_add_placeholder'|trans }}">
+        </div>
+    </div>
+    <p class="help mb-4">{{ 'item.tag_suggest_hint'|trans }}</p>
+    <div class="field">
+        <div class="control">
+            <button type="submit" class="button is-primary">{{ 'item.tag_button_suggest'|trans }}</button>
+        </div>
+    </div>
+</form>
+
+{% if pendingProposals is not empty %}
+    <h2 class="title is-5">{{ 'contribution.pending_proposals_heading'|trans }}</h2>
+    {% for card in pendingProposals %}
+        {{ include('review/_proposal_card.html.twig', {
+            card: card|merge({isProposer: card.proposal.proposedBy.id == app.user.id}),
+            canReview: false,
+        }) }}
+    {% endfor %}
+{% endif %}

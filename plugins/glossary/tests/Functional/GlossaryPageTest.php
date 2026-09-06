@@ -10,7 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GlossaryPageTest extends WebTestCase
 {
-    private const string MODERATOR_EMAIL = 'Admin@example.org';
     private const string MEMBER_EMAIL = 'Adem.Lane@example.org';
     private const string GLOSSARY_HOST = 'dragon.meetagain.local';
 
@@ -72,134 +71,38 @@ class GlossaryPageTest extends WebTestCase
         static::assertCount(1, $crawler->filter('.item-list table'));
     }
 
-    public function testGuestsSeeNoUnapprovedEntry(): void
+    public function testDetailPageIsPublic(): void
     {
         // Arrange
         $client = static::createClient();
-        $pendingPhrases = $this->pendingPhrases($client);
+        $entry = $this->entry($client);
 
         // Act
-        $listed = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST])
-            ->filter('.item-list tbody tr')->each(static fn($row): string => $row->text());
-
-        // Assert
-        static::assertNotEmpty($listed);
-        foreach ($listed as $row) {
-            foreach ($pendingPhrases as $phrase) {
-                static::assertStringNotContainsString($phrase, $row);
-            }
-        }
-    }
-
-    public function testModeratorsAlsoSeeUnapprovedEntries(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $guestRows = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST])
-            ->filter('.item-list tbody tr')->count();
-        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
-
-        // Act
-        $crawler = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        static::assertGreaterThan($guestRows, $crawler->filter('.item-list tbody tr')->count());
-    }
-
-    public function testDetailPageOfAnApprovedEntryIsPublic(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $approved = $this->entry($client, true);
-
-        // Act
-        $client->request('GET', '/en/glossary/' . $approved->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->request('GET', '/en/glossary/' . $entry->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
         $this->assertResponseIsSuccessful();
-        static::assertStringContainsString((string) $approved->getPhrase(), (string) $client->getResponse()->getContent());
+        static::assertStringContainsString((string) $entry->getPhrase(), (string) $client->getResponse()->getContent());
     }
 
-    public function testDetailPageOfAnUnapprovedEntryIsNotFoundForGuests(): void
+    public function testTheHubOffersAnEntryToMembers(): void
     {
         // Arrange
         $client = static::createClient();
-        $pending = $this->entry($client, false);
+        $entry = $this->entry($client);
+        $client->loginUser($this->user($client));
 
         // Act
-        $client->request('GET', '/en/glossary/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        $this->assertResponseStatusCodeSame(404);
-    }
-
-    public function testDetailPageOfAnUnapprovedEntryIsVisibleToModerators(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $pending = $this->entry($client, false);
-        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
-
-        // Act
-        $client->request('GET', '/en/glossary/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $crawler = $client->request('GET', '/en/contribute/glossary/' . $entry->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
         $this->assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('form[name="glossary"]'));
     }
 
-    public function testEditFormOfAnUnapprovedEntryIsNotFoundForMembers(): void
+    private function entry(KernelBrowser $client): Glossary
     {
-        // Arrange
-        $client = static::createClient();
-        $pending = $this->entry($client, false);
-        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-
-        // Act
-        $client->request('GET', '/en/glossary/edit/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        $this->assertResponseStatusCodeSame(404);
-    }
-
-    public function testEditFormOfAnApprovedEntryStaysOpenToMembers(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $approved = $this->entry($client, true);
-        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-
-        // Act
-        $client->request('GET', '/en/glossary/edit/' . $approved->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        $this->assertResponseIsSuccessful();
-    }
-
-    public function testEditFormOfAnUnapprovedEntryIsOpenToModerators(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $pending = $this->entry($client, false);
-        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
-
-        // Act
-        $client->request('GET', '/en/glossary/edit/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        $this->assertResponseIsSuccessful();
-    }
-
-    /** @return list<string> */
-    private function pendingPhrases(KernelBrowser $client): array
-    {
-        $pending = $this->em($client)->getRepository(Glossary::class)->findBy(['approved' => false]);
-
-        return array_values(array_map(static fn(Glossary $entry): string => (string) $entry->getPhrase(), $pending));
-    }
-
-    private function entry(KernelBrowser $client, bool $approved): Glossary
-    {
-        $entry = $this->em($client)->getRepository(Glossary::class)->findOneBy(['approved' => $approved]);
+        $entry = $this->em($client)->getRepository(Glossary::class)->findOneBy([]);
         if (!$entry instanceof Glossary) {
             self::fail('Required glossary fixture entry missing');
         }
@@ -207,11 +110,11 @@ class GlossaryPageTest extends WebTestCase
         return $entry;
     }
 
-    private function user(KernelBrowser $client, string $email): User
+    private function user(KernelBrowser $client): User
     {
-        $user = $this->em($client)->getRepository(User::class)->findOneBy(['email' => $email]);
+        $user = $this->em($client)->getRepository(User::class)->findOneBy(['email' => self::MEMBER_EMAIL]);
         if (!$user instanceof User) {
-            self::fail('Required fixture user missing: ' . $email);
+            self::fail('Required fixture user missing: ' . self::MEMBER_EMAIL);
         }
 
         return $user;

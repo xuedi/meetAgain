@@ -1,0 +1,42 @@
+<h1 class="title is-4">{{ 'contribution.suggest_page_title'|trans({'%type%': typeLabelKey|trans}) }}</h1>
+<p class="subtitle is-6">{{ 'contribution.suggest_intro'|trans }}</p>
+
+{{ form_start(form) }}
+<div class="box">
+    {{ form_widget(form) }}
+    <div class="field mt-5">
+        <div class="control">
+            <button type="submit" class="button is-primary">
+                {{ 'contribution.button_suggest'|trans }}
+            </button>
+        </div>
+    </div>
+</div>
+{{ form_end(form) }}
+
+{% if pending is not empty %}
+    <h2 class="title is-5">{{ 'contribution.pending_heading'|trans }}</h2>
+    {% for card in pending %}
+        <div class="box">
+            <p class="mb-3"><strong>{{ card.description }}</strong></p>
+            <table class="table is-fullwidth is-narrow">
+                <tbody>
+                {% for row in card.rows %}
+                    <tr>
+                        <th style="width: 30%;">{{ row.label }}</th>
+                        <td>{{ row.value|default('-')|nl2br }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="has-text-right">
+                <a href="{{ path('app_review_suggestion_withdraw', {id: card.id}) }}"
+                   class="button is-small"
+                   data-post
+                   data-csrf-token="{{ csrf_token('suggestion' ~ card.id) }}">
+                    {{ 'contribution.button_withdraw'|trans }}
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}

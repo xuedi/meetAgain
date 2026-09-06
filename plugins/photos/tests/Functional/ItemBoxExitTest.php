@@ -60,16 +60,16 @@ class ItemBoxExitTest extends WebTestCase
         static::assertResponseStatusCodeSame(404);
     }
 
-    public function testThePollCreateRouteTakesAFilmButRefusesAPhoto(): void
+    public function testTheVoteCreateRouteTakesAFilmButRefusesAPhoto(): void
     {
         // Arrange
         $client = $this->signedInOrganizer();
 
         // Act & Assert
-        $client->request('GET', '/en/voting/poll/create/' . $this->eventId($client) . '/film', server: $this->host());
+        $client->request('GET', '/en/item-ballot/create/' . $this->eventId($client) . '/film', server: $this->host());
         $this->assertResponseIsSuccessful();
 
-        $client->request('GET', '/en/voting/poll/create/' . $this->eventId($client) . '/photo', server: $this->host());
+        $client->request('GET', '/en/item-ballot/create/' . $this->eventId($client) . '/' . PhotoService::ITEM_TYPE, server: $this->host());
         static::assertResponseStatusCodeSame(404);
     }
 

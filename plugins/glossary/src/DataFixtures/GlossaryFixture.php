@@ -7,6 +7,7 @@ use App\Entity\ChangeProposal;
 use App\Entity\ItemTag;
 use App\Entity\ItemTagAssignment;
 use App\Entity\PluginSettings;
+use App\Entity\Suggestion;
 use App\Entity\User;
 use App\Review\FieldChange;
 use DateTimeImmutable;
@@ -27,11 +28,10 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
         $tags = $this->buildTags($manager);
 
         $assignments = [];
-        foreach ($this->getData() as [$phrase, $pinyin, $explanation, $tagKey, $user, $approved]) {
+        foreach ($this->getData() as [$phrase, $pinyin, $explanation, $tagKey, $user]) {
             $glossary = new Glossary();
             $glossary->setCreatedAt(new DateTimeImmutable());
             $glossary->setCreatedBy($user);
-            $glossary->setApproved($approved);
             $glossary->setPhrase($phrase);
             $glossary->setPinyin($pinyin);
             $glossary->setExplanation($explanation);
@@ -53,6 +53,7 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
         $manager->flush();
 
         $this->seedPendingProposal($manager, $assignments[0][0], $tags);
+        $this->seedPendingSuggestion($manager);
 
         echo 'OK' . PHP_EOL;
     }
@@ -107,6 +108,25 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
         $manager->flush();
     }
 
+    private function seedPendingSuggestion(ObjectManager $manager): void
+    {
+        $member = $manager->getRepository(User::class)->findOneBy(['email' => 'Adem.Lane@example.org']);
+        if ($member === null) {
+            return;
+        }
+
+        $suggestion = new Suggestion();
+        $suggestion->setTargetType(GlossaryTaggableTypeProvider::ITEM_TYPE);
+        $suggestion->setProposedBy($member);
+        $suggestion->setPayload([
+            'phrase' => '厉害',
+            'pinyin' => 'lì hai',
+            'explanation' => 'Impressive, formidable. A compliment about skill.',
+        ]);
+        $manager->persist($suggestion);
+        $manager->flush();
+    }
+
     private function buildGlobalConfig(): PluginSettings
     {
         $config = new PluginSettings();
@@ -123,23 +143,22 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
     }
 
     /**
-     * @return list<array{0: string, 1: string, 2: string, 3: int, 4: int, 5: bool}>
+     * @return list<array{0: string, 1: string, 2: string, 3: int, 4: int}>
      */
     private function getData(): array
     {
         return [
-            ['你好',       'nǐ hǎo',        'Hello - the standard greeting, safe in any situation.',                 0, 2, true],
-            ['您好',       'nín hǎo',       'Hello, polite form. Use with elders, teachers and strangers.',          0, 2, true],
-            ['早上好',     'zǎo shang hǎo', 'Good morning.',                                                         0, 2, true],
-            ['干嘛',       'gàn má',        'What are you up to? Casual, between friends.',                          0, 2, true],
-            ['你吃了吗？', 'nǐ chī le ma?', 'Have you eaten? Used as a friendly greeting, not a real question.',      6, 2, true],
-            ['马马虎虎',   'mǎ ma hū hū',   'So-so, nothing special. Literally "horse horse tiger tiger".',           6, 1, true],
-            ['加油',       'jiā yóu',       'Keep going, you can do it. Shouted at races and exams alike.',           6, 2, true],
-            ['随便',       'suí biàn',      'Whatever you like, up to you. Common when nobody wants to choose.',      3, 1, true],
-            ['靠',         'kào',           'Damn. Mild but impolite - not for the office.',                         1, 1, true],
-            ['没事',       'méi shì',       'No problem / never mind. Answer to an apology or a thank you.',          5, 2, true],
-            ['不好意思',   'bù hǎo yì si',  'Sorry / excuse me. Softer than a formal apology.',                       5, 2, true],
-            ['厉害',       'lì hai',        'Impressive, formidable. A compliment about skill.',                      3, 2, false],
+            ['你好',       'nǐ hǎo',        'Hello - the standard greeting, safe in any situation.',                 0, 2],
+            ['您好',       'nín hǎo',       'Hello, polite form. Use with elders, teachers and strangers.',          0, 2],
+            ['早上好',     'zǎo shang hǎo', 'Good morning.',                                                         0, 2],
+            ['干嘛',       'gàn má',        'What are you up to? Casual, between friends.',                          0, 2],
+            ['你吃了吗？', 'nǐ chī le ma?', 'Have you eaten? Used as a friendly greeting, not a real question.',      6, 2],
+            ['马马虎虎',   'mǎ ma hū hū',   'So-so, nothing special. Literally "horse horse tiger tiger".',           6, 1],
+            ['加油',       'jiā yóu',       'Keep going, you can do it. Shouted at races and exams alike.',           6, 2],
+            ['随便',       'suí biàn',      'Whatever you like, up to you. Common when nobody wants to choose.',      3, 1],
+            ['靠',         'kào',           'Damn. Mild but impolite - not for the office.',                         1, 1],
+            ['没事',       'méi shì',       'No problem / never mind. Answer to an apology or a thank you.',          5, 2],
+            ['不好意思',   'bù hǎo yì si',  'Sorry / excuse me. Softer than a formal apology.',                       5, 2],
         ];
     }
 

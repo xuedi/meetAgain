@@ -91,6 +91,7 @@ src/Service/Media/ImageService.php::rotateThumbNail // Doctrine lazy-ghost case:
 
 # --- Security ---
 src/Review/ChangeTargetRegistry.php::ChangeTargetRegistry // gated on the global plugin list, not the request context, so proposals resolve from every host
+src/Contribution/Registry.php::Registry // gated on the request-aware list, not the global one, because the hub is a UI surface
 src/Service/Security/LoadtestBypass.php::isActive // env and header must both hold, and prod ignores the header silently
 src/Service/Security/ContentSanitizer.php::escape // htmlspecialchars, not the sanitizer: the sanitizer drops tags together with their text
 src/Service/Security/Provider/NotFoundProvider.php::processEvent // asset 404s are normal after a redeploy and must not count towards a block

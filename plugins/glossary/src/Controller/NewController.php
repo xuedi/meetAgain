@@ -3,7 +3,6 @@
 namespace Plugin\Glossary\Controller;
 
 use App\Activity\ActivityService;
-use App\Entity\User;
 use App\Item\Tag\AssignmentFormHelper;
 use Plugin\Glossary\Activity\Messages\EntryCreated;
 use Plugin\Glossary\Entity\Glossary;
@@ -12,11 +11,10 @@ use Plugin\Glossary\Service\GlossaryService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/glossary')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_ORGANIZER')]
 final class NewController extends AbstractGlossaryController
 {
     public function __construct(
@@ -35,11 +33,7 @@ final class NewController extends AbstractGlossaryController
         $form = $this->createForm(GlossaryType::class, $glossary);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$this->getUser() instanceof User) {
-                throw new AuthenticationException('Only for logged in users');
-            }
-            $tagIds = $this->assignmentFormHelper->extractAssignment($form);
-            $this->service->create($glossary, $this->getAuthedUser()->getId(), $this->isGranted('ROLE_ORGANIZER'), $tagIds);
+            $this->service->create($glossary, (int) $this->getAuthedUser()->getId(), $this->assignmentFormHelper->extractAssignment($form));
 
             $this->activityService->log(EntryCreated::TYPE, $this->getUser(), [
                 'glossary_id' => $glossary->getId(),

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'glossary.page_title_new'|trans }}{% endblock %}
+{% block title %}{{ 'glossary.button_new'|trans }}{% endblock %}
 
 {% block body %}
 
@@ -9,7 +9,7 @@
             <div class="columns is-centered">
                 <div class="column is-half">
 
-                    <h1 class="title is-4">{{ 'glossary.heading_suggest_new'|trans }}</h1>
+                    <h1 class="title is-4">{{ 'glossary.button_new'|trans }}</h1>
                     <div class="box">
 
                         {{ form_start(form) }}
@@ -19,7 +19,7 @@
                         {% if form.itemTags is defined %}{{ form_row(form.itemTags) }}{% endif %}
                         <div class="has-text-right mt-6">
                             <a href="{{ path('app_plugin_glossary') }}" class="button">{{ 'global.button_cancel'|trans }}</a>
-                            <button type="submit" class="button is-link">{{ 'glossary.button_suggest_new'|trans }}</button>
+                            <button type="submit" class="button is-link">{{ 'global.button_save'|trans }}</button>
                         </div>
                         {{ form_end(form) }}
 

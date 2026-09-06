@@ -30,6 +30,14 @@
                     </div>
                     <div class="column is-6">
                         {{ form_row(form.location) }}
+                        {{ include('_components/ballot_terms_modal.html.twig', {
+                            id: 'venue-ballot-modal',
+                            terms: form.ballotTerms,
+                            triggerId: form.location.vars.id,
+                            value: constant('App\\Event\\BallotLocationChoice::VALUE'),
+                            title: 'admin_event.venue_ballot_title_modal'|trans,
+                            notice: form.ballotTerms.vars.notice,
+                        }) }}
                     </div>
                 </div>
 
@@ -53,7 +61,6 @@
                 <span>{{ 'global.button_add'|trans }}</span>
             </button>
         </div>
-
         {{ form_end(form) }}
 
         {% include 'admin/event/_recurrence_modal.html.twig' %}
@@ -66,6 +73,7 @@
     {% if is_granted('location.create') %}
         <script src="{{ asset('js/admin/venue-quick-create.js') }}" defer></script>
     {% endif %}
+    <script src="{{ asset('js/ballot-terms.js') }}" defer></script>
 
     <script type="text/javascript">
 

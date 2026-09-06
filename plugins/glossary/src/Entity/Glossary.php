@@ -26,9 +26,6 @@ class Glossary
     #[ORM\Column]
     private ?int $createdBy = null;
 
-    #[ORM\Column]
-    private bool $approved = false;
-
     #[ORM\Column(type: Types::TEXT)]
     private ?string $explanation = null;
 
@@ -93,18 +90,6 @@ class Glossary
     public function setCreatedBy(?int $createdBy): static
     {
         $this->createdBy = $createdBy;
-
-        return $this;
-    }
-
-    public function getApproved(): bool
-    {
-        return $this->approved;
-    }
-
-    public function setApproved(bool $approved): static
-    {
-        $this->approved = $approved;
 
         return $this;
     }

@@ -93,13 +93,7 @@ final readonly class GlossaryChangeTarget implements ChangeTargetProviderInterfa
     #[Override]
     public function canPropose(User $user, int $targetId): bool
     {
-        if (!$this->security->isGranted('ROLE_USER')) {
-            return false;
-        }
-
-        $item = $this->service->get($targetId);
-
-        return $item !== null && $item->getApproved();
+        return $this->security->isGranted('ROLE_USER') && $this->service->get($targetId) !== null;
     }
 
     #[Override]

@@ -1,0 +1,55 @@
+{#
+    Ballot Tiles - a ballot whose candidates are items, rendered as cards
+
+    The module counts votes but never resolves a candidate key, so a consumer whose candidates are
+    things people need to look at renders them itself. This is that rendering: each candidate key is
+    an item id, passed to item_list_cell() for the given type. While the viewer may vote the cards
+    are the selection control; afterwards they carry vote counts and the winner is outlined.
+
+    Used in:    templates/item/ballot/show.html.twig
+                plugins/photos/templates/contest/index.html.twig
+    Parameters:
+        - ballot   (BallotView, required) - the ballot to render
+        - itemType (string, required) - item type whose cell renders each candidate key
+        - voteUrl  (string, required) - POST target for casting a vote
+        - tokenId  (string, required) - CSRF token id that POST expects
+    Depends on: item_list_cell() (ItemViewExtension); .ballot-option* in assets/styles/custom.scss
+#}
+{% if ballot.viewerMayVote %}
+    <form method="post" action="{{ voteUrl }}">
+        <input type="hidden" name="_token" value="{{ csrf_token(tokenId) }}">
+
+        <div class="ballot-options">
+            {% for candidate in ballot.candidates %}
+                {% set cell = item_list_cell(itemType, candidate.key, 'tiles') %}
+                {% if cell is not empty %}
+                    <label class="ballot-option">
+                        <input type="{{ ballot.tallyMode.maximumSelections() == 1 ? 'radio' : 'checkbox' }}" name="candidates[]"
+                               value="{{ candidate.key }}" class="ballot-option__input"
+                               {{ candidate.key in ballot.viewerSelection ? 'checked' : '' }}>
+                        <span class="ballot-option__card">{{ cell|raw }}</span>
+                        <span class="ballot-option__overlay" aria-hidden="true">
+                            <span class="icon is-large"><i class="fa-solid fa-circle-check fa-3x"></i></span>
+                        </span>
+                    </label>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="buttons is-centered mt-5">
+            <button type="submit" class="button is-primary">{{ 'ballot.submit'|trans }}</button>
+        </div>
+    </form>
+{% else %}
+    <div class="ballot-options">
+        {% for candidate in ballot.candidates %}
+            {% set cell = item_list_cell(itemType, candidate.key, 'tiles') %}
+            {% if cell is not empty %}
+                <div class="ballot-option{% if candidate.key == ballot.winningKey %} is-winning{% endif %}">
+                    <span class="ballot-option__card">{{ cell|raw }}</span>
+                    <span class="ballot-option__count">{{ ballot.votesFor(candidate.key) }}</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}

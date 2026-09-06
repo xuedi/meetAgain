@@ -20,19 +20,13 @@
         <td style="vertical-align: middle;" class="has-text-right">
             {% if is_granted('ROLE_ORGANIZER') %}
                 {% set pendingProposals = pending_change_proposals('glossary', entry.id) %}
-                {% if not entry.approved %}
-                    <a class="has-text-success" href="{{ path('app_plugin_glossary_approval_list', {id: entry.id}) }}"
-                       title="{{ 'glossary.heading_waiting_approval'|trans }}">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                {% endif %}
                 {% if pendingProposals > 0 %}
                     <a class="has-text-warning" href="{{ path('app_review_proposals', {targetType: 'glossary', targetId: entry.id}) }}"
                        title="{{ 'glossary.heading_changes_approval'|trans }}">
                         <i class="fa fa-edit"></i>
                     </a>
                 {% endif %}
-                {% if entry.approved and pendingProposals == 0 %}
+                {% if pendingProposals == 0 %}
                     <a href="{{ path('app_plugin_glossary_edit', {id: entry.id}) }}">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -41,7 +35,7 @@
                     <i class="fa fa-trash"></i>
                 </a>
             {% else %}
-                <a href="{{ path('app_plugin_glossary_edit', {id: entry.id}) }}">
+                <a href="{{ path('app_contribution_correct', {type: 'glossary', id: entry.id}) }}">
                     <i class="fas fa-edit"></i>
                 </a>
             {% endif %}

@@ -7,16 +7,17 @@
     instead of a link when that number is zero. Renders nothing when the type has no tags. A branch
     renders one indented row per level, always directly below the chip it hangs from.
 
-    The header row carries a pencil to the tag page for any logged-in visitor, with the
-    pending-proposal count as a badge for reviewers. It lives inside the swapped fragment, so it
-    survives a facet click.
+    The header row carries a pencil for any logged-in visitor - to the steward's editor, or to the
+    contribution hub's tag pane - with the pending-proposal count as a badge for reviewers. It lives
+    inside the swapped fragment, so it survives a facet click.
 
     Used in:    _components/item/sidebar.html.twig, App\Controller\ItemController::listFragment
     Parameters:
         - itemType (string, required) -- registry key of the item type (e.g. 'dish')
     Depends on: item_tag_choices(), item_tag_levels(), item_tag_pending(), item_facet_current(),
                 item_facet_url(), item_facet_counts() (ItemTagExtension); item_list_url()
-                (ItemListExtension); the app_item_tags route; assets/js/item-list.js for the swap
+                (ItemListExtension); the app_item_tags route for a steward, the contribution hub's tag
+                pane for everyone else; assets/js/item-list.js for the swap
                 and the mobile collapse
 #}
 {% import _self as facet %}
@@ -45,8 +46,12 @@
                     <a href="{{ baseUrl }}" class="is-size-7" rel="nofollow" data-item-facet>{{ 'item.facet_clear'|trans }}</a>
                 {% endif %}
                 {% if is_granted('ROLE_USER') %}
-                    {% set pendingCount = is_granted('ROLE_STEWARD') ? item_tag_pending(itemType) : 0 %}
-                    <a href="{{ path('app_item_tags', {itemType: itemType}) }}"
+                    {% set isSteward = is_granted('ROLE_STEWARD') %}
+                    {% set pendingCount = isSteward ? item_tag_pending(itemType) : 0 %}
+                    {% set tagPageUrl = isSteward
+                        ? path('app_item_tags', {itemType: itemType})
+                        : path('app_contribution_correct', {type: 'tag', id: itemType}) %}
+                    <a href="{{ tagPageUrl }}"
                        class="is-size-7" rel="nofollow" title="{{ 'item.tag_edit_link'|trans }}">
                         <span class="icon is-small"><i class="fa-solid fa-pen-to-square"></i></span>
                         {% if pendingCount > 0 %}<span class="tag is-warning">{{ pendingCount }}</span>{% endif %}

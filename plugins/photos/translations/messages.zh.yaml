@@ -15,7 +15,7 @@ photos_config:
     field_event_box: '在活动页面显示照片框'
     help_event_box: '取代活动页面上的简易图片框。在此上传的文件会成为真正的照片，带有相机参数、评论，并出现在照片页面上。'
     field_contest: '启用照片比赛'
-    help_contest: '成员将照片提交到队列，管理员再开启投票。需要投票插件。'
+    help_contest: '成员将照片提交到队列，管理员再开启投票。'
     field_contest_submissions: '每位成员的提交数'
     help_contest_submissions: '一位成员最多可为下届比赛排入多少张照片。'
 
@@ -124,10 +124,10 @@ photos_event:
 
 photos_contest:
     browser_title: '照片比赛'
+    ballot_title: '摄影比赛'
     page_title: '照片比赛'
     heading_open: '比赛进行中'
     open_body: '投票开放至 %date%。'
-    button_vote: '去投票'
     heading_queue: '下届比赛'
     queue_body: '已有 %count% 张照片排入下届比赛。'
     button_start: '开启比赛'
@@ -145,4 +145,7 @@ photos_contest:
     flash_withdrawn: '照片已撤回。'
     flash_cap_reached: '你已排入本群组允许的最大照片数量。'
     flash_no_entries: '还没有人提交照片，暂时无法投票。'
+    flash_too_few_entries: '一场比赛至少需要两份投稿。'
     flash_already_open: '已有照片比赛在进行中。'
+    flash_voted: '你的投票已记录。'
+    flash_vote_refused: '此比赛已不再接受投票。'
