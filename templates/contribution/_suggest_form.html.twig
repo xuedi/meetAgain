@@ -1,5 +1,5 @@
-<h1 class="title is-4">{{ 'location.suggest_page_title'|trans }}</h1>
-<p class="subtitle is-6">{{ 'location.suggest_intro'|trans }}</p>
+<h1 class="title is-4">{{ 'contribution.suggest_page_title'|trans({'%type%': typeLabelKey|trans}) }}</h1>
+<p class="subtitle is-6">{{ 'contribution.suggest_intro'|trans }}</p>
 
 {{ form_start(form) }}
 <div class="box">
@@ -7,7 +7,7 @@
     <div class="field mt-5">
         <div class="control">
             <button type="submit" class="button is-primary">
-                {{ 'location.button_suggest'|trans }}
+                {{ 'contribution.button_suggest'|trans }}
             </button>
         </div>
     </div>
@@ -15,7 +15,7 @@
 {{ form_end(form) }}
 
 {% if pending is not empty %}
-    <h2 class="title is-5">{{ 'location.pending_heading'|trans }}</h2>
+    <h2 class="title is-5">{{ 'contribution.pending_heading'|trans }}</h2>
     {% for card in pending %}
         <div class="box">
             <p class="mb-3"><strong>{{ card.description }}</strong></p>
@@ -34,7 +34,7 @@
                    class="button is-small"
                    data-post
                    data-csrf-token="{{ csrf_token('suggestion' ~ card.id) }}">
-                    {{ 'location.button_withdraw'|trans }}
+                    {{ 'contribution.button_withdraw'|trans }}
                 </a>
             </div>
         </div>

@@ -320,6 +320,88 @@ details.activities-load-more {
     margin-top: 0.5rem;
 }
 
+// Ballot tiles - the item card is the selection control, so the native input is hidden and the
+// card itself carries the checked state. A fixed track width keeps a three-candidate ballot from
+// drifting across a full-width column while a sixteen-candidate one still wraps into a tidy block.
+.ballot-tiles {
+    max-width: 46rem;
+    margin: 0 auto;
+}
+
+.ballot-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr));
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+.ballot-option {
+    position: relative;
+    display: block;
+    border-radius: 8px;
+    outline: 2px solid transparent;
+    outline-offset: 3px;
+    transition: outline-color 120ms ease-out;
+}
+
+label.ballot-option {
+    cursor: pointer;
+}
+
+// The item cell links to the item's own page; on a ballot the card has to select, not navigate.
+label.ballot-option .ballot-option__card a {
+    pointer-events: none;
+}
+
+.ballot-option__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.ballot-option__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: hsl(171deg 100% 29% / 65%);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+}
+
+.ballot-option__input:checked ~ .ballot-option__overlay { opacity: 1; }
+.ballot-option__input:checked ~ .ballot-option__card    { filter: saturate(0.6); }
+.ballot-option__input:focus-visible ~ .ballot-option__overlay { opacity: 0.35; }
+
+.ballot-option:has(.ballot-option__input:checked)       { outline-color: hsl(171deg 100% 29%); }
+.ballot-option:has(.ballot-option__input:focus-visible) { outline-color: hsl(217deg 71% 53%); }
+.ballot-option.is-winning                               { outline-color: hsl(171deg 100% 29%); }
+
+.ballot-option__count {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    min-width: 1.75rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: hsl(171deg 100% 29%);
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ballot-option,
+    .ballot-option__overlay {
+        transition: none;
+    }
+}
+
 // ── Vendor fixes ─────────────────────────────────────────────────────────────
 
 // Leaflet map: reset z-index so map tiles render below Bulma dropdowns/modals.

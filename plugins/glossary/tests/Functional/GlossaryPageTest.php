@@ -13,6 +13,7 @@ class GlossaryPageTest extends WebTestCase
     private const string MODERATOR_EMAIL = 'Admin@example.org';
     private const string MEMBER_EMAIL = 'Adem.Lane@example.org';
     private const string GLOSSARY_HOST = 'dragon.meetagain.local';
+    private const string PLUGINLESS_HOST = 'cinema.meetagain.local';
 
     public function testListRendersThroughTheSharedItemComponent(): void
     {
@@ -72,134 +73,82 @@ class GlossaryPageTest extends WebTestCase
         static::assertCount(1, $crawler->filter('.item-list table'));
     }
 
-    public function testGuestsSeeNoUnapprovedEntry(): void
+    public function testDetailPageIsPublic(): void
     {
         // Arrange
         $client = static::createClient();
-        $pendingPhrases = $this->pendingPhrases($client);
+        $entry = $this->entry($client);
 
         // Act
-        $listed = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST])
-            ->filter('.item-list tbody tr')->each(static fn($row): string => $row->text());
-
-        // Assert
-        static::assertNotEmpty($listed);
-        foreach ($listed as $row) {
-            foreach ($pendingPhrases as $phrase) {
-                static::assertStringNotContainsString($phrase, $row);
-            }
-        }
-    }
-
-    public function testModeratorsAlsoSeeUnapprovedEntries(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $guestRows = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST])
-            ->filter('.item-list tbody tr')->count();
-        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
-
-        // Act
-        $crawler = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        static::assertGreaterThan($guestRows, $crawler->filter('.item-list tbody tr')->count());
-    }
-
-    public function testDetailPageOfAnApprovedEntryIsPublic(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $approved = $this->entry($client, true);
-
-        // Act
-        $client->request('GET', '/en/glossary/' . $approved->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->request('GET', '/en/glossary/' . $entry->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
         $this->assertResponseIsSuccessful();
-        static::assertStringContainsString((string) $approved->getPhrase(), (string) $client->getResponse()->getContent());
+        static::assertStringContainsString((string) $entry->getPhrase(), (string) $client->getResponse()->getContent());
     }
 
-    public function testDetailPageOfAnUnapprovedEntryIsNotFoundForGuests(): void
+    public function testTheHubCarriesTheSectionOnlyWhereThePluginIsOn(): void
     {
         // Arrange
         $client = static::createClient();
-        $pending = $this->entry($client, false);
-
-        // Act
-        $client->request('GET', '/en/glossary/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        $this->assertResponseStatusCodeSame(404);
-    }
-
-    public function testDetailPageOfAnUnapprovedEntryIsVisibleToModerators(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $pending = $this->entry($client, false);
-        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
-
-        // Act
-        $client->request('GET', '/en/glossary/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        $this->assertResponseIsSuccessful();
-    }
-
-    public function testEditFormOfAnUnapprovedEntryIsNotFoundForMembers(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $pending = $this->entry($client, false);
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
         // Act
-        $client->request('GET', '/en/glossary/edit/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $on = $client->request('GET', '/en/contribute', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $off = $client->request('GET', '/en/contribute', server: ['HTTP_HOST' => self::PLUGINLESS_HOST]);
 
         // Assert
-        $this->assertResponseStatusCodeSame(404);
+        self::assertCount(1, $on->filter('.tabs a[href$="/contribute/glossary"]'));
+        self::assertCount(0, $off->filter('.tabs a[href$="/contribute/glossary"]'));
+        self::assertCount(1, $off->filter('.tabs a[href$="/contribute/location"]'), 'a core section is never gated');
     }
 
-    public function testEditFormOfAnApprovedEntryStaysOpenToMembers(): void
+    public function testTheCorrectionFormIsClosedWhereThePluginIsOff(): void
     {
         // Arrange
         $client = static::createClient();
-        $approved = $this->entry($client, true);
+        $entry = $this->entry($client);
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
         // Act
-        $client->request('GET', '/en/glossary/edit/' . $approved->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->request('GET', '/en/contribute/glossary/' . $entry->getId(), server: ['HTTP_HOST' => self::PLUGINLESS_HOST]);
 
         // Assert
-        $this->assertResponseIsSuccessful();
+        $this->assertResponseStatusCodeSame(404, 'an inactive plugin closes the form, not only the listing');
     }
 
-    public function testEditFormOfAnUnapprovedEntryIsOpenToModerators(): void
+    public function testTheHubOffersAnEntryToMembers(): void
     {
         // Arrange
         $client = static::createClient();
-        $pending = $this->entry($client, false);
-        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
+        $entry = $this->entry($client);
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
         // Act
-        $client->request('GET', '/en/glossary/edit/' . $pending->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $crawler = $client->request('GET', '/en/contribute/glossary/' . $entry->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
         $this->assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('form[name="glossary"]'));
     }
 
-    /** @return list<string> */
-    private function pendingPhrases(KernelBrowser $client): array
+    public function testTheGlossaryEditPageIsClosedToMembers(): void
     {
-        $pending = $this->em($client)->getRepository(Glossary::class)->findBy(['approved' => false]);
+        // Arrange
+        $client = static::createClient();
+        $entry = $this->entry($client);
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
-        return array_values(array_map(static fn(Glossary $entry): string => (string) $entry->getPhrase(), $pending));
+        // Act
+        $client->request('GET', '/en/glossary/edit/' . $entry->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+
+        // Assert
+        $this->assertResponseRedirects('/en/profile/my-groups/', message: 'the editor is for organizers of this group');
     }
 
-    private function entry(KernelBrowser $client, bool $approved): Glossary
+    private function entry(KernelBrowser $client): Glossary
     {
-        $entry = $this->em($client)->getRepository(Glossary::class)->findOneBy(['approved' => $approved]);
+        $entry = $this->em($client)->getRepository(Glossary::class)->findOneBy([]);
         if (!$entry instanceof Glossary) {
             self::fail('Required glossary fixture entry missing');
         }

@@ -42,7 +42,7 @@
         </div>
         {% if is_granted('ROLE_USER') and event.location %}
             <div class="level-right">
-                <a href="{{ path('app_location_propose', {id: event.location.id}) }}"
+                <a href="{{ path('app_contribution_correct', {type: 'location', id: event.location.id}) }}"
                    class="icon has-text-grey"
                    title="{{ 'location.link_edit_venue'|trans }}"
                    aria-label="{{ 'location.link_edit_venue'|trans }}">

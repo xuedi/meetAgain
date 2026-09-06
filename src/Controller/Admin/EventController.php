@@ -30,6 +30,7 @@ use App\Enum\RecurrenceMode;
 use App\Enum\RecurrenceOrdinal;
 use App\Enum\RecurrencePeriod;
 use App\Enum\Weekday;
+use App\Event\BallotLocationChoice;
 use App\Event\LocationChoiceService;
 use App\Exception\Event\InvalidRecurrencePatternException;
 use App\Filter\Admin\Event\AdminEventListFilterService;
@@ -53,6 +54,7 @@ use App\ValueObject\ScheduleChange;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Module\Ballot\Contract\BallotView;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -537,7 +539,7 @@ final class EventController extends AbstractController implements AdminNavigatio
 
             $this->activityService->log(AdminEventEdited::TYPE, $user, ['event_id' => $event->getId()]);
             $this->entityActionDispatcher->dispatch(EntityAction::UpdateEvent, $event->getId());
-            $this->locationChoices->commit($event, $venueProvider);
+            $this->locationChoices->commit($event, $venueProvider, $this->ballotTerms($form));
 
             if ($form->get('notifyAttendees')->getData() === true) {
                 $this->attendeeNotifier->notify($event, $user, $beforeSnapshot, $this->attendeeNotifier->snapshot($event));
@@ -594,6 +596,13 @@ final class EventController extends AbstractController implements AdminNavigatio
         return $this->renderEditPage($event, $form);
     }
 
+    private function pendingVenueBallot(Event $event): ?BallotView
+    {
+        $provider = $this->locationChoices->providerFor($event, BallotLocationChoice::VALUE);
+
+        return $provider instanceof BallotLocationChoice ? $provider->pendingDecisionFor($event) : null;
+    }
+
     private function renderEditPage(Event $event, FormInterface $form): Response
     {
         return $this->render('admin/event/edit.html.twig', [
@@ -616,6 +625,7 @@ final class EventController extends AbstractController implements AdminNavigatio
             'notifiableAttendeeCount' => $this->attendeeNotifier->countNotifiable($event),
             'recurrence' => $this->buildRecurrenceContext($event),
             'venueForm' => $this->createForm(LocationType::class),
+            'pendingVenueBallot' => $this->pendingVenueBallot($event),
         ]);
     }
 
@@ -781,7 +791,7 @@ final class EventController extends AbstractController implements AdminNavigatio
 
             $this->activityService->log(AdminEventCreated::TYPE, $user, ['event_id' => $event->getId()]);
             $this->entityActionDispatcher->dispatch(EntityAction::CreateEvent, $event->getId());
-            $this->locationChoices->commit($event, $venueProvider);
+            $this->locationChoices->commit($event, $venueProvider, $this->ballotTerms($form));
 
             return $this->redirectToRoute('app_admin_event_edit', ['id' => $event->getId()]);
         }
@@ -825,6 +835,16 @@ final class EventController extends AbstractController implements AdminNavigatio
         $submitted = trim((string) $form->get('customRuleSpec')->getData());
 
         return '' === $submitted ? null : $submitted;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function ballotTerms(FormInterface $form): array
+    {
+        $terms = $form->has('ballotTerms') ? $form->get('ballotTerms')->getData() : null;
+
+        return is_array($terms) ? $terms : [];
     }
 
     private function createSeries(string $name, EventInterval $rule, ?string $ruleSpec = null): EventSeries

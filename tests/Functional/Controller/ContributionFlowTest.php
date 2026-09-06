@@ -13,10 +13,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class LocationSuggestionFlowTest extends WebTestCase
+class ContributionFlowTest extends WebTestCase
 {
     private const string ORGANIZER_EMAIL = 'Admin@example.org';
     private const string MEMBER_EMAIL = 'Adem.Lane@example.org';
+    private const string FILM_HOST = 'cinema.meetagain.local';
+    private const string FILM_MEMBER_EMAIL = 'Belle.Woods@example.org';
 
     public function testAMemberSuggestionIsApprovedIntoAVenueAfterTheReviewerFixesIt(): void
     {
@@ -94,7 +96,7 @@ class LocationSuggestionFlowTest extends WebTestCase
         $this->submitSuggestion($client, 'Withdrawn Venue', '10995');
         $suggestion = $this->latestPendingSuggestion($client);
 
-        $crawler = $client->request('GET', '/en/locations/suggest');
+        $crawler = $client->request('GET', '/en/contribute/location/suggest');
         $token = (string) $crawler->filter('a[href$="/review/suggestions/' . $suggestion->getId() . '/withdraw"]')->attr('data-csrf-token');
 
         // Act
@@ -129,7 +131,7 @@ class LocationSuggestionFlowTest extends WebTestCase
         $venue = $this->anyVenue($client);
         $originalStreet = (string) $venue->getStreet();
 
-        $crawler = $client->request('GET', '/en/locations/' . $venue->getId() . '/propose');
+        $crawler = $client->request('GET', '/en/contribute/location/' . $venue->getId());
         $this->assertResponseIsSuccessful();
 
         // Act
@@ -149,7 +151,71 @@ class LocationSuggestionFlowTest extends WebTestCase
         self::assertSame($originalStreet, $this->reloadVenue($client, (int) $venue->getId())->getStreet());
     }
 
-    public function testTheVenuePageOpensOnAnIntroductionWithEveryGroupVenueInTheNav(): void
+    public function testTheTagSectionListsVocabulariesAndTurnsASuggestionIntoAProposal(): void
+    {
+        // Arrange
+        $client = static::createClient();
+        $client->loginUser($this->user($client, self::FILM_MEMBER_EMAIL));
+        $host = ['HTTP_HOST' => self::FILM_HOST];
+
+        $crawler = $client->request('GET', '/en/contribute/tag', server: $host);
+        $this->assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('.menu-list a[href$="/contribute/tag/film"]'));
+
+        $crawler = $client->request('GET', '/en/contribute/tag/film', server: $host);
+        $this->assertResponseIsSuccessful();
+
+        // Act
+        $client->request(
+            'POST',
+            '/en/contribute/tag/film',
+            [
+                '_token' => (string) $crawler->filter('form.box input[name="_token"]')->attr('value'),
+                'suggest' => ['add' => ['Suggested Film Tag']],
+            ],
+            server: $host,
+        );
+
+        // Assert
+        $this->assertResponseRedirects();
+        $proposals = $this->em($client)->getRepository(ChangeProposal::class)->findBy([
+            'targetType' => 'item_tag_film',
+            'status' => ChangeProposalStatus::Pending,
+        ]);
+        self::assertCount(1, $proposals);
+        self::assertSame('Suggested Film Tag', $proposals[0]->getChange('child_en_0')->after);
+    }
+
+    public function testTheStewardTagEditorIsClosedToAMember(): void
+    {
+        // Arrange
+        $client = static::createClient();
+        $client->loginUser($this->user($client, self::FILM_MEMBER_EMAIL));
+
+        // Act
+        $client->request('GET', '/en/item/film/tags', server: ['HTTP_HOST' => self::FILM_HOST]);
+
+        // Assert
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testTheHubOpensOnAnIntroductionWithOneTabPerSection(): void
+    {
+        // Arrange
+        $client = static::createClient();
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
+
+        // Act
+        $crawler = $client->request('GET', '/en/contribute');
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('.tabs a[href$="/contribute/location"]'));
+        self::assertCount(1, $crawler->filter('.tabs a[href$="/contribute/event"]'));
+        self::assertStringContainsString('Fix something that exists', $crawler->filter('.column')->text());
+    }
+
+    public function testEntriesAppearOnlyUnderTheOpenSection(): void
     {
         // Arrange
         $client = static::createClient();
@@ -157,13 +223,59 @@ class LocationSuggestionFlowTest extends WebTestCase
         $venue = $this->anyVenue($client);
 
         // Act
-        $crawler = $client->request('GET', '/en/locations');
+        $closed = $client->request('GET', '/en/contribute');
+        $open = $client->request('GET', '/en/contribute/location');
+
+        // Assert
+        self::assertCount(0, $closed->filter('.menu-list a[href*="/contribute/location/"]'), 'no entries before a section is opened');
+        self::assertCount(1, $open->filter('.menu-list a[href$="/contribute/location/' . $venue->getId() . '"]'));
+        self::assertCount(1, $open->filter('.menu-list a[href$="/contribute/location/suggest"]'));
+    }
+
+    public function testTheEventSectionListsEventsAndOpensTheirCorrectionForm(): void
+    {
+        // Arrange
+        $client = static::createClient();
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
+        $event = $this->anyEventWithVenue($client);
+
+        // Act
+        $crawler = $client->request('GET', '/en/contribute/event');
 
         // Assert
         $this->assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('a[href$="/locations/suggest"].panel-block'));
-        self::assertCount(1, $crawler->filter('a[href$="/locations/' . $venue->getId() . '/propose"]'));
-        self::assertStringContainsString('Fix a venue that exists', $crawler->filter('.column.is-9')->text());
+        self::assertGreaterThan(0, $crawler->filter('.menu-list a[href*="/contribute/event/"]')->count());
+
+        $crawler = $client->request('GET', '/en/contribute/event/' . $event->getId());
+        $this->assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('form[name="event_correction"]'));
+    }
+
+    public function testAMemberFindsTheHubFromTheNavigationWithoutSeeingAnEventFirst(): void
+    {
+        // Arrange
+        $client = static::createClient();
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
+
+        // Act
+        $crawler = $client->request('GET', '/en/members');
+
+        // Assert
+        $this->assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('a.navbar-item[href$="/en/contribute"]'));
+    }
+
+    public function testAnUnregisteredSectionIsA404(): void
+    {
+        // Arrange
+        $client = static::createClient();
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
+
+        // Act
+        $client->request('GET', '/en/contribute/nonsense');
+
+        // Assert
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testPickingAVenueInTheNavRendersItsCorrectionForm(): void
@@ -174,12 +286,12 @@ class LocationSuggestionFlowTest extends WebTestCase
         $venue = $this->anyVenue($client);
 
         // Act
-        $crawler = $client->request('GET', '/en/locations/' . $venue->getId() . '/propose');
+        $crawler = $client->request('GET', '/en/contribute/location/' . $venue->getId());
 
         // Assert
         $this->assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('form[name="location"]'));
-        self::assertCount(1, $crawler->filter('a.panel-block.is-active[href$="/locations/' . $venue->getId() . '/propose"]'));
+        self::assertCount(1, $crawler->filter('.menu-list a.is-active[href$="/contribute/location/' . $venue->getId() . '"]'));
     }
 
     public function testTheSuggestEntryRendersTheNewVenueFormInsideTheSameShell(): void
@@ -189,15 +301,15 @@ class LocationSuggestionFlowTest extends WebTestCase
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
         // Act
-        $crawler = $client->request('GET', '/en/locations/suggest');
+        $crawler = $client->request('GET', '/en/contribute/location/suggest');
 
         // Assert
         $this->assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('form[name="location"]'));
-        self::assertCount(1, $crawler->filter('a.panel-block.is-active[href$="/locations/suggest"]'));
+        self::assertCount(1, $crawler->filter('.menu-list a.is-active[href$="/contribute/location/suggest"]'));
     }
 
-    public function testTheEventPageLinksToTheVenuePageAndNoLongerOffersAVoteButton(): void
+    public function testTheEventPageLinksToTheVenuePage(): void
     {
         // Arrange
         $client = static::createClient();
@@ -209,8 +321,7 @@ class LocationSuggestionFlowTest extends WebTestCase
 
         // Assert
         $this->assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('a[href$="/locations/' . $event->getLocation()?->getId() . '/propose"]'));
-        self::assertCount(0, $crawler->filter('a[href*="/voting/poll/create/"]'));
+        self::assertCount(1, $crawler->filter('a[href$="/contribute/location/' . $event->getLocation()?->getId() . '"]'));
     }
 
     public function testAnEventWithoutAVenueStillRenders(): void
@@ -231,7 +342,7 @@ class LocationSuggestionFlowTest extends WebTestCase
 
     private function submitSuggestion(KernelBrowser $client, string $name, string $postcode): void
     {
-        $crawler = $client->request('GET', '/en/locations/suggest');
+        $crawler = $client->request('GET', '/en/contribute/location/suggest');
         $this->assertResponseIsSuccessful();
 
         $form = $crawler->filter('form[name="location"]')->form();

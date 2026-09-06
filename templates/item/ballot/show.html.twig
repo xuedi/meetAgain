@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ballot.title ?? ('item_ballot.page_title_show'|trans) }}{% endblock %}
+
+{% block body %}
+    <section class="section">
+        <div class="container">
+            <div class="ballot-tiles">
+                <h1 class="title has-text-centered">{{ ballot.title ?? ('item_ballot.page_title_show'|trans) }}</h1>
+
+                <p class="subtitle has-text-centered">
+                    <span class="tag is-light">{{ ballot.status.label()|trans }}</span>
+                    <span class="tag is-light">{{ ballot.tallyMode.label()|trans }}</span>
+                    {{ 'ballot.closes'|trans({'%date%': ballot.deadline|date('Y-m-d H:i')}) }}
+                    &middot; {{ 'ballot.voters'|trans({'%count%': ballot.voterCount}) }}
+                </p>
+
+                {% if ballot.isTied %}
+                    <article class="message is-warning">
+                        <div class="message-body">
+                            {{ 'ballot.tied'|trans }}
+                            {% if is_granted('ROLE_ORGANIZER') %}
+                                <a href="{{ path('app_item_ballot_close', {id: ballot.id}) }}" class="button is-small is-warning ml-2">
+                                    {{ 'item_ballot.button_break_tie'|trans }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endif %}
+
+                {% include '_components/ballot_tiles.html.twig' with {
+                    ballot: ballot,
+                    itemType: itemType,
+                    voteUrl: path('app_item_ballot_vote', {id: ballot.id}),
+                    tokenId: 'item_ballot_vote' ~ ballot.id,
+                } only %}
+
+                <div class="buttons is-centered mt-5">
+                    <a class="button is-light" href="{{ path('app_ballot_index') }}">{{ 'ballot.back'|trans }}</a>
+                    {% if is_granted('ROLE_ORGANIZER') and not ballot.status.isResolved %}
+                        <a class="button is-light" href="{{ path('app_item_ballot_close', {id: ballot.id}) }}">
+                            {{ 'item_ballot.button_close'|trans }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

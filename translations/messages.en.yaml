@@ -988,12 +988,11 @@ location:
 contribution:
     page_title: 'Help fix things'
     section_venues: 'Venues'
-    nav_heading: 'Venues'
     nav_empty: 'Nothing here yet.'
     nav_suggest_new: 'Suggest a new %type%'
     index_intro: 'Events and venues are kept right by the people who turn up to them. Anyone can help.'
     index_fix_heading: 'Fix something that exists'
-    index_fix_body: 'Pick a section on the left to correct a typo, a wrong house number or an outdated description. Nothing changes until an organizer accepts it.'
+    index_fix_body: 'Pick a section above to correct a typo, a wrong house number or an outdated description. Nothing changes until an organizer accepts it.'
     index_new_heading: 'Propose something that is missing'
     index_new_body: 'Know something that belongs here and is not listed yet? Suggest it, and the organizers decide whether to add it.'
     index_review_note: 'Every suggestion and every correction is reviewed before it goes live.'

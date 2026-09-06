@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use Module\Ballot\Contract\BallotInterface;
 use Module\Ballot\Contract\BallotOutcome;
 use Module\Ballot\Contract\BallotRequest;
+use Module\Ballot\Contract\BallotScope;
 use Module\Ballot\Contract\BallotSubject;
 use Module\Ballot\Contract\BallotView;
 use Module\Ballot\Contract\Candidate;
@@ -51,6 +52,7 @@ final readonly class BallotService implements BallotInterface
             $this->now(),
             $request->subject?->type,
             $request->subject?->id,
+            $request->title,
         );
 
         $position = 0;
@@ -189,6 +191,17 @@ final readonly class BallotService implements BallotInterface
     }
 
     #[Override]
+    public function listForPurpose(string $purpose, ?int $viewerUserId): array
+    {
+        $views = [];
+        foreach ($this->visibleOnly($this->ballots->findForPurpose($purpose), $viewerUserId) as $ballot) {
+            $views[] = $this->toView($ballot, $viewerUserId);
+        }
+
+        return $views;
+    }
+
+    #[Override]
     public function mayVote(int $ballotId, int $userId): bool
     {
         $ballot = $this->ballots->find($ballotId);
@@ -253,6 +266,8 @@ final readonly class BallotService implements BallotInterface
             $ballot->getTiedKeys(),
             $viewerUserId === null ? [] : $this->votes->findSelection($ballotId, $viewerUserId),
             $viewerUserId !== null && $this->isVotable($ballot) && $this->isElector($ballot, $viewerUserId),
+            $ballot->getTitle(),
+            $ballot->getSettledAt(),
         );
     }
 
@@ -266,6 +281,7 @@ final readonly class BallotService implements BallotInterface
             $ballot->getTiedKeys(),
             $this->subjectOf($ballot),
             $ballot->getSettledByUserId(),
+            $ballot->getOpenedByUserId(),
         );
     }
 
@@ -289,7 +305,17 @@ final readonly class BallotService implements BallotInterface
 
     private function isVisible(Ballot $ballot, ?int $viewerUserId): bool
     {
-        return $this->visibility->allows($ballot->getPurpose(), (int) $ballot->getId(), $viewerUserId);
+        return $this->visibility->allows($this->scopeOf($ballot), $viewerUserId);
+    }
+
+    private function scopeOf(Ballot $ballot): BallotScope
+    {
+        return new BallotScope(
+            (int) $ballot->getId(),
+            $ballot->getPurpose(),
+            $this->subjectOf($ballot),
+            $ballot->getOptionKeys(),
+        );
     }
 
     /**
@@ -315,8 +341,8 @@ final readonly class BallotService implements BallotInterface
     private function visibleOnly(array $ballots, ?int $viewerUserId): array
     {
         $allowed = [];
-        foreach ($this->groupByPurpose($ballots) as [$purpose, $ids]) {
-            foreach ($this->visibility->narrow($purpose, $ids, $viewerUserId) as $id) {
+        foreach ($this->groupByPurpose($ballots) as [$purpose, $scopes]) {
+            foreach ($this->visibility->narrow($purpose, $scopes, $viewerUserId) as $id) {
                 $allowed[$id] = true;
             }
         }
@@ -328,8 +354,8 @@ final readonly class BallotService implements BallotInterface
     }
 
     /**
-     * @param  list<Ballot>                    $ballots
-     * @return list<array{string, list<int>}>
+     * @param  list<Ballot>                            $ballots
+     * @return list<array{string, list<BallotScope>}>
      */
     private function groupByPurpose(array $ballots): array
     {
@@ -337,7 +363,7 @@ final readonly class BallotService implements BallotInterface
         foreach ($ballots as $ballot) {
             $purpose = $ballot->getPurpose();
             $groups[$purpose] ??= [$purpose, []];
-            $groups[$purpose][1][] = (int) $ballot->getId();
+            $groups[$purpose][1][] = $this->scopeOf($ballot);
         }
 
         return array_values($groups);

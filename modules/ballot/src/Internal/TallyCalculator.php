@@ -20,7 +20,7 @@ final readonly class TallyCalculator
         }
 
         $highest = max($tallied);
-        $leaders = array_keys($tallied, $highest, true);
+        $leaders = array_map(strval(...), array_keys($tallied, $highest, true));
 
         return count($leaders) === 1 ? new TallyResult($leaders[0]) : new TallyResult(null, $leaders);
     }

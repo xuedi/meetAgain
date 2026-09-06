@@ -22,7 +22,7 @@ class GlossaryRepository extends ServiceEntityRepository
      *
      * @return Glossary[]
      */
-    public function findAllowed(?array $ids, array $order = ['phrase' => 'ASC'], bool $approvedOnly = false): array
+    public function findAllowed(?array $ids, array $order = ['phrase' => 'ASC']): array
     {
         if ($ids === []) {
             return [];
@@ -31,9 +31,6 @@ class GlossaryRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('g');
         if ($ids !== null) {
             $qb->andWhere('g.id IN (:ids)')->setParameter('ids', $ids);
-        }
-        if ($approvedOnly) {
-            $qb->andWhere('g.approved = true');
         }
         foreach ($order as $field => $direction) {
             $qb->addOrderBy('g.' . $field, $direction);
@@ -45,7 +42,7 @@ class GlossaryRepository extends ServiceEntityRepository
     /**
      * @param int[]|null $ids null = no restriction, [] = block all
      */
-    public function findOneAllowed(int $id, ?array $ids, bool $approvedOnly = false): ?Glossary
+    public function findOneAllowed(int $id, ?array $ids): ?Glossary
     {
         if ($ids === []) {
             return null;
@@ -55,10 +52,6 @@ class GlossaryRepository extends ServiceEntityRepository
         if ($ids !== null) {
             $qb->andWhere('g.id IN (:ids)')->setParameter('ids', $ids);
         }
-        if ($approvedOnly) {
-            $qb->andWhere('g.approved = true');
-        }
-
         return $qb->getQuery()->getOneOrNullResult();
     }
 }

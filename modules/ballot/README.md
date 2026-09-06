@@ -34,6 +34,11 @@ foreign key the module holds into the rest of the application is the voter on `m
 
 **`purpose` is the routing key.** It is the string all three seams match on. Consumers namespace theirs.
 
+**The title is opaque too.** `BallotRequest::$title` is an optional pre-translated string the ballot
+page shows as its heading, falling back to the tally mode's own label. The module stores and echoes it
+without resolving anything, exactly as it does a candidate label - without one, a member looking at a
+list of open ballots reads the same generic heading on every row.
+
 ## Counting, then deciding, are two steps
 
 ```mermaid
@@ -74,6 +79,11 @@ All three are `#[AutoconfigureTag]`ed and resolved inside the module.
 A ballot whose purpose nobody claims settles and writes nothing. That is the correct behaviour rather
 than an error: the arithmetic is still true, there is simply nobody who wanted the answer.
 
+`BallotOutcome` carries **both** user ids: `settledByUserId`, which is null when the deadline cron
+settled it, and `openedByUserId`, which never is. A listener that has to write as somebody - because
+the write it makes is permissioned - reads the second one and does not have to call back into the
+module to find out who asked the question.
+
 Visibility and electorate are **not** the same question, and the module keeps them apart. `view()` gates
 on visibility alone, so a member who was never entitled to vote can still read a decided result.
 `listOpenFor()` and `countOpenFor()` gate on both, because they answer "what can I still vote in".
@@ -98,6 +108,41 @@ only the consumer knows what actually changed.
 3. Implement `ElectorateProviderInterface` if the decision is not open to every member, and
    `VisibilityFilterInterface` if not every member may even see it.
 
+`App\Review\FieldBallotService` in the application is the worked example: purpose `contribution.field`,
+one candidate per competing value proposed for a field plus one for leaving it alone, and a settlement
+that writes the winner through the application's own change-proposal tool. It is also why `Confirmed`
+earns its place beside `Automatic`: that consumer's write is permission-checked against the current
+request's user, so nothing the deadline cron attempted on its behalf would be allowed through.
+
+### Use the module's page, or keep your own
+
+Consumers split on one question: **do members need to look at the candidates, or only read them?**
+
+|                | The module's page                | Your own page                                               |
+|----------------|----------------------------------|-------------------------------------------------------------|
+| Candidates are | strings a member can read        | rows a member has to see - posters, photos, dishes          |
+| You implement  | the three seams                  | the three seams, plus a controller and a template           |
+| You call       | `open()`                         | `open()`, then `view()` to render and `cast()` to record    |
+| Example        | `App\Review\FieldBallotService`  | `App\Item\Ballot\*`, `Plugin\Photos\Service\ContestService` |
+
+The module renders `Candidate::$label` as plain text and will keep doing so. Teaching it to resolve a
+key into a picture would make it interpret its candidates, which is the one thing it refuses to do. So
+a consumer whose ballot is a wall of film posters keeps its own page and drives this contract from it -
+the module still owns the decision, the arithmetic and all three seams; only the pixels are yours.
+
+`templates/_components/ballot_tiles.html.twig` in the application is the shared tile grid those pages
+render, so a second such consumer copies a template rather than inventing one.
+
+### You cannot reach the deadline from outside
+
+There is no public way to make a ballot due: `cast()` requires a deadline still in the future, and
+moving one needs this module's own tables. That is deliberate, and it shapes how a consumer tests.
+
+Prove your settlement listener through `cast()` and `settle()` - that the winning key becomes the right
+change in your system, and that a tie changes nothing. The step you cannot reach, that `ballot.settle-due`
+turns a passed deadline into exactly those calls, is tested here in `modules/ballot/tests/Functional/DeadlineTest.php`
+and needs no second proof per consumer.
+
 Nothing outside this directory may import `Module\Ballot\Internal\**`; Mago Guard fails the build if it
 does. `Contract/` is the whole public surface and speaks in scalars, enums and readonly value objects.
 
@@ -106,7 +151,7 @@ does. `Contract/` is the whole public surface and speaks in scalars, enums and r
 | Path                                  | Holds                                                           |
 |---------------------------------------|-----------------------------------------------------------------|
 | `modules/ballot/src/Contract/`        | the public surface: `BallotInterface`, the three seams, the VOs |
-| `modules/ballot/src/Internal/`        | the engine, the registries, the cron, the page, the Twig pair   |
+| `modules/ballot/src/Internal/`        | the engine, the registries, the cron, the page                  |
 | `modules/ballot/src/Internal/Entity/` | `Ballot`, `BallotOption`, `BallotVote`                          |
 | `modules/ballot/migrations/`          | namespace `ModuleBallotMigrations`                              |
 | `modules/ballot/tests/Stub/`          | seam implementations the module's own tests register            |

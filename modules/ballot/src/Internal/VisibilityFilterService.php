@@ -2,6 +2,7 @@
 
 namespace Module\Ballot\Internal;
 
+use Module\Ballot\Contract\BallotScope;
 use Module\Ballot\Contract\VisibilityFilterInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
@@ -16,15 +17,15 @@ final readonly class VisibilityFilterService
     ) {}
 
     /**
-     * @param  list<int> $ballotIds
+     * @param  list<BallotScope> $scopes
      * @return list<int>
      */
-    public function narrow(string $purpose, array $ballotIds, ?int $viewerUserId): array
+    public function narrow(string $purpose, array $scopes, ?int $viewerUserId): array
     {
-        $visible = $ballotIds;
+        $visible = array_map(static fn(BallotScope $scope): int => $scope->id, $scopes);
 
         foreach ($this->sorted() as $filter) {
-            $narrowed = $filter->narrowVisibleBallotIds($purpose, $visible, $viewerUserId);
+            $narrowed = $filter->narrowVisibleBallotIds($purpose, $this->only($scopes, $visible), $viewerUserId);
             if ($narrowed === null) {
                 continue;
             }
@@ -38,9 +39,19 @@ final readonly class VisibilityFilterService
         return $visible;
     }
 
-    public function allows(string $purpose, int $ballotId, ?int $viewerUserId): bool
+    public function allows(BallotScope $scope, ?int $viewerUserId): bool
     {
-        return $this->narrow($purpose, [$ballotId], $viewerUserId) !== [];
+        return $this->narrow($scope->purpose, [$scope], $viewerUserId) !== [];
+    }
+
+    /**
+     * @param  list<BallotScope> $scopes
+     * @param  list<int>         $ids
+     * @return list<BallotScope>
+     */
+    private function only(array $scopes, array $ids): array
+    {
+        return array_values(array_filter($scopes, static fn(BallotScope $scope): bool => in_array($scope->id, $ids, true)));
     }
 
     /**

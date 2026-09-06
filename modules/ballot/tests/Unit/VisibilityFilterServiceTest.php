@@ -2,6 +2,7 @@
 
 namespace Module\Ballot\Tests\Unit;
 
+use Module\Ballot\Contract\BallotScope;
 use Module\Ballot\Contract\VisibilityFilterInterface;
 use Module\Ballot\Internal\VisibilityFilterService;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +15,7 @@ class VisibilityFilterServiceTest extends TestCase
         $service = new VisibilityFilterService([]);
 
         // Act
-        $visible = $service->narrow('any', [1, 2, 3], 7);
+        $visible = $service->narrow('any', $this->scopes(1, 2, 3), 7);
 
         // Assert
         self::assertSame([1, 2, 3], $visible);
@@ -29,7 +30,7 @@ class VisibilityFilterServiceTest extends TestCase
         ]);
 
         // Act
-        $visible = $service->narrow('any', [1, 2, 3], 7);
+        $visible = $service->narrow('any', $this->scopes(1, 2, 3), 7);
 
         // Assert
         self::assertSame([2], $visible);
@@ -41,7 +42,7 @@ class VisibilityFilterServiceTest extends TestCase
         $service = new VisibilityFilterService([$this->filter(null), $this->filter([3])]);
 
         // Act
-        $visible = $service->narrow('any', [1, 2, 3], 7);
+        $visible = $service->narrow('any', $this->scopes(1, 2, 3), 7);
 
         // Assert
         self::assertSame([3], $visible);
@@ -53,7 +54,7 @@ class VisibilityFilterServiceTest extends TestCase
         $service = new VisibilityFilterService([$this->filter([]), $this->filter([1, 2, 3])]);
 
         // Act
-        $visible = $service->narrow('any', [1, 2, 3], 7);
+        $visible = $service->narrow('any', $this->scopes(1, 2, 3), 7);
 
         // Assert
         self::assertSame([], $visible);
@@ -65,10 +66,18 @@ class VisibilityFilterServiceTest extends TestCase
         $service = new VisibilityFilterService([$this->filter([2])]);
 
         // Act
-        $verdicts = [$service->allows('any', 2, 7), $service->allows('any', 1, 7)];
+        $verdicts = [$service->allows($this->scopes(2)[0], 7), $service->allows($this->scopes(1)[0], 7)];
 
         // Assert
         self::assertSame([true, false], $verdicts);
+    }
+
+    /**
+     * @return list<BallotScope>
+     */
+    private function scopes(int ...$ids): array
+    {
+        return array_map(static fn(int $id): BallotScope => new BallotScope($id, 'any'), array_values($ids));
     }
 
     /**
@@ -87,7 +96,7 @@ class VisibilityFilterServiceTest extends TestCase
                 return 0;
             }
 
-            public function narrowVisibleBallotIds(string $purpose, array $ballotIds, ?int $viewerUserId): ?array
+            public function narrowVisibleBallotIds(string $purpose, array $ballots, ?int $viewerUserId): ?array
             {
                 return $this->visible;
             }

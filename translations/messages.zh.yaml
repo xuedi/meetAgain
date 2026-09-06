@@ -978,12 +978,11 @@ location:
 contribution:
     page_title: '帮忙纠错'
     section_venues: '场地'
-    nav_heading: '场地'
     nav_empty: '这里暂时还没有内容。'
     nav_suggest_new: '提议新的%type%'
     index_intro: '活动和场地的信息，靠参与的人一起维护。任何人都可以帮忙。'
     index_fix_heading: '修正已有的内容'
-    index_fix_body: '在左侧选择一个板块，修正错别字、错误的门牌号或过时的介绍。在组织者接受之前，不会有任何改动。'
+    index_fix_body: '在上方选择一个板块，修正错别字、错误的门牌号或过时的介绍。在组织者接受之前，不会有任何改动。'
     index_new_heading: '提议缺少的内容'
     index_new_body: '知道这里应该有却还没有的内容吗？提议一下，由组织者决定是否加入。'
     index_review_note: '每一条推荐和修正都会先经过审核再生效。'

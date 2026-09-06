@@ -115,6 +115,9 @@ class EventType extends AbstractType
                 'choices' => $this->locationChoices($event),
                 'choice_translation_domain' => false,
             ])
+            ->add('ballotTerms', BallotTermsType::class, [
+                'notice' => $this->venueBallotNotice(),
+            ])
             ->add('host', EntityType::class, [
                 'class' => Host::class,
                 'choice_label' => 'name',
@@ -177,6 +180,13 @@ class EventType extends AbstractType
                 ]);
             }
         }
+    }
+
+    private function venueBallotNotice(): ?string
+    {
+        $venues = $this->locationRepository->findAllForAdmin($this->locationFilterService->getLocationIdFilter()->getLocationIds());
+
+        return count($venues) === 1 ? $this->translator->trans('admin_event.venue_ballot_single_notice') : null;
     }
 
     /**

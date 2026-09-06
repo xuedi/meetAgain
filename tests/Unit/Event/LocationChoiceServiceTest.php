@@ -15,7 +15,7 @@ class LocationChoiceServiceTest extends TestCase
     public function testAnEntryFromAnInactivePluginIsNotOffered(): void
     {
         // Arrange
-        $service = $this->makeService([$this->provider('voting:location_poll', 'voting')], activePlugins: []);
+        $service = $this->makeService([$this->provider('films:pick_the_film', 'films')], activePlugins: []);
 
         // Act & Assert
         self::assertSame([], $service->availableFor(null));
@@ -34,7 +34,7 @@ class LocationChoiceServiceTest extends TestCase
     public function testAProviderThatDeclaresItselfUnavailableIsNotOffered(): void
     {
         // Arrange
-        $service = $this->makeService([$this->provider('voting:location_poll', 'voting', available: false)]);
+        $service = $this->makeService([$this->provider('films:pick_the_film', 'films', available: false)]);
 
         // Act & Assert
         self::assertSame([], $service->availableFor(null));
@@ -43,16 +43,16 @@ class LocationChoiceServiceTest extends TestCase
     public function testTheActiveEntryIsWhatPreselectsTheDropdown(): void
     {
         // Arrange
-        $service = $this->makeService([$this->provider('voting:location_poll', 'voting', active: true)]);
+        $service = $this->makeService([$this->provider('films:pick_the_film', 'films', active: true)]);
 
         // Act & Assert
-        self::assertSame('voting:location_poll', $service->activeValueFor(new Event()));
+        self::assertSame('films:pick_the_film', $service->activeValueFor(new Event()));
     }
 
     public function testAnEntryNobodyClaimsResolvesToNoProvider(): void
     {
         // Arrange
-        $service = $this->makeService([$this->provider('voting:location_poll', 'voting')]);
+        $service = $this->makeService([$this->provider('films:pick_the_film', 'films')]);
 
         // Act & Assert
         self::assertNull($service->providerFor(null, '17'));
@@ -61,9 +61,9 @@ class LocationChoiceServiceTest extends TestCase
     public function testReleaseAllOnlyTouchesTheProviderThatIsActive(): void
     {
         // Arrange
-        $idle = $this->providerMock('a:idle', 'voting');
+        $idle = $this->providerMock('a:idle', 'films');
         $idle->expects(self::never())->method('release');
-        $running = $this->providerMock('b:running', 'voting', active: true);
+        $running = $this->providerMock('b:running', 'films', active: true);
         $running->expects(self::once())->method('release');
         $service = $this->makeService([$idle, $running]);
 
@@ -75,7 +75,7 @@ class LocationChoiceServiceTest extends TestCase
      * @param list<LocationChoiceProviderInterface> $providers
      * @param list<string> $activePlugins
      */
-    private function makeService(array $providers, array $activePlugins = ['voting']): LocationChoiceService
+    private function makeService(array $providers, array $activePlugins = ['films']): LocationChoiceService
     {
         $pluginService = $this->createStub(PluginService::class);
         $pluginService->method('getActiveList')->willReturn($activePlugins);

@@ -24,6 +24,9 @@ class Ballot
     #[ORM\Column(length: 191)]
     private string $purpose;
 
+    #[ORM\Column(length: 191, nullable: true)]
+    private ?string $title = null;
+
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $subjectType = null;
 
@@ -75,6 +78,7 @@ class Ballot
         DateTimeImmutable $now,
         ?string $subjectType = null,
         ?int $subjectId = null,
+        ?string $title = null,
     ) {
         $this->purpose = $purpose;
         $this->deadline = $deadline;
@@ -84,6 +88,7 @@ class Ballot
         $this->createdAt = $now;
         $this->subjectType = $subjectType;
         $this->subjectId = $subjectId;
+        $this->title = $title;
         $this->options = new ArrayCollection();
     }
 
@@ -95,6 +100,11 @@ class Ballot
     public function getPurpose(): string
     {
         return $this->purpose;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
     }
 
     public function getSubjectType(): ?string

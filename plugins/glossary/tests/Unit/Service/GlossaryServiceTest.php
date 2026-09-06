@@ -18,11 +18,10 @@ use Plugin\Glossary\Repository\GlossaryRepository;
 use Plugin\Glossary\Review\GlossaryChangeTarget;
 use Plugin\Glossary\Service\GlossaryService;
 use RuntimeException;
-use Symfony\Bundle\SecurityBundle\Security;
 
 class GlossaryServiceTest extends TestCase
 {
-    public function testCreateAutoApprovesAndStampsOwner(): void
+    public function testCreateStampsTheOwnerAndTheMoment(): void
     {
         // Arrange
         $em = $this->createMock(EntityManagerInterface::class);
@@ -32,72 +31,25 @@ class GlossaryServiceTest extends TestCase
         $glossary = (new Glossary())->setPhrase('你好');
 
         // Act
-        $service->create($glossary, userId: 9, autoApprove: true);
+        $service->create($glossary, userId: 9);
 
         // Assert
-        self::assertTrue($glossary->getApproved());
         self::assertSame(9, $glossary->getCreatedBy());
         self::assertNotNull($glossary->getCreatedAt());
     }
 
-    public function testCreateWithoutAutoApproveLeavesEntryPending(): void
+    public function testEveryReadPathGoesThroughTheItemFilterAlone(): void
     {
         // Arrange
-        $em = $this->createStub(EntityManagerInterface::class);
-        $service = $this->makeService($em, $this->createStub(GlossaryRepository::class));
-        $glossary = (new Glossary())->setPhrase('你好');
+        $repo = $this->createMock(GlossaryRepository::class);
+        $repo->expects(self::once())->method('findOneAllowed')->with(4, null)->willReturn(null);
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $repo);
 
         // Act
-        $service->create($glossary, userId: 9, autoApprove: false);
+        $entry = $service->get(4);
 
         // Assert
-        self::assertFalse($glossary->getApproved());
-    }
-
-    public function testApproveNewMarksEntryApproved(): void
-    {
-        // Arrange
-        $item = (new Glossary())->setApproved(false);
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::once())->method('persist')->with($item);
-        $em->expects(self::once())->method('flush');
-        $service = $this->makeService($em, $this->repoReturning($item));
-
-        // Act
-        $service->approveNew(1);
-
-        // Assert
-        self::assertTrue($item->getApproved());
-    }
-
-    public function testDeleteNewRejectsApprovedEntry(): void
-    {
-        // Arrange
-        $item = (new Glossary())->setApproved(true);
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::never())->method('remove');
-        $service = $this->makeService($em, $this->repoReturning($item));
-
-        // Assert
-        $this->expectException(RuntimeException::class);
-
-        // Act
-        $service->deleteNew(1);
-    }
-
-    public function testDeleteNewRemovesPendingEntry(): void
-    {
-        // Arrange
-        $item = (new Glossary())->setApproved(false);
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects(self::once())->method('remove')->with($item);
-        $em->expects(self::once())->method('flush');
-        $service = $this->makeService($em, $this->repoReturning($item));
-
-        // Act
-        $service->deleteNew(1);
-
-        // Assert
+        self::assertNull($entry, 'nothing else narrows a read now that the approval flag is gone');
     }
 
     public function testDeleteRemovesEntryAndItsPendingProposals(): void
@@ -214,7 +166,7 @@ class GlossaryServiceTest extends TestCase
         $repo = $this->createMock(GlossaryRepository::class);
         $repo->expects(self::once())
             ->method('findAllowed')
-            ->with([4, 7], ['phrase' => 'ASC'], true)
+            ->with([4, 7])
             ->willReturn([$entry]);
 
         $service = $this->makeService($this->createStub(EntityManagerInterface::class), $repo, $filter);
@@ -224,69 +176,6 @@ class GlossaryServiceTest extends TestCase
 
         // Assert
         self::assertSame([$entry], $list);
-    }
-
-    public function testReadPathNarrowsToApprovedEntriesForOrdinaryViewers(): void
-    {
-        // Arrange
-        $repo = $this->createMock(GlossaryRepository::class);
-        $repo->expects(self::once())->method('findOneAllowed')->with(4, null, true)->willReturn(null);
-        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $repo);
-
-        // Act
-        $entry = $service->get(4);
-
-        // Assert
-        self::assertNull($entry);
-    }
-
-    public function testReadPathKeepsUnapprovedEntriesVisibleToModerators(): void
-    {
-        // Arrange
-        $pending = (new Glossary())->setApproved(false);
-        $repo = $this->createMock(GlossaryRepository::class);
-        $repo->expects(self::once())->method('findOneAllowed')->with(4, null, false)->willReturn($pending);
-        $service = $this->makeService(
-            $this->createStub(EntityManagerInterface::class),
-            $repo,
-            security: $this->viewer(moderator: true),
-        );
-
-        // Act
-        $entry = $service->get(4);
-
-        // Assert
-        self::assertSame($pending, $entry);
-    }
-
-    public function testListKeepsUnapprovedEntriesVisibleToModerators(): void
-    {
-        // Arrange
-        $repo = $this->createMock(GlossaryRepository::class);
-        $repo->expects(self::once())->method('findAllowed')->with(null, ['phrase' => 'ASC'], false)->willReturn([]);
-        $service = $this->makeService(
-            $this->createStub(EntityManagerInterface::class),
-            $repo,
-            security: $this->viewer(moderator: true),
-        );
-
-        // Act
-        $service->getList();
-    }
-
-    public function testApproveNewReachesPendingEntriesWithoutAModeratorToken(): void
-    {
-        // Arrange
-        $pending = (new Glossary())->setApproved(false);
-        $repo = $this->createMock(GlossaryRepository::class);
-        $repo->expects(self::once())->method('findOneAllowed')->with(1, null)->willReturn($pending);
-        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $repo);
-
-        // Act
-        $service->approveNew(1);
-
-        // Assert
-        self::assertTrue($pending->getApproved());
     }
 
     public function testCreateAnnouncesTheNewItemToTheItemActionChain(): void
@@ -315,7 +204,6 @@ class GlossaryServiceTest extends TestCase
         ?ActionDispatcher $itemActionDispatcher = null,
         ?TagService $tagService = null,
         ?ChangeProposalService $changeProposalService = null,
-        ?Security $security = null,
     ): GlossaryService {
         if ($filter === null) {
             $filter = $this->createStub(FilterService::class);
@@ -336,16 +224,7 @@ class GlossaryServiceTest extends TestCase
             $tagService ?? $this->createStub(TagService::class),
             $itemActionDispatcher ?? $this->createStub(ActionDispatcher::class),
             $changeProposalService ?? $this->createStub(ChangeProposalService::class),
-            $security ?? $this->viewer(moderator: false),
         );
-    }
-
-    private function viewer(bool $moderator): Security
-    {
-        $security = $this->createStub(Security::class);
-        $security->method('isGranted')->willReturn($moderator);
-
-        return $security;
     }
 
     private function repoReturning(?Glossary $item): GlossaryRepository

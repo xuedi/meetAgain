@@ -1,0 +1,54 @@
+{#
+    Ballot Terms - the overlay that asks how a vote should run
+
+    Opens over the host form and closes again; the fields inside are part of the host form, so the
+    answers travel with it on submit. That is why this modal carries no <form> of its own and,
+    unlike admin/event/_venue_modal.html.twig, needs no endpoint of its own.
+
+    Two ways to open it, and the parameters say which. Pass triggerId and value and a select opens
+    it when it takes that value; pass neither and any element carrying
+    data-ballot-terms-open="{id}" opens it on click, with confirm submitting the host form.
+
+    Render it INSIDE the host form. A modal is a div, so nesting is valid; only the venue modal has
+    to sit after form_end(), because it wraps a form.
+
+    Used in:    templates/admin/event/edit.html.twig, new.html.twig, review/proposals.html.twig
+    Parameters:
+        - id        (string, required) - DOM id, and the value of data-ballot-terms-open on a button
+        - terms     (FormView, required) - a BallotTermsType view
+        - triggerId (string, optional) - id of the select whose value opens this
+        - value     (string, optional) - the select value that opens it
+        - title     (string, required) - modal heading, translated
+        - notice    (string, optional) - an info line above the fields, translated
+    Depends on: assets/js/ballot-terms.js
+#}
+<div class="modal"
+     id="{{ id }}"
+     data-ballot-terms
+     data-trigger="{{ triggerId|default('') }}"
+     data-value="{{ value|default('') }}">
+    <div class="modal-background" data-ballot-terms-close></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">{{ title }}</p>
+            <button class="delete" aria-label="close" type="button" data-ballot-terms-close></button>
+        </header>
+        <section class="modal-card-body">
+
+            {% if notice is defined and notice is not empty %}
+                <div class="notification is-info is-light">{{ notice }}</div>
+            {% endif %}
+
+            {{ form_widget(terms) }}
+
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-primary" type="button" data-ballot-terms-confirm>
+                {{ 'ballot_terms.button_apply'|trans }}
+            </button>
+            <button class="button ml-3" type="button" data-ballot-terms-cancel>
+                {{ 'global.button_cancel'|trans }}
+            </button>
+        </footer>
+    </div>
+</div>

@@ -7,7 +7,8 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * Contributes an extra entry to the venue dropdown of the admin event form. Union chain: the form
- * renders every available provider's entry, and picking one hands the event to that provider.
+ * renders every available provider's entry, and picking one hands the event to that provider along
+ * with whatever terms the operator set in the entry's overlay.
  */
 #[AutoconfigureTag]
 interface LocationChoiceProviderInterface
@@ -22,7 +23,8 @@ interface LocationChoiceProviderInterface
 
     public function isActiveFor(Event $event): bool;
 
-    public function choose(Event $event): void;
+    /** @param array<string, mixed> $terms the overlay's answers, empty when the entry has no overlay */
+    public function choose(Event $event, array $terms): void;
 
     public function release(Event $event): void;
 }

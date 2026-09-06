@@ -17,6 +17,7 @@ final readonly class BallotRequest
         public ?BallotSubject $subject = null,
         public TallyMode $tallyMode = TallyMode::Approval,
         public SettlementMode $settlementMode = SettlementMode::Automatic,
+        public ?string $title = null,
     ) {}
 
     /**

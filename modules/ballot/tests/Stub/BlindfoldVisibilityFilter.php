@@ -2,6 +2,7 @@
 
 namespace Module\Ballot\Tests\Stub;
 
+use Module\Ballot\Contract\BallotScope;
 use Module\Ballot\Contract\VisibilityFilterInterface;
 use Override;
 
@@ -17,12 +18,14 @@ class BlindfoldVisibilityFilter implements VisibilityFilterInterface
     }
 
     #[Override]
-    public function narrowVisibleBallotIds(string $purpose, array $ballotIds, ?int $viewerUserId): ?array
+    public function narrowVisibleBallotIds(string $purpose, array $ballots, ?int $viewerUserId): ?array
     {
         if ($this->hiddenBallotIds === []) {
             return null;
         }
 
-        return array_values(array_diff($ballotIds, $this->hiddenBallotIds));
+        $ids = array_map(static fn(BallotScope $ballot): int => $ballot->id, $ballots);
+
+        return array_values(array_diff($ids, $this->hiddenBallotIds));
     }
 }

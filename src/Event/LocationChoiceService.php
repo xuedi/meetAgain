@@ -31,7 +31,10 @@ class LocationChoiceService
         return $provider;
     }
 
-    public function commit(Event $event, ?LocationChoiceProviderInterface $provider): void
+    /**
+     * @param array<string, mixed> $terms
+     */
+    public function commit(Event $event, ?LocationChoiceProviderInterface $provider, array $terms = []): void
     {
         if ($provider === null) {
             $this->releaseAll($event);
@@ -39,7 +42,7 @@ class LocationChoiceService
             return;
         }
 
-        $provider->choose($event);
+        $provider->choose($event, $terms);
     }
 
     /**

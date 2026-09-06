@@ -30,7 +30,7 @@ class GlossaryContributorTest extends TestCase
         $rows = $contributor->exportItems([8], $this->createStub(PortableImageWriterInterface::class));
 
         // Assert
-        self::assertSame(['ref' => 8, 'phrase' => '你好', 'pinyin' => 'nǐ hǎo', 'explanation' => 'hello', 'approved' => true], $rows[0]);
+        self::assertSame(['ref' => 8, 'phrase' => '你好', 'pinyin' => 'nǐ hǎo', 'explanation' => 'hello'], $rows[0]);
     }
 
     public function testDuplicatePhraseResolvesToTheExistingEntry(): void
@@ -67,7 +67,7 @@ class GlossaryContributorTest extends TestCase
         });
 
         $contributor = new GlossaryContributor($em, $repo);
-        $rows = [['ref' => 8, 'phrase' => '干嘛', 'pinyin' => 'gàn má', 'explanation' => 'what is up', 'approved' => false]];
+        $rows = [['ref' => 8, 'phrase' => '干嘛', 'pinyin' => 'gàn má', 'explanation' => 'what is up']];
 
         // Act
         $result = $contributor->importItems($rows, $this->context());
@@ -76,7 +76,6 @@ class GlossaryContributorTest extends TestCase
         self::assertSame([8 => 55], $result->refToItemId);
         self::assertSame(1, $result->created);
         self::assertCount(1, $persisted);
-        self::assertFalse($persisted[0]->getApproved());
     }
 
     private function entry(int $id, string $phrase): Glossary
@@ -86,7 +85,6 @@ class GlossaryContributorTest extends TestCase
         $entry->setPhrase($phrase);
         $entry->setPinyin('nǐ hǎo');
         $entry->setExplanation('hello');
-        $entry->setApproved(true);
         $entry->setCreatedBy(1);
         $entry->setCreatedAt(new DateTimeImmutable());
 

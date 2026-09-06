@@ -15,9 +15,16 @@
                 <div class="level-left">
                     <h1 class="title mb-0">{{ 'glossary.page_title'|trans }}</h1>
                 </div>
-                {% if is_granted('ROLE_USER') %}
+                {% if is_granted('ROLE_ORGANIZER') %}
                     <div class="level-right">
                         <a href="{{ path('app_plugin_glossary_new') }}" class="button is-link">
+                            <span class="icon"><i class="fa fa-plus"></i></span>
+                            <span>{{ 'glossary.button_new'|trans }}</span>
+                        </a>
+                    </div>
+                {% elseif is_granted('ROLE_USER') %}
+                    <div class="level-right">
+                        <a href="{{ path('app_contribution_suggest', {type: 'glossary'}) }}" class="button is-link">
                             <span class="icon"><i class="fa fa-plus"></i></span>
                             <span>{{ 'glossary.button_suggest_new'|trans }}</span>
                         </a>

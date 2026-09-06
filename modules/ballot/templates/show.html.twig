@@ -6,9 +6,10 @@
 
     <section class="section">
         <div class="container">
-            <h1 class="title">{{ ballot.tallyMode.label()|trans }}</h1>
+            <h1 class="title">{{ ballot.title ?? (ballot.tallyMode.label()|trans) }}</h1>
             <p class="subtitle">
                 <span class="tag is-light">{{ ballot.status.label()|trans }}</span>
+                <span class="tag is-light">{{ ballot.tallyMode.label()|trans }}</span>
                 {{ 'ballot.closes'|trans({'%date%': ballot.deadline|date('Y-m-d H:i')}) }}
                 &middot; {{ 'ballot.voters'|trans({'%count%': ballot.voterCount}) }}
             </p>

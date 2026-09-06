@@ -8,11 +8,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Module\Ballot\Contract\BallotInterface;
 use Module\Ballot\Contract\BallotRequest;
 use Module\Ballot\Contract\BallotStatus;
+use Module\Ballot\Contract\BallotView;
 use Module\Ballot\Contract\Candidate;
 use Module\Ballot\Contract\SettlementMode;
 use Module\Ballot\Internal\Cron\SettleDueBallotsCron;
 use Module\Ballot\Internal\Entity\Ballot;
 use Module\Ballot\Internal\Notification\OpenBallotNotificationProvider;
+use Module\Ballot\Tests\Stub\BlindfoldVisibilityFilter;
 use Module\Ballot\Tests\Stub\RecordingSettlementListener;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -82,14 +84,19 @@ class DeadlineTest extends KernelTestCase
         $ballots = self::getContainer()->get(BallotInterface::class);
         $member = $this->em()->getRepository(User::class)->find($this->voterIds()[0]);
         self::assertInstanceOf(User::class, $member);
+        self::getContainer()->get(BlindfoldVisibilityFilter::class)->hiddenBallotIds = array_map(
+            static fn(BallotView $ballot): int => $ballot->id,
+            $ballots->listOpenFor((int) $member->getId()),
+        );
         $before = $provider->getNotifications($member);
+        self::assertSame([], $before, 'the bell is silent while nothing awaits this member');
 
         // Act
         $ballots->open($this->request('test.bell', SettlementMode::Automatic, $this->voterIds()[0]));
 
         // Assert
         $after = $provider->getNotifications($member);
-        self::assertCount(count($before) + 1, $after, 'an open ballot adds exactly one bell item');
+        self::assertCount(1, $after, 'an open ballot adds exactly one bell item');
     }
 
     /**

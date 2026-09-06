@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'glossary.page_title_new'|trans }}{% endblock %}
+{% block title %}{{ 'glossary.heading_edit'|trans }}{% endblock %}
 
 {% block body %}
 
@@ -9,7 +9,7 @@
             <div class="columns is-centered">
                 <div class="column is-half">
 
-                    <h1 class="title is-4">{{ 'glossary.heading_suggest_change'|trans }}</h1>
+                    <h1 class="title is-4">{{ 'glossary.heading_edit'|trans }}</h1>
                     <div class="box">
 
                         {{ form_start(form) }}
@@ -19,11 +19,7 @@
                         {% if form.itemTags is defined %}{{ form_row(form.itemTags) }}{% endif %}
                         <div class="has-text-right mt-6">
                             <a href="{{ path('app_plugin_glossary') }}" class="button">{{ 'global.button_cancel'|trans }}</a>
-                            {% if is_granted('ROLE_ORGANIZER') %}
-                                <button type="submit" class="button is-link">{{ 'global.button_save'|trans }}</button>
-                            {% else %}
-                                <button type="submit" class="button is-link">{{ 'glossary.button_suggest_change'|trans }}</button>
-                            {% endif %}
+                            <button type="submit" class="button is-link">{{ 'global.button_save'|trans }}</button>
                         </div>
                         {{ form_end(form) }}
 

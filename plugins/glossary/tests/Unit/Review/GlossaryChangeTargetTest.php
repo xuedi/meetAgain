@@ -68,16 +68,15 @@ class GlossaryChangeTargetTest extends TestCase
         self::assertSame('glossary.label_explanation', $target->getFieldLabel(GlossaryChangeTarget::FIELD_EXPLANATION));
     }
 
-    public function testCanProposeRequiresAnApprovedEntry(): void
+    public function testCanProposeRequiresAVisibleEntryAndARole(): void
     {
         // Arrange
         $user = new User();
 
         // Act & Assert
-        self::assertTrue($this->makeTarget(entry: (new Glossary())->setApproved(true))->canPropose($user, 1));
-        self::assertFalse($this->makeTarget(entry: (new Glossary())->setApproved(false))->canPropose($user, 1));
+        self::assertTrue($this->makeTarget(entry: new Glossary())->canPropose($user, 1));
         self::assertFalse($this->makeTarget(entry: null)->canPropose($user, 1));
-        self::assertFalse($this->makeTarget(entry: (new Glossary())->setApproved(true), granted: false)->canPropose($user, 1));
+        self::assertFalse($this->makeTarget(entry: new Glossary(), granted: false)->canPropose($user, 1));
     }
 
     public function testCanReviewRequiresRoleAndExistingEntry(): void

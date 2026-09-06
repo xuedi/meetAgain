@@ -4,7 +4,9 @@ namespace Plugin\Glossary\Tests\Functional;
 
 use App\Entity\ChangeProposal;
 use App\Entity\User;
+use App\Entity\Suggestion;
 use App\Enum\ChangeProposalStatus;
+use App\Enum\SuggestionStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Plugin\Glossary\Entity\Glossary;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -20,12 +22,12 @@ class GlossarySuggestionFlowTest extends WebTestCase
     {
         // Arrange
         $client = static::createClient();
-        $entry = $this->approvedEntryWithoutProposals($client);
+        $entry = $this->entryWithoutProposals($client);
         $original = (string) $entry->getExplanation();
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
         // Act
-        $this->submitEdit($client, (int) $entry->getId(), 'a member proposal');
+        $this->submitCorrection($client, (int) $entry->getId(), 'a member proposal');
 
         // Assert
         $reloaded = $this->reload($client, (int) $entry->getId());
@@ -39,7 +41,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
     {
         // Arrange
         $client = static::createClient();
-        $entry = $this->approvedEntryWithoutProposals($client);
+        $entry = $this->entryWithoutProposals($client);
         $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
 
         // Act
@@ -55,12 +57,12 @@ class GlossarySuggestionFlowTest extends WebTestCase
     {
         // Arrange
         $client = static::createClient();
-        $entry = $this->approvedEntryWithoutProposals($client);
+        $entry = $this->entryWithoutProposals($client);
         $id = (int) $entry->getId();
         $originalPhrase = (string) $entry->getPhrase();
 
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-        $this->submitEdit($client, $id, 'proposal to apply', 'proposed phrase');
+        $this->submitCorrection($client, $id, 'proposal to apply', 'proposed phrase');
 
         $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
         $proposalId = (int) $this->pendingProposals($client, $id)[0]->getId();
@@ -85,11 +87,11 @@ class GlossarySuggestionFlowTest extends WebTestCase
     {
         // Arrange
         $client = static::createClient();
-        $entry = $this->approvedEntryWithoutProposals($client);
+        $entry = $this->entryWithoutProposals($client);
         $id = (int) $entry->getId();
 
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-        $this->submitEdit($client, $id, 'to be withdrawn');
+        $this->submitCorrection($client, $id, 'to be withdrawn');
         $proposalId = (int) $this->pendingProposals($client, $id)[0]->getId();
 
         $crawler = $client->request('GET', '/en/review/proposals/glossary/' . $id, server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
@@ -109,11 +111,11 @@ class GlossarySuggestionFlowTest extends WebTestCase
     {
         // Arrange
         $client = static::createClient();
-        $entry = $this->approvedEntryWithoutProposals($client);
+        $entry = $this->entryWithoutProposals($client);
         $id = (int) $entry->getId();
 
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-        $this->submitEdit($client, $id, 'a member proposal');
+        $this->submitCorrection($client, $id, 'a member proposal');
         $proposalId = (int) $this->pendingProposals($client, $id)[0]->getId();
 
         $crawler = $client->request('GET', '/en/review/proposals/glossary/' . $id, server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
@@ -131,11 +133,11 @@ class GlossarySuggestionFlowTest extends WebTestCase
     {
         // Arrange
         $client = static::createClient();
-        $entry = $this->approvedEntryWithoutProposals($client);
+        $entry = $this->entryWithoutProposals($client);
         $id = (int) $entry->getId();
 
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-        $this->submitEdit($client, $id, 'a member proposal');
+        $this->submitCorrection($client, $id, 'a member proposal');
         $proposalId = (int) $this->pendingProposals($client, $id)[0]->getId();
 
         $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
@@ -148,30 +150,68 @@ class GlossarySuggestionFlowTest extends WebTestCase
         self::assertCount(1, $this->pendingProposals($client, $id));
     }
 
-    public function testModeratorApprovesAPendingEntry(): void
+    public function testAMemberProposesANewEntryAndTheOrganizerApprovesItIntoTheGlossary(): void
     {
         // Arrange
         $client = static::createClient();
-        $pending = $this->entry($client, false);
-        $id = (int) $pending->getId();
-        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
-        $crawler = $client->request('GET', '/en/glossary/approval/list/' . $id, server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-        $token = (string) $crawler->filter('a[href$="/approval/approve/' . $id . '"]')->attr('data-csrf-token');
+        $crawler = $client->request('GET', '/en/contribute/glossary/suggest', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $this->assertResponseIsSuccessful();
+
+        $form = $crawler->filter('form[name="glossary"]')->form();
+        $form['glossary[phrase]'] = '半路出家';
+        $form['glossary[explanation]'] = 'A latecomer to a craft. Literally "left home halfway".';
+        $client->submit($form, serverParameters: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $this->assertResponseRedirects();
+
+        $suggestion = $this->latestPendingSuggestion($client);
+        self::assertNull($this->entryByPhrase($client, '半路出家'), 'a pending suggestion is not yet an entry');
 
         // Act
-        $client->request('POST', '/en/glossary/approval/approve/' . $id, ['_token' => $token], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
+        $review = $client->request('GET', '/en/profile/review', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        self::assertCount(1, $review->filter('a[href$="/review/suggestions/' . $suggestion->getId() . '"]'), 'the reviewer finds it in the hub');
+
+        $crawler = $client->request('GET', '/en/review/suggestions/' . $suggestion->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->submit($crawler->filter('form[action$="/approve"]')->form(), serverParameters: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
         $this->assertResponseRedirects();
-        self::assertTrue($this->reload($client, $id)->getApproved());
+        self::assertSame(SuggestionStatus::Approved, $this->reloadSuggestion($client, (int) $suggestion->getId())->getStatus());
+        self::assertInstanceOf(Glossary::class, $this->entryByPhrase($client, '半路出家'));
     }
 
+    public function testARejectedSuggestionLeavesNoEntryBehind(): void
+    {
+        // Arrange
+        $client = static::createClient();
+        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
+
+        $crawler = $client->request('GET', '/en/contribute/glossary/suggest', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $form = $crawler->filter('form[name="glossary"]')->form();
+        $form['glossary[phrase]'] = '画蛇添足';
+        $form['glossary[explanation]'] = 'To ruin something by adding what it did not need.';
+        $client->submit($form, serverParameters: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $suggestion = $this->latestPendingSuggestion($client);
+
+        $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
+        $crawler = $client->request('GET', '/en/review/suggestions/' . $suggestion->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $token = (string) $crawler->filter('a[href$="/reject"]')->attr('data-csrf-token');
+
+        // Act
+        $client->request('POST', '/en/review/suggestions/' . $suggestion->getId() . '/reject', ['_token' => $token], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+
+        // Assert
+        $this->assertResponseRedirects();
+        self::assertSame(SuggestionStatus::Rejected, $this->reloadSuggestion($client, (int) $suggestion->getId())->getStatus());
+        self::assertNull($this->entryByPhrase($client, '画蛇添足'));
+    }
     public function testModeratorEditWritesEveryCheckedTag(): void
     {
         // Arrange
         $client = static::createClient();
-        $entry = $this->approvedEntryWithoutProposals($client);
+        $entry = $this->entryWithoutProposals($client);
         $id = (int) $entry->getId();
         $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
 
@@ -182,7 +222,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
         $checked = [$offered[0], $offered[1]];
 
         // Act
-        $form = $crawler->filter('.box form')->form();
+        $form = $crawler->filter('form[name="glossary"]')->form();
         $form['glossary[itemTags]'] = $checked;
         $client->submit($form);
 
@@ -193,12 +233,55 @@ class GlossarySuggestionFlowTest extends WebTestCase
         self::assertSame($checked, array_values(array_intersect($stillChecked, $checked)));
     }
 
+    private function latestPendingSuggestion(KernelBrowser $client): Suggestion
+    {
+        $suggestion = $this->em($client)->getRepository(Suggestion::class)->findOneBy(
+            ['targetType' => 'glossary', 'status' => SuggestionStatus::Pending],
+            ['id' => 'DESC'],
+        );
+        if (!$suggestion instanceof Suggestion) {
+            self::fail('No pending glossary suggestion was stored');
+        }
+
+        return $suggestion;
+    }
+
+    private function reloadSuggestion(KernelBrowser $client, int $id): Suggestion
+    {
+        $em = $this->em($client);
+        $em->clear();
+        $suggestion = $em->getRepository(Suggestion::class)->find($id);
+        if (!$suggestion instanceof Suggestion) {
+            self::fail('Suggestion vanished');
+        }
+
+        return $suggestion;
+    }
+
+    private function entryByPhrase(KernelBrowser $client, string $phrase): ?Glossary
+    {
+        $em = $this->em($client);
+        $em->clear();
+
+        return $em->getRepository(Glossary::class)->findOneBy(['phrase' => $phrase]);
+    }
+
+    private function submitCorrection(KernelBrowser $client, int $id, string $explanation, ?string $phrase = null): void
+    {
+        $this->submitGlossaryForm($client, '/en/contribute/glossary/' . $id, $explanation, $phrase);
+    }
+
     private function submitEdit(KernelBrowser $client, int $id, string $explanation, ?string $phrase = null): void
     {
-        $crawler = $client->request('GET', '/en/glossary/edit/' . $id, server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $this->submitGlossaryForm($client, '/en/glossary/edit/' . $id, $explanation, $phrase);
+    }
+
+    private function submitGlossaryForm(KernelBrowser $client, string $path, string $explanation, ?string $phrase): void
+    {
+        $crawler = $client->request('GET', $path, server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $this->assertResponseIsSuccessful();
 
-        $form = $crawler->filter('.box form')->form();
+        $form = $crawler->filter('form[name="glossary"]')->form();
         $form['glossary[explanation]'] = $explanation;
         if ($phrase !== null) {
             $form['glossary[phrase]'] = $phrase;
@@ -207,26 +290,16 @@ class GlossarySuggestionFlowTest extends WebTestCase
         $this->assertResponseRedirects();
     }
 
-    private function approvedEntryWithoutProposals(KernelBrowser $client): Glossary
+    private function entryWithoutProposals(KernelBrowser $client): Glossary
     {
-        $entries = $this->em($client)->getRepository(Glossary::class)->findBy(['approved' => true]);
+        $entries = $this->em($client)->getRepository(Glossary::class)->findAll();
         foreach ($entries as $entry) {
             if ($this->pendingProposals($client, (int) $entry->getId()) === []) {
                 return $entry;
             }
         }
 
-        self::fail('No approved glossary fixture entry without pending proposals');
-    }
-
-    private function entry(KernelBrowser $client, bool $approved): Glossary
-    {
-        $entry = $this->em($client)->getRepository(Glossary::class)->findOneBy(['approved' => $approved]);
-        if (!$entry instanceof Glossary) {
-            self::fail('Required glossary fixture entry missing');
-        }
-
-        return $entry;
+        self::fail('No glossary fixture entry without pending proposals');
     }
 
     /** @return list<ChangeProposal> */

@@ -15,6 +15,7 @@ final readonly class BallotOutcome
         public array $tiedKeys = [],
         public ?BallotSubject $subject = null,
         public ?int $settledByUserId = null,
+        public ?int $openedByUserId = null,
     ) {}
 
     public function isDecided(): bool

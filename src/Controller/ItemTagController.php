@@ -6,46 +6,31 @@ use App\Entity\ChangeProposal;
 use App\Entity\User;
 use App\Form\Item\TagsType;
 use App\Item\Tag\ChangeTarget;
-use App\Item\Tag\SuggestionBuilder;
-use App\Item\Tag\TaggableTypeProviderInterface;
 use App\Item\Tag\TagService;
 use App\Item\Tag\TypeRegistry;
 use App\Review\ChangeProposalService;
-use App\Review\FieldChange;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_STEWARD')]
 final class ItemTagController extends AbstractController
 {
     public function __construct(
         private readonly TypeRegistry $registry,
         private readonly TagService $tagService,
-        private readonly SuggestionBuilder $suggestionBuilder,
         private readonly ChangeProposalService $changeProposals,
     ) {}
 
     #[Route('/item/{itemType}/tags', name: 'app_item_tags', methods: ['GET', 'POST'])]
-    public function tags(Request $request, string $itemType, #[CurrentUser] User $user): Response
+    public function tags(Request $request, string $itemType): Response
     {
         $provider = $this->registry->providerFor($itemType);
         if ($provider === null) {
             throw $this->createNotFoundException();
         }
 
-        if ($this->isGranted('ROLE_STEWARD')) {
-            return $this->manage($request, $provider);
-        }
-
-        return $this->suggest($request, $provider, $user);
-    }
-
-    private function manage(Request $request, TaggableTypeProviderInterface $provider): Response
-    {
-        $itemType = $provider->getTypeKey();
         $form = $this->createForm(TagsType::class, ['tags' => $this->editorRows($itemType)], [
             'usage' => $this->tagService->getUsage($itemType),
             'depths' => $this->tagService->getDepths($itemType),
@@ -60,51 +45,12 @@ final class ItemTagController extends AbstractController
             return $this->redirectToRoute('app_item_tags', ['itemType' => $itemType]);
         }
 
-        return $this->page($request, $provider, ['form' => $form, 'canManage' => true]);
-    }
-
-    private function suggest(Request $request, TaggableTypeProviderInterface $provider, User $user): Response
-    {
-        $itemType = $provider->getTypeKey();
-
-        if ($request->isMethod('POST')) {
-            if (!$this->isCsrfTokenValid('item_tag_suggest', $request->request->getString('_token'))) {
-                throw $this->createAccessDeniedException('Invalid CSRF token.');
-            }
-
-            $proposed = 0;
-            foreach ($this->submittedChanges($request, $itemType) as $targetId => $changes) {
-                $proposed += $this->changeProposals->propose(ChangeTarget::TYPE_PREFIX . $itemType, $targetId, $user, $changes) === null ? 0 : 1;
-            }
-            $this->addFlash(
-                $proposed === 0 ? 'info' : 'success',
-                $proposed === 0 ? 'item.tag_flash_unchanged' : 'item.tag_flash_suggested',
-            );
-
-            return $this->redirectToRoute('app_item_tags', ['itemType' => $itemType]);
-        }
-
-        return $this->page($request, $provider, ['canSuggest' => true]);
-    }
-
-    /**
-     * @param array<string, mixed> $extra
-     */
-    private function page(Request $request, TaggableTypeProviderInterface $provider, array $extra): Response
-    {
-        $itemType = $provider->getTypeKey();
-
         return $this->render('item/tags.html.twig', [
             'itemType' => $itemType,
             'typeLabelKey' => $provider->getLabelKey(),
-            'rows' => $this->suggestionBuilder->rows($itemType, $request->getLocale()),
-            'usage' => $this->tagService->getUsage($itemType),
             'targetType' => ChangeTarget::TYPE_PREFIX . $itemType,
             'pending' => $this->pendingCards(ChangeTarget::TYPE_PREFIX . $itemType),
-            'form' => null,
-            'canManage' => false,
-            'canSuggest' => false,
-            ...$extra,
+            'form' => $form,
         ]);
     }
 
@@ -156,24 +102,5 @@ final class ItemTagController extends AbstractController
         }
 
         return $cards;
-    }
-
-    /** @return array<int, list<FieldChange>> */
-    private function submittedChanges(Request $request, string $itemType): array
-    {
-        $submitted = $request->request->all('suggest');
-
-        $addedBelow = [];
-        foreach ((array) ($submitted['addBelow'] ?? []) as $parent => $labels) {
-            $addedBelow[$parent] = array_values(array_map(strval(...), (array) $labels));
-        }
-
-        return $this->suggestionBuilder->changes(
-            $itemType,
-            $request->getLocale(),
-            array_map(strval(...), (array) ($submitted['edit'] ?? [])),
-            array_values(array_map(strval(...), (array) ($submitted['add'] ?? []))),
-            $addedBelow,
-        );
     }
 }

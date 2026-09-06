@@ -978,12 +978,11 @@ location:
 contribution:
     page_title: 'Mithelfen'
     section_venues: 'Orte'
-    nav_heading: 'Orte'
     nav_empty: 'Hier ist noch nichts.'
     nav_suggest_new: 'Neuen Eintrag vorschlagen: %type%'
     index_intro: 'Veranstaltungen und Orte werden von denen richtig gehalten, die hingehen. Alle können mithelfen.'
     index_fix_heading: 'Etwas Bestehendes korrigieren'
-    index_fix_body: 'Wähle links einen Bereich, um einen Tippfehler, eine falsche Hausnummer oder eine veraltete Beschreibung zu korrigieren. Nichts ändert sich, bis ein Organisator es annimmt.'
+    index_fix_body: 'Wähle oben einen Bereich, um einen Tippfehler, eine falsche Hausnummer oder eine veraltete Beschreibung zu korrigieren. Nichts ändert sich, bis ein Organisator es annimmt.'
     index_new_heading: 'Etwas vorschlagen, das fehlt'
     index_new_body: 'Fehlt hier etwas, das dazugehört? Schlage es vor, und die Organisatoren entscheiden, ob es aufgenommen wird.'
     index_review_note: 'Jeder Vorschlag und jede Korrektur wird geprüft, bevor sie sichtbar wird.'

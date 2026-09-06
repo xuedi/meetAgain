@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Module\Ballot\Contract\BallotInterface;
 use Module\Ballot\Contract\BallotRequest;
+use Module\Ballot\Contract\BallotView;
 use Module\Ballot\Contract\Candidate;
 use Module\Ballot\Tests\Stub\BlindfoldVisibilityFilter;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -14,13 +15,15 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class BallotPageTest extends WebTestCase
 {
-    public function testTheNavigationPillAppearsOnlyOnceAMemberHasSomethingToVoteOn(): void
+    public function testTheNotificationAppearsOnlyOnceAMemberHasSomethingToVoteOn(): void
     {
         // Arrange
         $client = static::createClient();
-        $client->loginUser($this->member($client));
+        $member = $this->member($client);
+        $client->loginUser($member);
+        $this->hideEveryOpenBallotOf($member);
         $crawler = $client->request('GET', '/en/');
-        self::assertCount(0, $crawler->filter('.navbar-item > a.button[href$="/en/ballots"]'), 'no pill before any ballot exists');
+        self::assertCount(0, $crawler->filter('.notifications-dropdown a[href$="/en/ballots"]'), 'nothing awaits this member');
 
         // Act
         $this->openBallot($client, 'test.page');
@@ -28,7 +31,7 @@ class BallotPageTest extends WebTestCase
         // Assert
         $crawler = $client->request('GET', '/en/');
         self::assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('.navbar-item > a.button[href$="/en/ballots"]'));
+        self::assertCount(1, $crawler->filter('.notifications-dropdown a[href$="/en/ballots"]'));
     }
 
     public function testTheIndexListsAnOpenBallotAndTheDetailPageOffersTheForm(): void
@@ -95,6 +98,15 @@ class BallotPageTest extends WebTestCase
             new DateTimeImmutable('+7 days'),
             (int) $this->member($client)->getId(),
         ));
+    }
+
+    private function hideEveryOpenBallotOf(User $member): void
+    {
+        $ballots = self::getContainer()->get(BallotInterface::class)->listOpenFor((int) $member->getId());
+        self::getContainer()->get(BlindfoldVisibilityFilter::class)->hiddenBallotIds = array_map(
+            static fn(BallotView $ballot): int => $ballot->id,
+            $ballots,
+        );
     }
 
     private function member(KernelBrowser $client): User

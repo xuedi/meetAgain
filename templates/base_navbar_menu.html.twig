@@ -1,6 +1,5 @@
 {% include 'base_navbar_notifications.html.twig' %}
 {{ get_plugin_navbar_pills_html() }}
-{{ ballot_navbar_pill() }}
 <div class="navbar-item dropdown is-hoverable">
     <div class="dropdown-trigger">
         <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -16,6 +15,7 @@
             <a class="navbar-item" href="{{ path('app_profile_social') }}">{{ "chrome.menu_profile_social" | trans }}</a>
             <a class="navbar-item" href="{{ path('app_profile_messages') }}">{{ "chrome.menu_profile_messages" | trans }}</a>
             <a class="navbar-item" href="{{ path('app_profile_images') }}">{{ "chrome.menu_profile_images" | trans }}</a>
+            <a class="navbar-item" href="{{ path('app_contribution_index') }}">{{ "chrome.menu_contribute" | trans }}</a>
             {% for link in get_plugin_profile_dropdown_links() %}
                 <a class="navbar-item" href="{{ link.slug }}">{{ link.name | trans }}</a>
             {% endfor %}

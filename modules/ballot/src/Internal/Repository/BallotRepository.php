@@ -49,6 +49,19 @@ class BallotRepository extends ServiceEntityRepository
     /**
      * @return list<Ballot>
      */
+    public function findForPurpose(string $purpose): array
+    {
+        return $this->createQueryBuilder('b')
+            ->where('b.purpose = :purpose')
+            ->setParameter('purpose', $purpose)
+            ->orderBy('b.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return list<Ballot>
+     */
     public function findForSubject(string $subjectType, int $subjectId): array
     {
         return $this->createQueryBuilder('b')

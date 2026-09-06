@@ -9,7 +9,7 @@ use App\Enum\EntityAction;
 use App\Filter\Admin\Location\AdminLocationListFilterService;
 use App\Repository\LocationRepository;
 use App\Review\LocationChangeTarget;
-use App\Service\Location\MemberVenueService;
+use App\Contribution\Registry;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -166,8 +166,8 @@ class LocationChangeTargetTest extends TestCase
         $filterService = $this->createStub(AdminLocationListFilterService::class);
         $filterService->method('isLocationAccessible')->willReturn($accessible);
 
-        $memberVenueService = $this->createStub(MemberVenueService::class);
-        $memberVenueService->method('mayTouch')->willReturn($mayTouch);
+        $contributions = $this->createStub(Registry::class);
+        $contributions->method('mayTouch')->willReturn($mayTouch);
 
         $security = $this->createStub(Security::class);
         $security->method('isGranted')->willReturn($granted);
@@ -179,7 +179,7 @@ class LocationChangeTargetTest extends TestCase
             $this->createStub(EntityManagerInterface::class),
             $repo,
             $filterService,
-            $memberVenueService,
+            $contributions,
             $dispatcher ?? $this->createStub(EntityActionDispatcher::class),
             $security,
             $this->createStub(RouterInterface::class),

@@ -35,6 +35,13 @@ interface BallotInterface
     /** @return list<BallotView> */
     public function listForSubject(BallotSubject $subject, ?int $viewerUserId): array;
 
+    /**
+     * Newest first, resolved ones included; the only way to reach a ballot that carries no subject.
+     *
+     * @return list<BallotView>
+     */
+    public function listForPurpose(string $purpose, ?int $viewerUserId): array;
+
     public function mayVote(int $ballotId, int $userId): bool;
 
     public function countOpenFor(int $viewerUserId): int;

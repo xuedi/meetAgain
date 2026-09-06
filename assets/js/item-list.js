@@ -7,7 +7,8 @@
  * page, so a rejected request, a missing hook or disabled JavaScript falls back to a normal
  * navigation. Also owns the two progressive-enhancement collapses of the filter box - the mobile
  * "Filters" bar and the "Show all" chip trigger - which the markup leaves expanded so they never
- * hide anything without JavaScript.
+ * hide anything without JavaScript. Once the visitor has opened the chip list it stays open across
+ * every following swap, so narrowing by a chip below the fold does not fold it away again.
  *
  * Loaded in:  templates/base.html.twig (all pages)
  * Used by:    [data-item-list-scope] (templates/_components/item/list_layout.html.twig),
@@ -20,12 +21,22 @@ function itemListScopeOf(element) {
     return element.closest('[data-item-list-scope]');
 }
 
-function itemListInitFilter(scope) {
+function itemListChipsExpanded(scope) {
+    const extra = scope.querySelector('.item-facet-extra');
+
+    return extra !== null && !extra.classList.contains('is-hidden');
+}
+
+function itemListInitFilter(scope, keepExpanded) {
     const toggle = scope.querySelector('[data-item-facet-toggle]');
     const panel = scope.querySelector('[data-item-facet-panel]');
     if (toggle && panel) {
         toggle.classList.remove('is-hidden');
         panel.classList.add('is-hidden-mobile');
+    }
+
+    if (keepExpanded) {
+        return;
     }
 
     scope.querySelectorAll('[data-item-facet-more]').forEach((trigger) => {
@@ -39,6 +50,8 @@ function itemListInitFilter(scope) {
 }
 
 function itemListApply(scope, payload) {
+    const expanded = itemListChipsExpanded(scope);
+
     const filter = scope.querySelector('[data-item-filter]');
     if (filter && typeof payload.filter === 'string') {
         filter.innerHTML = payload.filter;
@@ -49,7 +62,7 @@ function itemListApply(scope, payload) {
         body.innerHTML = payload.body;
     }
 
-    itemListInitFilter(scope);
+    itemListInitFilter(scope, expanded);
 }
 
 function itemListMarkMode(link) {
@@ -143,5 +156,5 @@ window.addEventListener('popstate', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-item-list-scope]').forEach(itemListInitFilter);
+    document.querySelectorAll('[data-item-list-scope]').forEach((scope) => itemListInitFilter(scope));
 });

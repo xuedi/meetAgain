@@ -9,7 +9,8 @@ use App\Enum\EntityAction;
 use App\Filter\Admin\Location\AdminLocationListFilterService;
 use App\Repository\LocationRepository;
 use App\Security\Permission\Attribute\PermissionAttribute;
-use App\Service\Location\MemberVenueService;
+use App\Contribution\LocationSection;
+use App\Contribution\Registry;
 use Doctrine\ORM\EntityManagerInterface;
 use Override;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -27,7 +28,7 @@ final readonly class LocationChangeTarget implements ChangeTargetProviderInterfa
         private EntityManagerInterface $em,
         private LocationRepository $repo,
         private AdminLocationListFilterService $filterService,
-        private MemberVenueService $memberVenueService,
+        private Registry $contributions,
         private EntityActionDispatcher $entityActionDispatcher,
         private Security $security,
         private RouterInterface $router,
@@ -79,7 +80,7 @@ final readonly class LocationChangeTarget implements ChangeTargetProviderInterfa
     #[Override]
     public function canPropose(User $user, int $targetId): bool
     {
-        return $this->security->isGranted('ROLE_USER') && $this->memberVenueService->mayTouch($targetId);
+        return $this->security->isGranted('ROLE_USER') && $this->contributions->mayTouch(LocationSection::TYPE, $user, $targetId);
     }
 
     #[Override]

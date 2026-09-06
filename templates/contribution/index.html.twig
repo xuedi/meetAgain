@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'contribution.page_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    {% set activeSection = sections|filter(section => section.type == activeType)|first %}
+
+    <section class="section">
+        <div class="container">
+
+            {{ include('contribution/_tabs.html.twig') }}
+
+            <div class="columns">
+
+                {% if activeSection %}
+                    <div class="column is-3">
+                        {{ include('contribution/_nav.html.twig', {section: activeSection}) }}
+                    </div>
+                {% endif %}
+
+                <div class="column{{ activeSection ? ' is-9' : '' }}">
+                    {% if pane == 'correct' %}
+                        {{ include('contribution/_correct_form.html.twig') }}
+                    {% elseif pane == 'correct_tags' %}
+                        {{ include('contribution/_tag_form.html.twig') }}
+                    {% elseif pane == 'suggest' %}
+                        {{ include('contribution/_suggest_form.html.twig') }}
+                    {% else %}
+                        {{ include('contribution/_intro.html.twig') }}
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

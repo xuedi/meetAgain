@@ -28,6 +28,8 @@ final readonly class BallotView
         public array $tiedKeys = [],
         public array $viewerSelection = [],
         public bool $viewerMayVote = false,
+        public ?string $title = null,
+        public ?DateTimeImmutable $settledAt = null,
     ) {}
 
     public function isOpen(): bool

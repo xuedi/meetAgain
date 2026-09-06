@@ -43,7 +43,6 @@ readonly class GlossaryContributor implements ContributorInterface
                 'phrase' => $entry->getPhrase(),
                 'pinyin' => $entry->getPinyin(),
                 'explanation' => $entry->getExplanation(),
-                'approved' => $entry->getApproved(),
             ];
         }
 
@@ -75,7 +74,6 @@ readonly class GlossaryContributor implements ContributorInterface
             $entry->setPhrase($phrase);
             $entry->setPinyin($this->nullableString($row['pinyin'] ?? null));
             $entry->setExplanation($this->nullableString($row['explanation'] ?? null));
-            $entry->setApproved((bool) ($row['approved'] ?? false));
             $entry->setCreatedBy((int) $context->getSystemUser()->getId());
             $entry->setCreatedAt(new DateTimeImmutable());
 

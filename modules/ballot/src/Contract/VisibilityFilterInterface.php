@@ -14,8 +14,9 @@ interface VisibilityFilterInterface
     public function getPriority(): int;
 
     /**
-     * @param  list<int>      $ballotIds
-     * @return list<int>|null null = no opinion, [] = block all, [id, ...] = the visible subset
+     * @param  list<BallotScope> $ballots  every candidate of the one purpose, subject and candidate
+     *                                     keys included so a filter never has to read module tables
+     * @return list<int>|null    null = no opinion, [] = block all, [id, ...] = the visible subset
      */
-    public function narrowVisibleBallotIds(string $purpose, array $ballotIds, ?int $viewerUserId): ?array;
+    public function narrowVisibleBallotIds(string $purpose, array $ballots, ?int $viewerUserId): ?array;
 }

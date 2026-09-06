@@ -2,6 +2,7 @@
 
 namespace Plugin\Photos\Tests\Functional;
 
+use App\Entity\User;
 use App\Publisher\PluginSettings\GenericStore;
 use App\Repository\EventItemAssociationRepository;
 use App\Service\Event\EventScope;
@@ -12,7 +13,8 @@ use App\Item\FilterService;
 use Plugin\Photos\Service\ContestService;
 use Plugin\Photos\Service\PhotoService;
 use Plugin\Photos\ValueObject\Config;
-use Plugin\Voting\Entity\Poll;
+use Module\Ballot\Contract\BallotInterface;
+use Module\Ballot\Contract\BallotView;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -89,17 +91,48 @@ class ContestTest extends KernelTestCase
         static::assertCount(2, $queued);
 
         // Act
-        $poll = $this->inScope(fn(): Poll => $this->contest->start(1));
+        $ballotId = $this->inScope(fn(): int => $this->contest->start(1));
 
         // Assert
-        static::assertInstanceOf(Poll::class, $poll);
-        static::assertNull($poll->getEvent(), 'a contest carries no event');
-        static::assertSame($queued, $poll->getOptionItemIds(), 'the entrants are on the ballot');
+        $view = $this->inScope(fn(): ?BallotView => self::getContainer()->get(BallotInterface::class)->view($ballotId, null));
+        static::assertInstanceOf(BallotView::class, $view);
+        static::assertNull($view->subject, 'a contest carries no subject');
+        static::assertSame(
+            array_map(strval(...), $queued),
+            array_map(static fn(object $candidate): string => $candidate->key, $view->candidates),
+            'the entrants are on the ballot',
+        );
         static::assertSame([], $this->inScope(fn(): array => $this->contest->getQueuedIds()), 'the queue is emptied');
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('photos_contest.flash_already_open');
-        $this->inScope(fn(): Poll => $this->contest->start(1));
+        $this->inScope(fn(): int => $this->contest->start(1));
+    }
+
+    public function testAContestRunsFromTheQueueToAWinnerInTheGallery(): void
+    {
+        // Arrange
+        $photos = $this->photosOfOneMember(2);
+        $this->contest->submit($photos[0]);
+        $this->contest->submit($photos[1]);
+        $ballotId = $this->inScope(fn(): int => $this->contest->start(1));
+        $winner = (string) $photos[1]->getId();
+        $ballots = self::getContainer()->get(BallotInterface::class);
+
+        // Act
+        $this->inScope(function () use ($ballots, $ballotId, $winner): void {
+            foreach ($this->voterIds() as $voterId) {
+                $ballots->cast($ballotId, $voterId, [$winner]);
+            }
+        });
+        $ballots->settle($ballotId, $ballots->tally($ballotId)->winningKey ?? '');
+
+        // Assert
+        static::assertNull($this->inScope(fn(): ?BallotView => $this->contest->getOpenContest()), 'the contest is over');
+        $finished = $this->inScope(fn(): array => $this->contest->getFinishedContests());
+        static::assertCount(1, $finished);
+        static::assertSame($winner, $finished[0]->winningKey, 'the gallery names the photo the members picked');
+        static::assertNotNull($finished[0]->settledAt, 'the winner card can say when it was decided');
     }
 
     public function testStartingWithAnEmptyQueueIsRefusedBeforeTheBallotIsBuilt(): void
@@ -110,7 +143,7 @@ class ContestTest extends KernelTestCase
         // Act + Assert
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('photos_contest.flash_no_entries');
-        $this->inScope(fn(): Poll => $this->contest->start(1));
+        $this->inScope(fn(): int => $this->contest->start(1));
     }
 
     public function testDeletingASubmittedPhotoLeavesNothingBehind(): void
@@ -126,6 +159,20 @@ class ContestTest extends KernelTestCase
         // Assert
         static::assertNotContains($photoId, $this->inScope(fn(): array => $this->contest->getQueuedIds()));
         static::assertNull($this->photoRepo->find($photoId));
+    }
+
+    /** @return list<int> */
+    private function voterIds(): array
+    {
+        $rows = $this->em->createQueryBuilder()
+            ->select('u.id')
+            ->from(User::class, 'u')
+            ->orderBy('u.id', 'ASC')
+            ->setMaxResults(2)
+            ->getQuery()
+            ->getArrayResult();
+
+        return array_map(static fn(array $row): int => (int) $row['id'], $rows);
     }
 
     /** @return list<Photo> */

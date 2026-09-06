@@ -41,5 +41,7 @@ class TallyCalculatorTest extends TestCase
         yield 'a key nobody put on the ballot cannot win' => [['a', 'b'], ['a' => 1, 'forged' => 99], 'a', []];
         yield 'a ballot with no options decides nothing' => [[], ['a' => 3], null, []];
         yield 'one candidate with votes wins outright' => [['a'], ['a' => 1], 'a', []];
+        yield 'a candidate keyed by an item id stays a string' => [['20', '21'], ['21' => 2], '21', []];
+        yield 'item ids tied at the top stay strings' => [['20', '21'], ['20' => 1, '21' => 1], null, ['20', '21']];
     }
 }

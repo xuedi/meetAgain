@@ -988,12 +988,11 @@ location:
 contribution:
     page_title: 'Aider à corriger'
     section_venues: 'Lieux'
-    nav_heading: 'Lieux'
     nav_empty: 'Rien ici pour le moment.'
     nav_suggest_new: 'Proposer %type%'
     index_intro: 'Les événements et les lieux restent justes grâce à celles et ceux qui y viennent. Tout le monde peut aider.'
     index_fix_heading: 'Corriger quelque chose qui existe'
-    index_fix_body: "Choisissez une section à gauche pour corriger une faute, un mauvais numéro ou une description périmée. Rien ne change tant qu'un organisateur ne l'accepte pas."
+    index_fix_body: "Choisissez une section en haut pour corriger une faute, un mauvais numéro ou une description périmée. Rien ne change tant qu'un organisateur ne l'accepte pas."
     index_new_heading: 'Proposer ce qui manque'
     index_new_body: 'Vous connaissez quelque chose qui a sa place ici mais qui n''y figure pas ? Proposez-le, les organisateurs décident de l''ajouter.'
     index_review_note: 'Chaque proposition et chaque correction est relue avant d''être publiée.'

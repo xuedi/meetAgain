@@ -7,7 +7,8 @@ use App\Service\Seo\BreadcrumbBuilder;
 use Plugin\Photos\Entity\Photo;
 use Plugin\Photos\Service\ContestService;
 use Plugin\Photos\Service\PhotoService;
-use Plugin\Voting\Entity\Poll;
+use Module\Ballot\Contract\BallotInterface;
+use Module\Ballot\Contract\BallotView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -22,6 +23,7 @@ final class ContestController extends AbstractController
     public function __construct(
         private readonly ContestService $contestService,
         private readonly PhotoService $photoService,
+        private readonly BallotInterface $ballots,
         private readonly TranslatorInterface $translator,
     ) {}
 
@@ -30,9 +32,12 @@ final class ContestController extends AbstractController
     {
         $this->denyUnlessLive();
 
+        $viewerId = $this->isGranted('ROLE_USER') ? (int) $this->getAuthedUser()->getId() : null;
+
         return $this->render('@Photos/contest/index.html.twig', [
-            'openContest' => $this->contestService->getOpenContest(),
-            'winners' => $this->winners(),
+            'openContest' => $this->contestService->getOpenContest($viewerId),
+            'itemType' => PhotoService::ITEM_TYPE,
+            'winners' => $this->winners($viewerId),
             'queued' => count($this->contestService->getQueuedIds()),
             'canStart' => $this->isGranted('ROLE_STEWARD'),
             'breadcrumbs' => $breadcrumbBuilder->build('app_photos_photolist', 'photos.menu_main', $this->translator->trans('photos_contest.page_title')),
@@ -82,19 +87,43 @@ final class ContestController extends AbstractController
         return $this->redirectToRoute('app_plugin_photos_photo_show', ['id' => $id]);
     }
 
-    /** @return list<array{poll: Poll, photo: Photo}> */
-    private function winners(): array
+    #[Route('/{id}/vote', name: 'app_plugin_photos_contest_vote', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function vote(int $id, Request $request): Response
+    {
+        $this->denyUnlessLive();
+        $this->denyUnlessTokenValid($request, 'app_plugin_photos_contest_vote' . $id);
+
+        try {
+            $this->ballots->cast($id, (int) $this->getAuthedUser()->getId(), $this->submittedKeys($request));
+            $this->addFlash('success', 'photos_contest.flash_voted');
+        } catch (Throwable) {
+            $this->addFlash('error', 'photos_contest.flash_vote_refused');
+        }
+
+        return $this->redirectToRoute('app_plugin_photos_contest');
+    }
+
+    /** @return list<array{contest: BallotView, photo: Photo}> */
+    private function winners(?int $viewerId): array
     {
         $winners = [];
-        foreach ($this->contestService->getFinishedContests() as $poll) {
-            $winningId = $poll->getWinningItemId();
-            $photo = $winningId === null ? null : $this->photoService->get($winningId);
+        foreach ($this->contestService->getFinishedContests($viewerId) as $contest) {
+            $photo = $contest->winningKey === null ? null : $this->photoService->get((int) $contest->winningKey);
             if ($photo instanceof Photo) {
-                $winners[] = ['poll' => $poll, 'photo' => $photo];
+                $winners[] = ['contest' => $contest, 'photo' => $photo];
             }
         }
 
         return $winners;
+    }
+
+    /** @return list<string> */
+    private function submittedKeys(Request $request): array
+    {
+        $submitted = $request->request->all('candidates');
+
+        return array_values(array_map(strval(...), array_filter($submitted, is_scalar(...))));
     }
 
     private function ownPhoto(int $id, Request $request, string $tokenId): Photo

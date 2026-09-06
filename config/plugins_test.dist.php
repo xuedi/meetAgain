@@ -7,6 +7,5 @@ return [
     'films' => true,
     'glossary' => true,
     'photos' => true,
-    'voting' => true,
     'wishlist' => true,
 ];
