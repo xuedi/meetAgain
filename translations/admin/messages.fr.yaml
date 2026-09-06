@@ -275,6 +275,13 @@ admin_event:
     form_label_hosts: 'Hôtes'
     form_label_location: 'Lieu'
     venue_option_new: '+ Ajouter un nouveau lieu'
+    venue_option_vote: '+ Décider par vote'
+    venue_ballot_title_modal: 'Comment le vote doit-il se dérouler ?'
+    venue_ballot_title: 'Lieu pour %event%'
+    venue_ballot_undecided: 'Laisser le lieu indécis'
+    venue_ballot_single_notice: "Il n'y a qu'un seul lieu pour l'instant, un vote décide donc peu : les membres peuvent seulement le choisir ou laisser le lieu ouvert."
+    venue_ballot_pending: 'Le vote attend une décision'
+    venue_ballot_decide: 'Décider maintenant'
     venue_modal_title: 'Ajouter un lieu'
     venue_button_apply: 'Ajouter un lieu'
     venue_error_generic: 'Le lieu n''a pas pu être enregistré.'

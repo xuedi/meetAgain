@@ -15,7 +15,7 @@ photos_config:
     field_event_box: 'Afficher une boîte photos sur les pages d''événement'
     help_event_box: 'Remplace la boîte d''images simple de la page de l''événement. Les envois deviennent de vraies photos avec réglages d''appareil, commentaires et une place sur la page des photos.'
     field_contest: 'Activer le concours photo'
-    help_contest: 'Les membres proposent des photos dans une file ; un steward ouvre ensuite un vote. Nécessite le plugin de vote.'
+    help_contest: 'Les membres proposent des photos dans une file ; un steward ouvre ensuite un vote.'
     field_contest_submissions: 'Propositions par membre'
     help_contest_submissions: 'Combien de photos un membre peut mettre en file pour le prochain concours.'
 
@@ -124,10 +124,10 @@ photos_event:
 
 photos_contest:
     browser_title: 'Concours photo'
+    ballot_title: 'Concours photo'
     page_title: 'Concours photo'
     heading_open: 'Un concours est en cours'
     open_body: 'Le vote est ouvert jusqu''au %date%.'
-    button_vote: 'Aller voter'
     heading_queue: 'Prochain concours'
     queue_body: '%count% photo est en file pour le prochain concours.|%count% photos sont en file pour le prochain concours.'
     button_start: 'Ouvrir le concours'
@@ -145,4 +145,7 @@ photos_contest:
     flash_withdrawn: 'Photo retirée.'
     flash_cap_reached: 'Vous avez déjà mis en file autant de photos que ce groupe l''autorise.'
     flash_no_entries: 'Personne n''a encore proposé de photo, il n''y a donc rien à voter.'
+    flash_too_few_entries: 'Un concours a besoin d''au moins deux participations.'
     flash_already_open: 'Un concours photo est déjà en cours.'
+    flash_voted: 'Ton vote a été enregistré.'
+    flash_vote_refused: 'Ce concours n''accepte plus de voix.'

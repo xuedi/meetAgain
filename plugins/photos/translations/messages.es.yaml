@@ -15,7 +15,7 @@ photos_config:
     field_event_box: 'Mostrar una caja de fotos en las páginas de eventos'
     help_event_box: 'Sustituye la caja de imágenes simple de la página del evento. Las subidas se convierten en fotos reales con datos de cámara, comentarios y un lugar en la página de fotos.'
     field_contest: 'Activar el concurso de fotos'
-    help_contest: 'Los miembros envían fotos a una cola; un steward abre una votación sobre ellas. Necesita el plugin de votación.'
+    help_contest: 'Los miembros envían fotos a una cola; un steward abre una votación sobre ellas.'
     field_contest_submissions: 'Envíos por miembro'
     help_contest_submissions: 'Cuántas fotos puede tener un miembro en cola para el próximo concurso.'
 
@@ -124,10 +124,10 @@ photos_event:
 
 photos_contest:
     browser_title: 'Concurso de fotos'
+    ballot_title: 'Concurso de fotos'
     page_title: 'Concurso de fotos'
     heading_open: 'Hay un concurso en marcha'
     open_body: 'La votación está abierta hasta el %date%.'
-    button_vote: 'Ir a votar'
     heading_queue: 'Próximo concurso'
     queue_body: '%count% foto está en cola para el próximo concurso.|%count% fotos están en cola para el próximo concurso.'
     button_start: 'Abrir el concurso'
@@ -145,4 +145,7 @@ photos_contest:
     flash_withdrawn: 'Foto retirada.'
     flash_cap_reached: 'Ya has puesto en cola tantas fotos como permite este grupo.'
     flash_no_entries: 'Todavía nadie ha enviado una foto, así que no hay nada que votar.'
+    flash_too_few_entries: 'Un concurso necesita al menos dos participaciones.'
     flash_already_open: 'Ya hay un concurso de fotos en marcha.'
+    flash_voted: 'Tu voto ha sido registrado.'
+    flash_vote_refused: 'Este concurso ya no acepta votos.'
