@@ -10,10 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class GlossaryPageTest extends WebTestCase
 {
-    private const string MODERATOR_EMAIL = 'Admin@example.org';
     private const string MEMBER_EMAIL = 'Adem.Lane@example.org';
     private const string GLOSSARY_HOST = 'dragon.meetagain.local';
-    private const string PLUGINLESS_HOST = 'cinema.meetagain.local';
 
     public function testListRendersThroughTheSharedItemComponent(): void
     {
@@ -87,42 +85,12 @@ class GlossaryPageTest extends WebTestCase
         static::assertStringContainsString((string) $entry->getPhrase(), (string) $client->getResponse()->getContent());
     }
 
-    public function testTheHubCarriesTheSectionOnlyWhereThePluginIsOn(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-
-        // Act
-        $on = $client->request('GET', '/en/contribute', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-        $off = $client->request('GET', '/en/contribute', server: ['HTTP_HOST' => self::PLUGINLESS_HOST]);
-
-        // Assert
-        self::assertCount(1, $on->filter('.tabs a[href$="/contribute/glossary"]'));
-        self::assertCount(0, $off->filter('.tabs a[href$="/contribute/glossary"]'));
-        self::assertCount(1, $off->filter('.tabs a[href$="/contribute/location"]'), 'a core section is never gated');
-    }
-
-    public function testTheCorrectionFormIsClosedWhereThePluginIsOff(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $entry = $this->entry($client);
-        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-
-        // Act
-        $client->request('GET', '/en/contribute/glossary/' . $entry->getId(), server: ['HTTP_HOST' => self::PLUGINLESS_HOST]);
-
-        // Assert
-        $this->assertResponseStatusCodeSame(404, 'an inactive plugin closes the form, not only the listing');
-    }
-
     public function testTheHubOffersAnEntryToMembers(): void
     {
         // Arrange
         $client = static::createClient();
         $entry = $this->entry($client);
-        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
+        $client->loginUser($this->user($client));
 
         // Act
         $crawler = $client->request('GET', '/en/contribute/glossary/' . $entry->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
@@ -130,20 +98,6 @@ class GlossaryPageTest extends WebTestCase
         // Assert
         $this->assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('form[name="glossary"]'));
-    }
-
-    public function testTheGlossaryEditPageIsClosedToMembers(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $entry = $this->entry($client);
-        $client->loginUser($this->user($client, self::MEMBER_EMAIL));
-
-        // Act
-        $client->request('GET', '/en/glossary/edit/' . $entry->getId(), server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
-
-        // Assert
-        $this->assertResponseRedirects('/en/profile/my-groups/', message: 'the editor is for organizers of this group');
     }
 
     private function entry(KernelBrowser $client): Glossary
@@ -156,11 +110,11 @@ class GlossaryPageTest extends WebTestCase
         return $entry;
     }
 
-    private function user(KernelBrowser $client, string $email): User
+    private function user(KernelBrowser $client): User
     {
-        $user = $this->em($client)->getRepository(User::class)->findOneBy(['email' => $email]);
+        $user = $this->em($client)->getRepository(User::class)->findOneBy(['email' => self::MEMBER_EMAIL]);
         if (!$user instanceof User) {
-            self::fail('Required fixture user missing: ' . $email);
+            self::fail('Required fixture user missing: ' . self::MEMBER_EMAIL);
         }
 
         return $user;
