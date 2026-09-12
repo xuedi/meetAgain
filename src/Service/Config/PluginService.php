@@ -94,7 +94,7 @@ readonly class PluginService
     }
 
     /**
-     * @return array<array{key: string, name: string, description: string}>
+     * @return array<array{key: string, name: string, description: string, icon: string}>
      */
     public function getActivatableByGroupList(): array
     {
@@ -132,6 +132,7 @@ readonly class PluginService
                 'key' => $pluginKey,
                 'name' => $pluginData['name'] ?? $pluginKey,
                 'description' => $pluginData['description'] ?? '',
+                'icon' => $pluginData['icon'] ?? 'plug',
             ];
         }
 
