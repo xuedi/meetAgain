@@ -7,6 +7,8 @@ use App\Service\Seo\BreadcrumbBuilder;
 use PHPUnit\Framework\TestCase;
 use Plugin\Glossary\Controller\IndexController;
 use Plugin\Glossary\Service\GlossaryService;
+use Plugin\Glossary\Service\ProgressService;
+use Plugin\Glossary\Service\TrainerService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -29,7 +31,7 @@ class IndexControllerTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
 
         // Act
-        $controller->detail(3, $registry, $this->breadcrumbBuilder());
+        $controller->detail(3, $registry, $this->breadcrumbBuilder(), $this->createStub(TrainerService::class), $this->createStub(ProgressService::class));
     }
 
     private function breadcrumbBuilder(): BreadcrumbBuilder

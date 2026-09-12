@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'glossary_trainer.page_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+
+            <div class="level mb-4">
+                <div class="level-left">
+                    <h1 class="title mb-0">{{ 'glossary_trainer.page_title'|trans }}</h1>
+                </div>
+                <div class="level-right">
+                    <a href="{{ path('app_plugin_glossary') }}" class="button is-small">{{ 'glossary_trainer.link_back_to_glossary'|trans }}</a>
+                </div>
+            </div>
+
+            <div class="columns">
+                <div class="column is-two-thirds">
+
+                    {% if hasOpenSession %}
+                        <article class="message is-info">
+                            <div class="message-body">
+                                {{ 'glossary_trainer.open_session_hint'|trans }}
+                                <a href="{{ path('app_plugin_glossary_trainer_card') }}">{{ 'glossary_trainer.link_resume'|trans }}</a>
+                            </div>
+                        </article>
+                    {% endif %}
+
+                    <div class="box">
+                        <h2 class="title is-5">{{ scope.label()|trans }}</h2>
+                        {% if tagIds is not empty %}
+                            {% set tagChoices = item_tag_choices('glossary') %}
+                            <div class="tags mb-3">
+                                {% for tagId in tagIds %}
+                                    <span class="tag is-link is-light">{{ tagChoices[tagId]|default(tagId) }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <p class="mb-4">{{ 'glossary_trainer.scope_count'|trans({'%count%': scopeCount}) }}</p>
+
+                        {{ form_start(form) }}
+                        {{ form_row(form.scope) }}
+                        {{ form_row(form.mode) }}
+                        {{ form_row(form.direction) }}
+                        {{ form_row(form.answerMode) }}
+                        {{ form_row(form.size) }}
+                        <div class="field mt-5">
+                            <div class="control">
+                                <button type="submit" class="button is-primary">
+                                    <span class="icon"><i class="fa fa-play"></i></span>
+                                    <span>{{ 'glossary_trainer.button_start'|trans }}</span>
+                                </button>
+                            </div>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+
+                </div>
+                <div class="column">
+
+                    <div class="box">
+                        <p class="heading">{{ 'glossary_trainer.streak'|trans }}</p>
+                        <p class="title is-4">{{ 'glossary_trainer.streak_days'|trans({'%count%': streak}) }}</p>
+                        <a href="{{ path('app_plugin_glossary_trainer_progress') }}" class="button is-small is-fullwidth">
+                            <span class="icon"><i class="fa fa-chart-line"></i></span>
+                            <span>{{ 'glossary_trainer.link_progress'|trans }}</span>
+                        </a>
+                    </div>
+
+                    <div class="box">
+                        <h2 class="title is-6">{{ 'glossary_trainer.heading_standing_scopes'|trans }}</h2>
+                        <ul>
+                            {% for standing in standingScopes %}
+                                <li class="is-flex is-justify-content-space-between mb-2">
+                                    <a href="{{ path('app_plugin_glossary_trainer', {scope: standing.scope.value}) }}">{{ standing.scope.label()|trans }}</a>
+                                    <span class="tag is-light">{{ standing.count }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    {% if leaderboard is not empty %}
+                        <div class="box">
+                            <h2 class="title is-6">{{ 'glossary_trainer.heading_leaderboard'|trans }}</h2>
+                            <p class="is-size-7 has-text-grey mb-2">{{ 'glossary_trainer.leaderboard_note'|trans }}</p>
+                            <table class="table is-narrow is-fullwidth">
+                                <tbody>
+                                    {% for userId, answers in leaderboard %}
+                                        <tr>
+                                            <td>{{ get_user_name(userId) }}</td>
+                                            <td class="has-text-right">{{ answers }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}

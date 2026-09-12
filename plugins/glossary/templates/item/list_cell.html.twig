@@ -7,14 +7,14 @@
     {% include '_components/item/styles/row.html.twig' with {
         href: showUrl,
         title: entry.phrase,
-        subtitle: config.secondaryEnabled ? entry.pinyin : null
+        subtitle: config.secondaryEnabled ? entry.secondary : null
     } %}
 {% elseif mode == 'list' %}
     <td style="vertical-align: middle;">
-        <a href="{{ showUrl }}" class="has-text-weight-medium">{{ entry.phrase }}</a>
+        <a href="{{ showUrl }}" class="has-text-weight-medium"{% if entry.termLanguage %} lang="{{ entry.termLanguage }}"{% endif %}>{{ entry.phrase }}</a>
     </td>
-    {% if config.secondaryEnabled %}<td style="vertical-align: middle;" class="has-text-grey">{{ entry.pinyin }}</td>{% endif %}
-    <td style="vertical-align: middle;" class="item-cell-prose">{{ entry.explanation|nl2br }}</td>
+    {% if config.secondaryEnabled %}<td style="vertical-align: middle;" class="has-text-grey">{{ entry.secondary }}</td>{% endif %}
+    <td style="vertical-align: middle;" class="item-cell-prose">{{ definition|nl2br }}</td>
     {% if hasTags %}<td style="vertical-align: middle;">{{ item_tag_labels('glossary', entry.id)|join(', ') }}</td>{% endif %}
     {% if is_granted('ROLE_USER') %}
         <td style="vertical-align: middle;" class="has-text-right">
@@ -44,11 +44,11 @@
 {% else %}
     <div class="card" style="height: 100%;">
         <div class="card-content">
-            <p class="title is-5"><a href="{{ showUrl }}">{{ entry.phrase }}</a></p>
-            {% if config.secondaryEnabled and entry.pinyin %}
-                <p class="subtitle is-6 has-text-grey">{{ entry.pinyin }}</p>
+            <p class="title is-5"><a href="{{ showUrl }}"{% if entry.termLanguage %} lang="{{ entry.termLanguage }}"{% endif %}>{{ entry.phrase }}</a></p>
+            {% if config.secondaryEnabled and entry.secondary %}
+                <p class="subtitle is-6 has-text-grey">{{ entry.secondary }}</p>
             {% endif %}
-            <p>{{ entry.explanation|nl2br }}</p>
+            <p>{{ definition|nl2br }}</p>
         </div>
     </div>
 {% endif %}

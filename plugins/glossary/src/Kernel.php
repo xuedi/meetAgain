@@ -62,6 +62,6 @@ class Kernel implements Plugin
 
     public function getJavascripts(): array
     {
-        return ['js/glossary_list.js'];
+        return ['js/glossary_list.js', 'js/glossary_trainer.js'];
     }
 }

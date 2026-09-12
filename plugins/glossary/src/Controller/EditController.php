@@ -27,16 +27,16 @@ final class EditController extends AbstractGlossaryController
     #[Route('/{id}', name: 'app_plugin_glossary_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, int $id): Response
     {
-        $newGlossary = $this->service->getManaged($id);
-        if ($newGlossary === null) {
+        $entry = $this->service->getManaged($id);
+        if ($entry === null) {
             throw $this->createNotFoundException();
         }
 
-        $form = $this->createForm(GlossaryType::class, $newGlossary);
+        $draft = $this->service->draftOf($entry);
+        $form = $this->createForm(GlossaryType::class, $draft, ['entry_id' => $id]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->service->detach($newGlossary); // detach first: a managed entity would be flushed with the request's changes
-            $this->service->update($newGlossary, $id, $this->assignmentFormHelper->extractAssignment($form));
+            $this->service->update($draft, $id, $this->assignmentFormHelper->extractAssignment($form));
 
             return $this->redirectToRoute('app_plugin_glossary');
         }
@@ -50,7 +50,7 @@ final class EditController extends AbstractGlossaryController
         }
 
         return $this->renderPage('@Glossary/edit.html.twig', [
-            'editItem' => $this->service->getManaged($id),
+            'editItem' => $entry,
             'pendingProposals' => $pendingProposals,
             'form' => $form,
         ]);

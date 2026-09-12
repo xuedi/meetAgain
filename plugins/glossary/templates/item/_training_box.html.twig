@@ -1,0 +1,43 @@
+{% set facetQuery = item_facet_current().toQuery() %}
+{% set count = item_list_count('glossary') %}
+<div class="box mt-4" data-glossary-training>
+    <p class="heading">{{ 'glossary_trainer.heading_training'|trans }}</p>
+
+    {% if summary is not null %}
+        <table class="table is-narrow is-fullwidth is-size-7 mb-3">
+            <tbody>
+                <tr>
+                    <td>{{ 'glossary_trainer.streak'|trans }}</td>
+                    <td class="has-text-right">{{ 'glossary_trainer.streak_days'|trans({'%count%': summary.streak}) }}</td>
+                </tr>
+                <tr>
+                    <td>{{ 'glossary_trainer.summary_due'|trans }}</td>
+                    <td class="has-text-right">{{ summary.due }}</td>
+                </tr>
+                <tr>
+                    <td>{{ 'glossary_trainer.summary_learned'|trans }}</td>
+                    <td class="has-text-right">{{ 'glossary_trainer.summary_of'|trans({'%count%': summary.learned, '%total%': summary.total}) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+    <div class="buttons are-small">
+        {% if summary is not null %}
+            <a href="{{ path('app_plugin_glossary_trainer', facetQuery) }}" class="button is-link is-fullwidth{{ count == 0 ? ' is-hidden' }}" rel="nofollow" data-glossary-train>
+                <span class="icon"><i class="fa fa-graduation-cap"></i></span>
+                <span data-glossary-train-label>{{ 'glossary.button_train'|trans({'%count%': count}) }}</span>
+            </a>
+        {% endif %}
+        <a href="{{ path('app_plugin_glossary_export', facetQuery) }}" class="button is-light is-fullwidth{{ count == 0 ? ' is-hidden' }}" rel="nofollow" data-glossary-export>
+            <span class="icon"><i class="fa fa-download"></i></span>
+            <span>{{ 'glossary.button_export'|trans }}</span>
+        </a>
+        {% if summary is not null %}
+            <a href="{{ path('app_plugin_glossary_trainer_progress') }}" class="button is-light is-fullwidth" data-glossary-progress>
+                <span class="icon"><i class="fa fa-chart-line"></i></span>
+                <span>{{ 'glossary_trainer.link_progress'|trans }}</span>
+            </a>
+        {% endif %}
+    </div>
+</div>

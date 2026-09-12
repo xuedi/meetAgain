@@ -16,7 +16,11 @@
                     <h1 class="title mb-0">{{ 'glossary.page_title'|trans }}</h1>
                 </div>
                 {% if is_granted('ROLE_ORGANIZER') %}
-                    <div class="level-right">
+                    <div class="level-right buttons">
+                        <a href="{{ path('app_plugin_glossary_import') }}" class="button">
+                            <span class="icon"><i class="fa fa-upload"></i></span>
+                            <span>{{ 'glossary.button_import'|trans }}</span>
+                        </a>
                         <a href="{{ path('app_plugin_glossary_new') }}" class="button is-link">
                             <span class="icon"><i class="fa fa-plus"></i></span>
                             <span>{{ 'glossary.button_new'|trans }}</span>
@@ -32,11 +36,18 @@
                 {% endif %}
             </div>
 
-            {% include '_components/item/list_layout.html.twig' with {
+            {% embed '_components/item/list_layout.html.twig' with {
                 'itemType': 'glossary',
                 'modes': ['list', 'tiles'],
-                'infoKey': 'glossary.sidebar_info'
+                'infoKey': 'glossary.sidebar_info',
+                'trainerSummary': trainerSummary
             } only %}
+                {% block item_sidebar_extra %}
+                    {% if is_granted('ROLE_USER') %}
+                        {% include '@Glossary/item/_training_box.html.twig' with {'summary': trainerSummary} only %}
+                    {% endif %}
+                {% endblock %}
+            {% endembed %}
 
         </div>
     </section>

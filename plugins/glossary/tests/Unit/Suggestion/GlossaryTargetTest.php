@@ -17,16 +17,20 @@ class GlossaryTargetTest extends TestCase
     {
         // Arrange
         $target = $this->target();
-        $draft = (new Glossary())->setPhrase('半路出家')->setPinyin('bàn lù chū jiā')->setExplanation('A latecomer to a craft.');
+        $draft = (new Glossary())
+            ->setPhrase('半路出家')
+            ->setSecondary('bàn lù chū jiā')
+            ->submitDefinitions(['en' => 'A latecomer to a craft.', 'de' => 'Ein Quereinsteiger.', 'fr' => '']);
 
         // Act
-        $restored = $target->fromPayload($target->toPayload($draft));
+        $payload = $target->toPayload($draft);
+        $restored = $target->fromPayload($payload);
 
         // Assert
+        self::assertSame(['phrase' => '半路出家', 'secondary' => 'bàn lù chū jiā', 'definition_en' => 'A latecomer to a craft.', 'definition_de' => 'Ein Quereinsteiger.'], $payload);
         self::assertInstanceOf(Glossary::class, $restored);
-        self::assertSame('半路出家', $restored->getPhrase());
-        self::assertSame('bàn lù chū jiā', $restored->getPinyin());
-        self::assertSame('A latecomer to a craft.', $restored->getExplanation());
+        self::assertSame('bàn lù chū jiā', $restored->getSecondary());
+        self::assertSame(['en' => 'A latecomer to a craft.', 'de' => 'Ein Quereinsteiger.'], $restored->getSubmittedDefinitions());
     }
 
     public function testAnAbsentSecondaryFieldComesBackAsNullRatherThanAnEmptyString(): void
@@ -35,74 +39,64 @@ class GlossaryTargetTest extends TestCase
         $target = $this->target();
 
         // Act
-        $restored = $target->fromPayload(['phrase' => '加油', 'explanation' => 'Keep going.']);
+        $restored = $target->fromPayload(['phrase' => '加油', 'definition_en' => 'Keep going.']);
 
         // Assert
         self::assertInstanceOf(Glossary::class, $restored);
-        self::assertNull($restored->getPinyin());
+        self::assertNull($restored->getSecondary());
     }
 
     public function testAPhraseAlreadyInTheGlossaryIsRefused(): void
     {
         // Arrange
-        $target = $this->target(existing: ['你好']);
+        $target = $this->target(duplicates: ['你好']);
 
         // Act
-        $duplicate = $target->validate((new Glossary())->setPhrase('你好')->setExplanation('Hello.'));
-        $fresh = $target->validate((new Glossary())->setPhrase('您好')->setExplanation('Hello, politely.'));
+        $duplicate = $target->validate((new Glossary())->setPhrase('你好')->submitDefinitions(['en' => 'Hello.']));
+        $fresh = $target->validate((new Glossary())->setPhrase('您好')->submitDefinitions(['en' => 'Hello, politely.']));
 
         // Assert
-        self::assertSame('glossary.validator_duplicate', $duplicate, 'the same phrase cannot be suggested twice');
+        self::assertSame('glossary.validator_duplicate', $duplicate);
         self::assertNull($fresh);
     }
 
-    public function testTheDuplicateGuardIgnoresCaseAndSurroundingSpace(): void
-    {
-        // Arrange
-        $target = $this->target(existing: ['Sobremesa']);
-
-        // Act
-        $verdict = $target->validate((new Glossary())->setPhrase(' sobremesa ')->setExplanation('The talk after a meal.'));
-
-        // Assert
-        self::assertSame('glossary.validator_duplicate', $verdict);
-    }
-
-    public function testAnEntryWithoutAnExplanationIsRefused(): void
+    public function testAnEntryWithoutAnyDefinitionIsRefused(): void
     {
         // Arrange
         $target = $this->target();
 
         // Act & Assert
         self::assertSame('glossary.validator_incomplete', $target->validate((new Glossary())->setPhrase('加油')));
-        self::assertSame('glossary.validator_incomplete', $target->validate((new Glossary())->setPhrase(' ')->setExplanation('Keep going.')));
+        self::assertSame('glossary.validator_incomplete', $target->validate((new Glossary())->setPhrase('加油')->submitDefinitions(['en' => ' '])));
+        self::assertSame('glossary.validator_incomplete', $target->validate((new Glossary())->setPhrase(' ')->submitDefinitions(['en' => 'Keep going.'])));
     }
 
-    public function testTheSecondaryRowIsOnlyOfferedWhereTheConfigEnablesIt(): void
+    public function testTheSummaryShowsTheSecondaryOnlyWhereEnabledAndOneRowPerDefinition(): void
     {
         // Arrange
         $withSecondary = $this->target(secondaryEnabled: true);
         $withoutSecondary = $this->target(secondaryEnabled: false);
-        $payload = ['phrase' => '你好', 'pinyin' => 'nǐ hǎo', 'explanation' => 'Hello.'];
+        $payload = ['phrase' => '你好', 'secondary' => 'nǐ hǎo', 'definition_en' => 'Hello.', 'definition_de' => 'Hallo.'];
 
         // Act
         $labelled = array_column($withSecondary->summaryRows($payload), 'value');
         $plain = array_column($withoutSecondary->summaryRows($payload), 'value');
 
         // Assert
-        self::assertSame(['你好', 'nǐ hǎo', 'Hello.'], $labelled);
-        self::assertSame(['你好', 'Hello.'], $plain);
+        self::assertSame(['你好', 'nǐ hǎo', 'Hello.', 'Hallo.'], $labelled);
+        self::assertSame(['你好', 'Hello.', 'Hallo.'], $plain);
     }
 
     /**
-     * @param list<string> $existing
+     * @param list<string> $duplicates
      */
-    private function target(array $existing = [], bool $secondaryEnabled = true): GlossaryTarget
+    private function target(array $duplicates = [], bool $secondaryEnabled = true): GlossaryTarget
     {
-        $entries = array_map(static fn(string $phrase): Glossary => (new Glossary())->setPhrase($phrase), $existing);
-
         $service = $this->createStub(GlossaryService::class);
-        $service->method('getList')->willReturn($entries);
+        $service->method('isDuplicatePhrase')->willReturnCallback(static fn(string $phrase): bool => in_array($phrase, $duplicates, true));
+        $service->method('definitionLanguageOf')->willReturnCallback(
+            static fn(string $field): ?string => preg_match('/^definition_([a-z]{2})$/', $field, $match) === 1 ? $match[1] : null,
+        );
 
         $config = (new Config())->setSecondaryEnabled($secondaryEnabled);
         $configService = $this->createStub(ConfigService::class);

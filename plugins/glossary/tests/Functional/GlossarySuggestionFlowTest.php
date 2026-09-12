@@ -23,7 +23,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
         // Arrange
         $client = static::createClient();
         $entry = $this->entryWithoutProposals($client);
-        $original = (string) $entry->getExplanation();
+        $original = $entry->getDefinitionMap()['en'] ?? null;
         $client->loginUser($this->user($client, self::MEMBER_EMAIL));
 
         // Act
@@ -31,10 +31,10 @@ class GlossarySuggestionFlowTest extends WebTestCase
 
         // Assert
         $reloaded = $this->reload($client, (int) $entry->getId());
-        self::assertSame($original, $reloaded->getExplanation());
+        self::assertSame($original, $reloaded->getDefinitionMap()['en'] ?? null);
         $proposals = $this->pendingProposals($client, (int) $entry->getId());
         self::assertCount(1, $proposals);
-        self::assertSame('a member proposal', $proposals[0]->getChange('explanation')->after);
+        self::assertSame('a member proposal', $proposals[0]->getChange('definition_en')->after);
     }
 
     public function testModeratorEditIsWrittenDirectly(): void
@@ -49,7 +49,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
 
         // Assert
         $reloaded = $this->reload($client, (int) $entry->getId());
-        self::assertSame('a moderator rewrite', $reloaded->getExplanation());
+        self::assertSame('a moderator rewrite', $reloaded->getDefinitionMap()['en'] ?? null);
         self::assertCount(0, $this->pendingProposals($client, (int) $entry->getId()));
     }
 
@@ -68,17 +68,17 @@ class GlossarySuggestionFlowTest extends WebTestCase
         $proposalId = (int) $this->pendingProposals($client, $id)[0]->getId();
         $crawler = $client->request('GET', '/en/review/proposals/glossary/' . $id, server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $this->assertResponseIsSuccessful();
-        $token = (string) $crawler->filter('a[href$="/proposal/' . $proposalId . '/apply/explanation"]')->attr('data-csrf-token');
+        $token = (string) $crawler->filter('a[href$="/proposal/' . $proposalId . '/apply/definition_en"]')->attr('data-csrf-token');
 
         // Act
-        $client->request('POST', '/en/review/proposal/' . $proposalId . '/apply/explanation', ['_token' => $token], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->request('POST', '/en/review/proposal/' . $proposalId . '/apply/definition_en', ['_token' => $token], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $this->assertResponseRedirects();
         $client->request('POST', '/en/review/proposal/' . $proposalId . '/deny/phrase', ['_token' => $token], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $this->assertResponseRedirects();
 
         // Assert
         $reloaded = $this->reload($client, $id);
-        self::assertSame('proposal to apply', $reloaded->getExplanation());
+        self::assertSame('proposal to apply', $reloaded->getDefinitionMap()['en'] ?? null);
         self::assertSame($originalPhrase, $reloaded->getPhrase());
         self::assertSame(ChangeProposalStatus::Approved, $this->proposal($client, $proposalId)->getStatus());
     }
@@ -122,7 +122,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
         $token = (string) $crawler->filter('a[href$="/proposal/' . $proposalId . '/withdraw"]')->attr('data-csrf-token');
 
         // Act
-        $client->request('POST', '/en/review/proposal/' . $proposalId . '/apply/explanation', ['_token' => $token], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->request('POST', '/en/review/proposal/' . $proposalId . '/apply/definition_en', ['_token' => $token], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
         $this->assertResponseStatusCodeSame(403);
@@ -143,7 +143,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
         $client->loginUser($this->user($client, self::MODERATOR_EMAIL));
 
         // Act
-        $client->request('POST', '/en/review/proposal/' . $proposalId . '/apply/explanation', ['_token' => 'broken'], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+        $client->request('POST', '/en/review/proposal/' . $proposalId . '/apply/definition_en', ['_token' => 'broken'], server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
         $this->assertResponseStatusCodeSame(403);
@@ -161,7 +161,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
 
         $form = $crawler->filter('form[name="glossary"]')->form();
         $form['glossary[phrase]'] = '半路出家';
-        $form['glossary[explanation]'] = 'A latecomer to a craft. Literally "left home halfway".';
+        $form['glossary[definition-en]'] = 'A latecomer to a craft. Literally "left home halfway".';
         $client->submit($form, serverParameters: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $this->assertResponseRedirects();
 
@@ -191,7 +191,7 @@ class GlossarySuggestionFlowTest extends WebTestCase
         $crawler = $client->request('GET', '/en/contribute/glossary/suggest', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $form = $crawler->filter('form[name="glossary"]')->form();
         $form['glossary[phrase]'] = '画蛇添足';
-        $form['glossary[explanation]'] = 'To ruin something by adding what it did not need.';
+        $form['glossary[definition-en]'] = 'To ruin something by adding what it did not need.';
         $client->submit($form, serverParameters: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $suggestion = $this->latestPendingSuggestion($client);
 
@@ -266,23 +266,23 @@ class GlossarySuggestionFlowTest extends WebTestCase
         return $em->getRepository(Glossary::class)->findOneBy(['phrase' => $phrase]);
     }
 
-    private function submitCorrection(KernelBrowser $client, int $id, string $explanation, ?string $phrase = null): void
+    private function submitCorrection(KernelBrowser $client, int $id, string $definition, ?string $phrase = null): void
     {
-        $this->submitGlossaryForm($client, '/en/contribute/glossary/' . $id, $explanation, $phrase);
+        $this->submitGlossaryForm($client, '/en/contribute/glossary/' . $id, $definition, $phrase);
     }
 
-    private function submitEdit(KernelBrowser $client, int $id, string $explanation, ?string $phrase = null): void
+    private function submitEdit(KernelBrowser $client, int $id, string $definition, ?string $phrase = null): void
     {
-        $this->submitGlossaryForm($client, '/en/glossary/edit/' . $id, $explanation, $phrase);
+        $this->submitGlossaryForm($client, '/en/glossary/edit/' . $id, $definition, $phrase);
     }
 
-    private function submitGlossaryForm(KernelBrowser $client, string $path, string $explanation, ?string $phrase): void
+    private function submitGlossaryForm(KernelBrowser $client, string $path, string $definition, ?string $phrase): void
     {
         $crawler = $client->request('GET', $path, server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
         $this->assertResponseIsSuccessful();
 
         $form = $crawler->filter('form[name="glossary"]')->form();
-        $form['glossary[explanation]'] = $explanation;
+        $form['glossary[definition-en]'] = $definition;
         if ($phrase !== null) {
             $form['glossary[phrase]'] = $phrase;
         }

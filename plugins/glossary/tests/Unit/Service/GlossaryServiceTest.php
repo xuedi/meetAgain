@@ -9,26 +9,32 @@ use App\Item\AdminFilterService;
 use App\Item\FilterService;
 use App\Item\Tag\TagService;
 use App\Review\ChangeProposalService;
+use App\Service\Config\LanguageService;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Plugin\Glossary\Entity\Glossary;
 use Plugin\Glossary\Item\GlossaryTaggableTypeProvider;
 use Plugin\Glossary\Repository\GlossaryRepository;
 use Plugin\Glossary\Review\GlossaryChangeTarget;
+use Plugin\Glossary\Service\ConfigService;
 use Plugin\Glossary\Service\GlossaryService;
+use Plugin\Glossary\ValueObject\Config;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class GlossaryServiceTest extends TestCase
 {
-    public function testCreateStampsTheOwnerAndTheMoment(): void
+    public function testCreateStampsTheOwnerTheMomentAndTheDefaultTermLanguage(): void
     {
         // Arrange
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects(self::once())->method('persist');
         $em->expects(self::once())->method('flush');
-        $service = $this->makeService($em, $this->createStub(GlossaryRepository::class));
-        $glossary = (new Glossary())->setPhrase('你好');
+        $service = $this->makeService($em, $this->createStub(GlossaryRepository::class), config: (new Config())->setTermLanguage('zh'));
+        $glossary = (new Glossary())->setPhrase('你好')->submitDefinitions(['en' => 'Hello', 'de' => '']);
 
         // Act
         $service->create($glossary, userId: 9);
@@ -36,6 +42,8 @@ class GlossaryServiceTest extends TestCase
         // Assert
         self::assertSame(9, $glossary->getCreatedBy());
         self::assertNotNull($glossary->getCreatedAt());
+        self::assertSame('zh', $glossary->getTermLanguage());
+        self::assertSame(['en' => 'Hello'], $glossary->getDefinitionMap());
     }
 
     public function testEveryReadPathGoesThroughTheItemFilterAlone(): void
@@ -49,7 +57,7 @@ class GlossaryServiceTest extends TestCase
         $entry = $service->get(4);
 
         // Assert
-        self::assertNull($entry, 'nothing else narrows a read now that the approval flag is gone');
+        self::assertNull($entry);
     }
 
     public function testDeleteRemovesEntryAndItsPendingProposals(): void
@@ -85,18 +93,68 @@ class GlossaryServiceTest extends TestCase
         self::assertSame('brandnew', $item->getPhrase());
     }
 
-    public function testApplyChangeEmptyPinyinClearsTheField(): void
+    public function testApplyChangeEmptySecondaryClearsTheField(): void
     {
         // Arrange
-        $item = (new Glossary())->setPinyin('lǎo');
-        $em = $this->createStub(EntityManagerInterface::class);
+        $item = (new Glossary())->setSecondary('lǎo');
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $this->repoReturning($item));
+
+        // Act
+        $service->applyChange(1, GlossaryChangeTarget::FIELD_SECONDARY, '');
+
+        // Assert
+        self::assertNull($item->getSecondary());
+    }
+
+    public function testApplyChangeWritesOneDefinitionAndLeavesTheOthers(): void
+    {
+        // Arrange
+        $item = (new Glossary())->setDefinition('en', 'Hello')->setDefinition('de', 'Hallo');
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())->method('flush');
         $service = $this->makeService($em, $this->repoReturning($item));
 
         // Act
-        $service->applyChange(1, GlossaryChangeTarget::FIELD_PINYIN, '');
+        $service->applyChange(1, GlossaryChangeTarget::DEFINITION_PREFIX . 'de', 'Guten Tag');
 
         // Assert
-        self::assertNull($item->getPinyin());
+        self::assertSame(['en' => 'Hello', 'de' => 'Guten Tag'], $item->getDefinitionMap());
+    }
+
+    public function testApplyChangeWithAnEmptyDefinitionRemovesThatLanguage(): void
+    {
+        // Arrange
+        $item = (new Glossary())->setDefinition('en', 'Hello')->setDefinition('de', 'Hallo');
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $this->repoReturning($item));
+
+        // Act
+        $service->applyChange(1, GlossaryChangeTarget::DEFINITION_PREFIX . 'de', null);
+
+        // Assert
+        self::assertSame(['en' => 'Hello'], $item->getDefinitionMap());
+    }
+
+    #[DataProvider('definitionFieldCases')]
+    public function testDefinitionLanguageIsReadFromTheFieldName(string $field, ?string $expected): void
+    {
+        // Arrange
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $this->createStub(GlossaryRepository::class));
+
+        // Act
+        $language = $service->definitionLanguageOf($field);
+
+        // Assert
+        self::assertSame($expected, $language);
+    }
+
+    public static function definitionFieldCases(): iterable
+    {
+        yield 'a two-letter code is a language' => ['definition_en', 'en'];
+        yield 'another code works the same' => ['definition_zh', 'zh'];
+        yield 'a bare prefix is no language' => ['definition_', null];
+        yield 'a three-letter code is refused' => ['definition_eng', null];
+        yield 'upper case is refused' => ['definition_EN', null];
+        yield 'a scalar field is no definition' => ['phrase', null];
     }
 
     public function testApplyChangeRoutesEveryProposedTagThroughTheTagService(): void
@@ -153,6 +211,89 @@ class GlossaryServiceTest extends TestCase
         $service->applyChange(1, GlossaryChangeTarget::FIELD_PHRASE, 'value');
     }
 
+    public function testUpdateCopiesTheDraftOntoTheManagedEntry(): void
+    {
+        // Arrange
+        $managed = (new Glossary())->setPhrase('old')->setDefinition('en', 'old')->setDefinition('de', 'alt');
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $this->repoReturning($managed));
+        $draft = (new Glossary())->setPhrase('new')->setSecondary('xīn')->submitDefinitions(['en' => 'new', 'de' => '']);
+
+        // Act
+        $service->update($draft, 1, []);
+
+        // Assert
+        self::assertSame('new', $managed->getPhrase());
+        self::assertSame('xīn', $managed->getSecondary());
+        self::assertSame(['en' => 'new'], $managed->getDefinitionMap());
+    }
+
+    public function testADraftCopiesTheFieldsWithoutSharingDefinitionRows(): void
+    {
+        // Arrange
+        $entry = (new Glossary())->setPhrase('你好')->setSecondary('nǐ hǎo')->setTermLanguage('zh')->setDefinition('en', 'Hello');
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $this->createStub(GlossaryRepository::class));
+
+        // Act
+        $draft = $service->draftOf($entry);
+
+        // Assert
+        self::assertSame('你好', $draft->getPhrase());
+        self::assertSame('nǐ hǎo', $draft->getSecondary());
+        self::assertSame('zh', $draft->getTermLanguage());
+        self::assertSame(['en' => 'Hello'], $draft->getSubmittedDefinitions());
+        self::assertCount(0, $draft->getDefinitions());
+    }
+
+    public function testTheDuplicateRuleIgnoresCaseAndSpacing(): void
+    {
+        // Arrange
+        $repo = $this->createStub(GlossaryRepository::class);
+        $repo->method('findAllowed')->willReturn([(new Glossary())->setPhrase('La sobremesa')]);
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $repo);
+
+        // Act & Assert
+        self::assertTrue($service->isDuplicatePhrase(' la sobremesa '));
+        self::assertTrue($service->isDuplicatePhrase('LA   Sobremesa'));
+        self::assertFalse($service->isDuplicatePhrase('la sobremesas'));
+    }
+
+    public function testDefinitionFallsBackToTheSourceLocaleWhenTheRequestedOneIsMissing(): void
+    {
+        // Arrange
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->setLocale('fr');
+        $requestStack->push($request);
+        $service = $this->makeService($this->createStub(EntityManagerInterface::class), $this->createStub(GlossaryRepository::class), requestStack: $requestStack);
+        $entry = (new Glossary())->setDefinition('de', 'Hallo')->setDefinition('en', 'Hello');
+
+        // Act
+        $definition = $service->definitionFor($entry);
+
+        // Assert
+        self::assertSame('Hello', $definition);
+    }
+
+    public function testImportFlushesOncePerChunkAndAnnouncesEveryEntry(): void
+    {
+        // Arrange
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::exactly(2))->method('flush');
+        $dispatcher = $this->createMock(ActionDispatcher::class);
+        $dispatcher->expects(self::exactly(201))->method('dispatch')->with(ItemAction::Created, GlossaryTaggableTypeProvider::ITEM_TYPE, self::anything());
+        $service = $this->makeService($em, $this->createStub(GlossaryRepository::class), itemActionDispatcher: $dispatcher);
+        $rows = [];
+        for ($i = 0; $i < 201; ++$i) {
+            $rows[] = [(new Glossary())->setPhrase('word ' . $i)->setDefinition('en', 'meaning'), []];
+        }
+
+        // Act
+        $service->import($rows, userId: 3);
+
+        // Assert
+        self::assertSame(3, $rows[200][0]->getCreatedBy());
+    }
+
     public function testListNarrowsThroughTheCoreItemFilterChain(): void
     {
         // Arrange
@@ -204,6 +345,8 @@ class GlossaryServiceTest extends TestCase
         ?ActionDispatcher $itemActionDispatcher = null,
         ?TagService $tagService = null,
         ?ChangeProposalService $changeProposalService = null,
+        ?Config $config = null,
+        ?RequestStack $requestStack = null,
     ): GlossaryService {
         if ($filter === null) {
             $filter = $this->createStub(FilterService::class);
@@ -215,6 +358,12 @@ class GlossaryServiceTest extends TestCase
             $adminFilter->method('getAllowedItemIds')->willReturn(null);
         }
 
+        $configService = $this->createStub(ConfigService::class);
+        $configService->method('getConfig')->willReturn($config ?? new Config());
+
+        $languageService = $this->createStub(LanguageService::class);
+        $languageService->method('getFilteredDefaultLocale')->willReturn('en');
+
         return new GlossaryService(
             $em,
             $repo,
@@ -224,6 +373,9 @@ class GlossaryServiceTest extends TestCase
             $tagService ?? $this->createStub(TagService::class),
             $itemActionDispatcher ?? $this->createStub(ActionDispatcher::class),
             $changeProposalService ?? $this->createStub(ChangeProposalService::class),
+            $configService,
+            $languageService,
+            $requestStack ?? new RequestStack(),
         );
     }
 

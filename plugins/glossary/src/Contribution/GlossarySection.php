@@ -54,7 +54,7 @@ readonly class GlossarySection implements RowFormInterface
     {
         $entries = [];
         foreach ($this->service->getList() as $entry) {
-            $entries[] = new Entry((int) $entry->getId(), (string) $entry->getPhrase(), $entry->getPinyin());
+            $entries[] = new Entry((int) $entry->getId(), (string) $entry->getPhrase(), $entry->getSecondary());
         }
 
         return $entries;
@@ -82,37 +82,43 @@ readonly class GlossarySection implements RowFormInterface
     public function draftFor(int|string $id): ?Draft
     {
         $entry = $this->service->getManaged((int) $id);
+        if ($entry === null) {
+            return null;
+        }
 
-        return $entry === null
-            ? null
-            : new Draft($entry, (string) $entry->getPhrase(), 'glossary.contribution_intro');
+        return new Draft(
+            $this->service->draftOf($entry),
+            (string) $entry->getPhrase(),
+            'glossary.contribution_intro',
+            ['entry_id' => (int) $entry->getId()],
+        );
     }
 
     #[Override]
     public function changesFrom(int|string $id, FormInterface $form): array
     {
         $submitted = $form->getData();
-        if (!$submitted instanceof Glossary) {
-            return [];
-        }
-
-        $this->service->detach($submitted);
         $current = $this->service->getManaged((int) $id);
-        if ($current === null) {
+        if (!$submitted instanceof Glossary || $current === null) {
             return [];
         }
 
-        $tagIds = $this->assignmentFormHelper->extractAssignment($form);
-
-        return [
+        $changes = [
             new FieldChange(GlossaryChangeTarget::FIELD_PHRASE, $current->getPhrase(), $submitted->getPhrase()),
-            new FieldChange(GlossaryChangeTarget::FIELD_PINYIN, $current->getPinyin(), $submitted->getPinyin()),
-            new FieldChange(GlossaryChangeTarget::FIELD_EXPLANATION, $current->getExplanation(), $submitted->getExplanation()),
-            new FieldChange(
-                GlossaryChangeTarget::FIELD_TAG,
-                $this->service->encodeTagIds($this->service->getTagIds((int) $id)),
-                $this->service->encodeTagIds($tagIds),
-            ),
+            new FieldChange(GlossaryChangeTarget::FIELD_SECONDARY, $current->getSecondary(), $submitted->getSecondary()),
         ];
+
+        $stored = $current->getDefinitionMap();
+        foreach ($submitted->getSubmittedDefinitions() ?? [] as $language => $text) {
+            $changes[] = new FieldChange(GlossaryChangeTarget::DEFINITION_PREFIX . $language, $stored[$language] ?? null, $text === '' ? null : $text);
+        }
+
+        $changes[] = new FieldChange(
+            GlossaryChangeTarget::FIELD_TAG,
+            $this->service->encodeTagIds($this->service->getTagIds((int) $id)),
+            $this->service->encodeTagIds($this->assignmentFormHelper->extractAssignment($form)),
+        );
+
+        return $changes;
     }
 }

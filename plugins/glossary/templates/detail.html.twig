@@ -11,9 +11,9 @@
 
                     <div class="is-flex is-justify-content-space-between is-align-items-flex-start is-gap-2 mb-5">
                         <div>
-                            <h1 class="title">{{ entry.phrase }}</h1>
-                            {% if config.secondaryEnabled and entry.pinyin %}
-                                <p class="subtitle has-text-grey">{{ entry.pinyin }}</p>
+                            <h1 class="title"{% if entry.termLanguage %} lang="{{ entry.termLanguage }}"{% endif %}>{{ entry.phrase }}</h1>
+                            {% if config.secondaryEnabled and entry.secondary %}
+                                <p class="subtitle has-text-grey"{% if entry.termLanguage %} lang="{{ entry.termLanguage }}"{% endif %}>{{ entry.secondary }}</p>
                             {% endif %}
                         </div>
                         {% include '_components/item/detail_back.html.twig' with {'url': path('app_plugin_glossary')} only %}
@@ -21,11 +21,24 @@
 
                     {% include '_components/item/tag_badges.html.twig' with {'itemType': 'glossary', 'itemId': entry.id} only %}
 
+                    {% if difficultyBand %}
+                        <p class="mb-3"><span class="tag is-warning is-light">{{ difficultyBand|trans }}</span></p>
+                    {% endif %}
+
                     <table class="table is-narrow">
                         <tr>
-                            <th>{{ config.definitionLabel ?? ('glossary.label_explanation'|trans) }}</th>
-                            <td>{{ entry.explanation|nl2br }}</td>
+                            <th>{{ config.definitionLabel ?? ('glossary.label_definition'|trans) }}</th>
+                            <td>{{ definition|nl2br }}</td>
                         </tr>
+                        {% set otherDefinitions = definitions|filter(text => text != definition) %}
+                        {% if otherDefinitions is not empty %}
+                            {% for language, text in otherDefinitions %}
+                                <tr>
+                                    <th class="has-text-grey has-text-weight-normal">{{ language|upper }}</th>
+                                    <td lang="{{ language }}">{{ text|nl2br }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
                         <tr>
                             <th>{{ 'glossary.label_created_by'|trans }}</th>
                             <td>{{ get_user_name(entry.createdBy) }}</td>
@@ -61,6 +74,53 @@
                             </a>
                         {% endif %}
                     </div>
+
+                    {% if trainerStats is not null %}
+                        <div class="box mt-5">
+                            <h2 class="title is-6">{{ 'glossary_trainer.heading_your_progress'|trans }}</h2>
+                            {% if trainerStats.seen > 0 %}
+                                <p class="mb-3">{{ 'glossary_trainer.stats_seen'|trans({'%seen%': trainerStats.seen, '%wrong%': trainerStats.wrong}) }}</p>
+                                {% if trainerStats.cards is not empty %}
+                                    <table class="table is-narrow is-size-7">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ 'glossary_trainer.field_direction'|trans }}</th>
+                                                <th>{{ 'glossary_trainer.stats_interval'|trans }}</th>
+                                                <th>{{ 'glossary_trainer.stats_next_due'|trans }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for card in trainerStats.cards %}
+                                                <tr>
+                                                    <td>{{ card.direction.label()|trans }}</td>
+                                                    <td>{{ 'glossary_trainer.stats_interval_days'|trans({'%days%': card.intervalDays}) }}</td>
+                                                    <td>{{ card.dueAt ? card.dueAt|date('Y-m-d') : '-' }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            {% else %}
+                                <p class="has-text-grey mb-3">{{ 'glossary_trainer.stats_unseen'|trans }}</p>
+                            {% endif %}
+                            <div class="buttons are-small">
+                                <a href="{{ path('app_plugin_glossary_trainer_mark', {id: entry.id}) }}"
+                                   class="button{{ trainerStats.marked ? ' is-warning' : '' }}"
+                                   data-post
+                                   data-csrf-token="{{ csrf_token('glossary_trainer_mark' ~ entry.id) }}">
+                                    <span class="icon"><i class="fa fa-star"></i></span>
+                                    <span>{{ (trainerStats.marked ? 'glossary_trainer.button_unmark' : 'glossary_trainer.button_mark')|trans }}</span>
+                                </a>
+                                <a href="{{ path('app_plugin_glossary_trainer_suspend', {id: entry.id}) }}"
+                                   class="button{{ trainerStats.suspended ? ' is-dark' : '' }}"
+                                   data-post
+                                   data-csrf-token="{{ csrf_token('glossary_trainer_suspend' ~ entry.id) }}">
+                                    <span class="icon"><i class="fa fa-pause"></i></span>
+                                    <span>{{ (trainerStats.suspended ? 'glossary_trainer.button_unsuspend' : 'glossary_trainer.button_suspend')|trans }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
 
                 </div>
             </div>

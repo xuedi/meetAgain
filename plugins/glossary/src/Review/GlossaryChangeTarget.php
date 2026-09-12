@@ -17,9 +17,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class GlossaryChangeTarget implements ChangeTargetProviderInterface
 {
     public const string FIELD_PHRASE = 'phrase';
-    public const string FIELD_PINYIN = 'pinyin';
-    public const string FIELD_EXPLANATION = 'explanation';
+    public const string FIELD_SECONDARY = 'secondary';
     public const string FIELD_TAG = 'tag';
+    public const string DEFINITION_PREFIX = 'definition_';
 
     public function __construct(
         private GlossaryService $service,
@@ -60,10 +60,17 @@ final readonly class GlossaryChangeTarget implements ChangeTargetProviderInterfa
     {
         $config = $this->configService->getConfig();
 
+        $language = $this->service->definitionLanguageOf($field);
+        if ($language !== null) {
+            return $this->translator->trans('glossary.label_definition_in', [
+                '%label%' => $config->getDefinitionLabel() ?? $this->translator->trans('glossary.label_definition'),
+                '%locale%' => strtoupper($language),
+            ]);
+        }
+
         return match ($field) {
             self::FIELD_PHRASE => $config->getPrimaryLabel() ?? $this->translator->trans('glossary.label_phrase'),
-            self::FIELD_PINYIN => $config->getSecondaryLabel() ?? $this->translator->trans('glossary.label_pinyin'),
-            self::FIELD_EXPLANATION => $config->getDefinitionLabel() ?? $this->translator->trans('glossary.label_explanation'),
+            self::FIELD_SECONDARY => $config->getSecondaryLabel() ?? $this->translator->trans('glossary.label_secondary'),
             self::FIELD_TAG => $this->translator->trans('glossary.label_tag'),
             default => $field,
         };
@@ -105,12 +112,19 @@ final readonly class GlossaryChangeTarget implements ChangeTargetProviderInterfa
     #[Override]
     public function validate(int $targetId, string $field, ?string $value): ?string
     {
-        if ($this->service->get($targetId) === null) {
+        $entry = $this->service->get($targetId);
+        if ($entry === null) {
             return $this->translator->trans('glossary.validation_entry_missing');
         }
 
         if ($field === self::FIELD_PHRASE && trim((string) $value) === '') {
             return $this->translator->trans('glossary.validation_phrase_blank');
+        }
+
+        $language = $this->service->definitionLanguageOf($field);
+        $clearsDefinition = $language !== null && trim((string) $value) === '';
+        if ($clearsDefinition && array_diff_key($entry->getDefinitionMap(), [$language => true]) === []) {
+            return $this->translator->trans('glossary.validation_definition_last');
         }
 
         if ($field === self::FIELD_TAG) {
