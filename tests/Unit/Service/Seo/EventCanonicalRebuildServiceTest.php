@@ -329,7 +329,7 @@ class EventCanonicalRebuildServiceTest extends TestCase
             $this->makeMember(1, $series, ['en' => $usual], '2026-01-01'),
             $this->makeMember(2, $series, ['en' => $usual], '2026-01-08'),
         ];
-        $marker = (new EventCanonicalRoot())
+        $marker = new EventCanonicalRoot()
             ->setEvent($members[1])
             ->setLocale('en')
             ->setType(EventCanonicalRootType::Detached);
@@ -389,7 +389,7 @@ class EventCanonicalRebuildServiceTest extends TestCase
             $this->makeMember(1, $series, ['en' => $usual], '2026-01-01'),
             $this->makeMember(2, $series, ['en' => $usual], '2026-01-08'),
         ];
-        $stale = (new EventCanonicalRoot())
+        $stale = new EventCanonicalRoot()
             ->setEvent($members[1])
             ->setLocale('en')
             ->setType(EventCanonicalRootType::Detached);

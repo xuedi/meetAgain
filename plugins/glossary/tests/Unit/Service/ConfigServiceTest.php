@@ -12,7 +12,7 @@ class ConfigServiceTest extends TestCase
     public function testReturnsResolvedConfig(): void
     {
         // Arrange
-        $config = (new Config())->setSecondaryEnabled(true);
+        $config = new Config()->setSecondaryEnabled(true);
         $resolver = $this->createStub(Resolver::class);
         $resolver->method('resolve')->willReturn($config);
         $service = new ConfigService($resolver);

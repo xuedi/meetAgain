@@ -1,12 +1,21 @@
 {% set primaryLabel = config.primaryLabel ?? ('glossary.label_phrase'|trans) %}
-{% set secondaryLabel = config.secondaryLabel ?? ('glossary.label_pinyin'|trans) %}
-{% set definitionLabel = config.definitionLabel ?? ('glossary.label_explanation'|trans) %}
+{% set secondaryLabel = config.secondaryLabel ?? ('glossary.label_secondary'|trans) %}
+{% set definitionLabel = config.definitionLabel ?? ('glossary.label_definition'|trans) %}
 
 {% set listHeader = [primaryLabel] %}
 {% if config.secondaryEnabled %}{% set listHeader = listHeader|merge([secondaryLabel]) %}{% endif %}
 {% set listHeader = listHeader|merge([definitionLabel]) %}
 {% if hasTags %}{% set listHeader = listHeader|merge([('glossary.label_tag'|trans)]) %}{% endif %}
 {% if is_granted('ROLE_USER') %}{% set listHeader = listHeader|merge(['']) %}{% endif %}
+
+{% if is_granted('ROLE_USER') %}
+    {% set facetQuery = item_facet_current().toQuery() %}
+    <span hidden data-glossary-selection
+          data-count="{{ itemIds|length }}"
+          data-train-href="{{ path('app_plugin_glossary_trainer', facetQuery) }}"
+          data-train-label="{{ 'glossary.button_train'|trans({'%count%': itemIds|length}) }}"
+          data-export-href="{{ path('app_plugin_glossary_export', facetQuery) }}"></span>
+{% endif %}
 
 {% include '_components/item/list.html.twig' with {
     'itemType': 'glossary',

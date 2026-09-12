@@ -2,10 +2,11 @@
 
 namespace Plugin\Glossary\Portability;
 
+use App\Item\Portability\ContributorInterface;
 use App\Item\Portability\ImportContext;
 use App\Item\Portability\ImportResult;
-use App\Item\Portability\ContributorInterface;
 use App\Item\Portability\PortableImageWriterInterface;
+use App\Service\Config\LanguageService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Override;
@@ -18,6 +19,7 @@ readonly class GlossaryContributor implements ContributorInterface
     public function __construct(
         private EntityManagerInterface $em,
         private GlossaryRepository $glossaryRepo,
+        private LanguageService $languageService,
     ) {}
 
     #[Override]
@@ -41,8 +43,9 @@ readonly class GlossaryContributor implements ContributorInterface
             $rows[] = [
                 'ref' => (int) $entry->getId(),
                 'phrase' => $entry->getPhrase(),
-                'pinyin' => $entry->getPinyin(),
-                'explanation' => $entry->getExplanation(),
+                'secondary' => $entry->getSecondary(),
+                'term_language' => $entry->getTermLanguage(),
+                'definitions' => $entry->getDefinitionMap(),
             ];
         }
 
@@ -72,8 +75,11 @@ readonly class GlossaryContributor implements ContributorInterface
 
             $entry = new Glossary();
             $entry->setPhrase($phrase);
-            $entry->setPinyin($this->nullableString($row['pinyin'] ?? null));
-            $entry->setExplanation($this->nullableString($row['explanation'] ?? null));
+            $entry->setSecondary($this->nullableString($row['secondary'] ?? $row['pinyin'] ?? null));
+            $entry->setTermLanguage($this->nullableString($row['term_language'] ?? null));
+            foreach ($this->definitionsOf($row) as $language => $text) {
+                $entry->setDefinition($language, $text);
+            }
             $entry->setCreatedBy((int) $context->getSystemUser()->getId());
             $entry->setCreatedAt(new DateTimeImmutable());
 
@@ -89,6 +95,26 @@ readonly class GlossaryContributor implements ContributorInterface
             created: $created,
             matched: $matched,
         );
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @return array<string, string>
+     */
+    private function definitionsOf(array $row): array
+    {
+        if (is_array($row['definitions'] ?? null)) {
+            $definitions = [];
+            foreach ($row['definitions'] as $language => $text) {
+                $definitions[(string) $language] = (string) $text;
+            }
+
+            return $definitions;
+        }
+
+        $legacy = $this->nullableString($row['explanation'] ?? null);
+
+        return $legacy === null ? [] : [$this->languageService->getFilteredDefaultLocale() => $legacy];
     }
 
     private function nullableString(mixed $value): ?string

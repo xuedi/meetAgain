@@ -69,7 +69,7 @@ readonly class AdminCmsListFilterService
         foreach ($this->getSortedFilters() as $filter) {
             $filterContext = $filter->getDebugContext($cmsId);
             if ($filterContext !== []) {
-                $context[get_class($filter)] = $filterContext;
+                $context[$filter::class] = $filterContext;
             }
         }
 

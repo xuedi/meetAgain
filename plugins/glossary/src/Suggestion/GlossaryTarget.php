@@ -9,6 +9,7 @@ use Override;
 use Plugin\Glossary\Entity\Glossary;
 use Plugin\Glossary\Form\GlossaryType;
 use Plugin\Glossary\Item\GlossaryTaggableTypeProvider;
+use Plugin\Glossary\Review\GlossaryChangeTarget;
 use Plugin\Glossary\Service\ConfigService;
 use Plugin\Glossary\Service\GlossaryService;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -60,8 +61,8 @@ final readonly class GlossaryTarget implements SuggestionTargetProviderInterface
     {
         $draft = new Glossary();
         $draft->setPhrase($this->text($payload, 'phrase'));
-        $draft->setExplanation($this->text($payload, 'explanation'));
-        $draft->setPinyin($this->optionalText($payload, 'pinyin'));
+        $draft->setSecondary($this->optionalText($payload, 'secondary'));
+        $draft->submitDefinitions($this->payloadDefinitions($payload));
 
         return $draft;
     }
@@ -71,11 +72,15 @@ final readonly class GlossaryTarget implements SuggestionTargetProviderInterface
     {
         $entry = $this->entry($draft);
 
-        return [
+        $payload = [
             'phrase' => (string) $entry->getPhrase(),
-            'pinyin' => $entry->getPinyin(),
-            'explanation' => (string) $entry->getExplanation(),
+            'secondary' => $entry->getSecondary(),
         ];
+        foreach ($this->draftDefinitions($entry) as $language => $text) {
+            $payload[GlossaryChangeTarget::DEFINITION_PREFIX . $language] = $text;
+        }
+
+        return $payload;
     }
 
     #[Override]
@@ -98,15 +103,18 @@ final readonly class GlossaryTarget implements SuggestionTargetProviderInterface
 
         if ($config->isSecondaryEnabled()) {
             $rows[] = [
-                'label' => $config->getSecondaryLabel() ?? $this->translator->trans('glossary.label_pinyin'),
-                'value' => $this->text($payload, 'pinyin'),
+                'label' => $config->getSecondaryLabel() ?? $this->translator->trans('glossary.label_secondary'),
+                'value' => $this->text($payload, 'secondary'),
             ];
         }
 
-        $rows[] = [
-            'label' => $config->getDefinitionLabel() ?? $this->translator->trans('glossary.label_explanation'),
-            'value' => $this->text($payload, 'explanation'),
-        ];
+        $definitionLabel = $config->getDefinitionLabel() ?? $this->translator->trans('glossary.label_definition');
+        foreach ($this->payloadDefinitions($payload) as $language => $text) {
+            $rows[] = [
+                'label' => $this->translator->trans('glossary.label_definition_in', ['%label%' => $definitionLabel, '%locale%' => strtoupper($language)]),
+                'value' => $text,
+            ];
+        }
 
         return $rows;
     }
@@ -128,11 +136,11 @@ final readonly class GlossaryTarget implements SuggestionTargetProviderInterface
     {
         $entry = $this->entry($draft);
         $phrase = trim((string) $entry->getPhrase());
-        if ($phrase === '' || trim((string) $entry->getExplanation()) === '') {
+        if ($phrase === '' || $this->draftDefinitions($entry) === []) {
             return $this->translator->trans('glossary.validator_incomplete');
         }
 
-        return $this->isDuplicate($phrase) ? $this->translator->trans('glossary.validator_duplicate') : null;
+        return $this->service->isDuplicatePhrase($phrase) ? $this->translator->trans('glossary.validator_duplicate') : null;
     }
 
     #[Override]
@@ -153,12 +161,29 @@ final readonly class GlossaryTarget implements SuggestionTargetProviderInterface
         return $draft;
     }
 
-    private function isDuplicate(string $phrase): bool
+    /** @return array<string, string> */
+    private function draftDefinitions(Glossary $entry): array
     {
-        return array_any(
-            $this->service->getList(),
-            static fn(Glossary $existing): bool => strcasecmp(trim((string) $existing->getPhrase()), $phrase) === 0,
-        );
+        $definitions = $entry->getSubmittedDefinitions() ?? $entry->getDefinitionMap();
+
+        return array_filter($definitions, static fn(string $text): bool => trim($text) !== '');
+    }
+
+    /**
+     * @param array<string, scalar|null> $payload
+     * @return array<string, string>
+     */
+    private function payloadDefinitions(array $payload): array
+    {
+        $definitions = [];
+        foreach ($payload as $key => $value) {
+            $language = $this->service->definitionLanguageOf($key);
+            if ($language !== null && trim((string) $value) !== '') {
+                $definitions[$language] = (string) $value;
+            }
+        }
+
+        return $definitions;
     }
 
     /** @param array<string, scalar|null> $payload */

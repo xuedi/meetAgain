@@ -70,6 +70,31 @@ class TagServiceTest extends TestCase
         $this->service([$this->tag(2, 'Events', managed: true)])->saveVocabulary(self::TYPE, []);
     }
 
+    public function testAddingTagsToManyItemsKeepsWhatIsThereAndFlushesOnce(): void
+    {
+        // Arrange
+        $persisted = [];
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('persist')->willReturnCallback(static function (object $entity) use (&$persisted): void {
+            $persisted[] = $entity;
+        });
+        $em->expects(self::once())->method('flush');
+        $this->em = $em;
+        $assignmentRepo = $this->createStub(ItemTagAssignmentRepository::class);
+        $assignmentRepo->method('tagIdsForItems')->willReturn([10 => [1]]);
+        $this->assignmentRepo = $assignmentRepo;
+        $service = $this->service([$this->tag(1, 'Landscape'), $this->tag(2, 'Portrait'), $this->tag(3, 'Events', managed: true)]);
+
+        // Act
+        $service->addTags(self::TYPE, [10 => [1, 2], 11 => [2, 3, 99], 12 => []]);
+
+        // Assert
+        static::assertSame(
+            [[10, 2], [11, 2]],
+            array_map(static fn(ItemTagAssignment $assignment): array => [$assignment->getItemId(), $assignment->getTagId()], $persisted),
+        );
+    }
+
     private function tag(int $id, string $label, bool $managed = false): ItemTag
     {
         $tag = new ItemTag();

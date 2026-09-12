@@ -614,7 +614,7 @@ class CoreSitemapPublisherTest extends TestCase
         $reflection->getProperty('slug')->setValue($page, $slug);
         $reflection->getProperty('createdAt')->setValue($page, new DateTimeImmutable('2026-04-01'));
         $reflection->getProperty('blocks')->setValue($page, new ArrayCollection(array_map(
-            static fn(string $language): CmsBlock => (new CmsBlock())->setLanguage($language),
+            static fn(string $language): CmsBlock => new CmsBlock()->setLanguage($language),
             $languages,
         )));
 

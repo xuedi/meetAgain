@@ -71,22 +71,8 @@ readonly class TagService implements ActionInterface
     /** @param list<int> $tagIds */
     public function setTags(string $itemType, int $itemId, array $tagIds): void
     {
-        $known = [];
-        foreach ($this->getVocabulary($itemType) as $tag) {
-            $known[(int) $tag->getId()] = $tag;
-        }
-
-        $wantedTags = [];
-        foreach (array_unique($tagIds) as $tagId) {
-            if (!isset($known[$tagId]) || $known[$tagId]->isManaged()) {
-                continue;
-            }
-
-            foreach ([$known[$tagId], ...$known[$tagId]->getAncestors()] as $tag) {
-                $wantedTags[(int) $tag->getId()] = $tag;
-            }
-        }
-        $wanted = array_keys($wantedTags);
+        $known = $this->knownTags($itemType);
+        $wanted = $this->withAncestors($known, $tagIds);
 
         $current = [];
         foreach ($this->assignmentRepo->findFor($itemType, $itemId) as $assignment) {
@@ -94,23 +80,43 @@ readonly class TagService implements ActionInterface
         }
 
         foreach ($current as $tagId => $assignment) {
-            if (in_array($tagId, $wanted, true) || ($known[$tagId] ?? null)?->isManaged() === true) {
+            if (isset($wanted[$tagId]) || ($known[$tagId] ?? null)?->isManaged() === true) {
                 continue;
             }
 
             $this->em->remove($assignment);
         }
 
-        foreach ($wanted as $tagId) {
+        foreach ($wanted as $tagId => $tag) {
             if (isset($current[$tagId])) {
                 continue;
             }
 
-            $assignment = new ItemTagAssignment();
-            $assignment->setItemType($itemType);
-            $assignment->setItemId($itemId);
-            $assignment->setTag($wantedTags[$tagId]);
-            $this->em->persist($assignment);
+            $this->persistAssignment($itemType, $itemId, $tag);
+        }
+
+        $this->em->flush();
+    }
+
+    /** @param array<int, list<int>> $tagIdsByItem item id => tag ids to add; existing assignments stay */
+    public function addTags(string $itemType, array $tagIdsByItem): void
+    {
+        $tagIdsByItem = array_filter($tagIdsByItem, static fn(array $tagIds): bool => $tagIds !== []);
+        if ($tagIdsByItem === []) {
+            return;
+        }
+
+        $known = $this->knownTags($itemType);
+        $current = $this->assignmentRepo->tagIdsForItems($itemType, array_keys($tagIdsByItem));
+        foreach ($tagIdsByItem as $itemId => $tagIds) {
+            $assigned = array_flip($current[$itemId] ?? []);
+            foreach ($this->withAncestors($known, $tagIds) as $tagId => $tag) {
+                if (isset($assigned[$tagId])) {
+                    continue;
+                }
+
+                $this->persistAssignment($itemType, $itemId, $tag);
+            }
         }
 
         $this->em->flush();
@@ -428,6 +434,47 @@ readonly class TagService implements ActionInterface
         }
 
         return $result;
+    }
+
+    /** @return array<int, ItemTag> */
+    private function knownTags(string $itemType): array
+    {
+        $known = [];
+        foreach ($this->getVocabulary($itemType) as $tag) {
+            $known[(int) $tag->getId()] = $tag;
+        }
+
+        return $known;
+    }
+
+    /**
+     * @param array<int, ItemTag> $known
+     * @param list<int> $tagIds
+     * @return array<int, ItemTag> the assignable tags among $tagIds plus their ancestors
+     */
+    private function withAncestors(array $known, array $tagIds): array
+    {
+        $wanted = [];
+        foreach (array_unique($tagIds) as $tagId) {
+            if (!isset($known[$tagId]) || $known[$tagId]->isManaged()) {
+                continue;
+            }
+
+            foreach ([$known[$tagId], ...$known[$tagId]->getAncestors()] as $tag) {
+                $wanted[(int) $tag->getId()] = $tag;
+            }
+        }
+
+        return $wanted;
+    }
+
+    private function persistAssignment(string $itemType, int $itemId, ItemTag $tag): void
+    {
+        $assignment = new ItemTagAssignment();
+        $assignment->setItemType($itemType);
+        $assignment->setItemId($itemId);
+        $assignment->setTag($tag);
+        $this->em->persist($assignment);
     }
 
     private function announceCreation(ItemTag $tag): void

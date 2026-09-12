@@ -3,6 +3,7 @@
 namespace Plugin\Glossary\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Plugin\Glossary\Entity\Glossary;
 
@@ -28,10 +29,7 @@ class GlossaryRepository extends ServiceEntityRepository
             return [];
         }
 
-        $qb = $this->createQueryBuilder('g');
-        if ($ids !== null) {
-            $qb->andWhere('g.id IN (:ids)')->setParameter('ids', $ids);
-        }
+        $qb = $this->withDefinitions($ids);
         foreach ($order as $field => $direction) {
             $qb->addOrderBy('g.' . $field, $direction);
         }
@@ -48,10 +46,36 @@ class GlossaryRepository extends ServiceEntityRepository
             return null;
         }
 
-        $qb = $this->createQueryBuilder('g')->andWhere('g.id = :id')->setParameter('id', $id);
+        return $this->withDefinitions($ids)->andWhere('g.id = :id')->setParameter('id', $id)->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @param int[]|null $ids null = no restriction, [] = block all
+     *
+     * @return list<int>
+     */
+    public function findAllowedIds(?array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('g')->select('g.id')->orderBy('g.id', 'ASC');
         if ($ids !== null) {
             $qb->andWhere('g.id IN (:ids)')->setParameter('ids', $ids);
         }
-        return $qb->getQuery()->getOneOrNullResult();
+
+        return array_map(intval(...), $qb->getQuery()->getSingleColumnResult());
+    }
+
+    /** @param int[]|null $ids */
+    private function withDefinitions(?array $ids): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('g')->leftJoin('g.definitions', 'd')->addSelect('d');
+        if ($ids !== null) {
+            $qb->andWhere('g.id IN (:ids)')->setParameter('ids', $ids);
+        }
+
+        return $qb;
     }
 }

@@ -1,0 +1,3 @@
+'glossary_import.validator_file_missing': '请选择要上传的文件。'
+'glossary_import.validator_file_size': '文件太大，上限为 {{ limit }} {{ suffix }}。'
+'glossary_import.validator_file_type': '请上传 .txt、.csv 或 .tsv 文件。'

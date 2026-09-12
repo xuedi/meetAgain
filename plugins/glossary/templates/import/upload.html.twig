@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'glossary_import.page_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half">
+
+                    <h1 class="title is-4">{{ 'glossary_import.page_title'|trans }}</h1>
+                    <p class="mb-4">{{ 'glossary_import.intro'|trans({'%cap%': rowCap}) }}</p>
+
+                    <div class="box">
+                        {{ form_start(form) }}
+                        {{ form_row(form.file) }}
+                        <div class="has-text-right mt-5">
+                            <a href="{{ path('app_plugin_glossary') }}" class="button">{{ 'global.button_cancel'|trans }}</a>
+                            <button type="submit" class="button is-link">{{ 'glossary_import.button_upload'|trans }}</button>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+
+                    <article class="message is-info">
+                        <div class="message-body is-size-7">{{ 'glossary_import.anki_hint'|trans }}</div>
+                    </article>
+
+                    <a href="{{ path('app_plugin_glossary') }}" class="is-size-7">{{ 'glossary.link_back_to_list'|trans }}</a>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

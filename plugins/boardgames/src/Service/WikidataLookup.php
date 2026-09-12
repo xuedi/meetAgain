@@ -84,17 +84,17 @@ class WikidataLookup implements GameMetadataLookupInterface
     private function mapRow(array $row): GameMetadata
     {
         $entityUri = $row['game']['value'] ?? '';
-        $bggId = isset($row['bggId']) ? $row['bggId']['value'] : null;
+        $bggId = $row['bggId']['value'] ?? null;
 
         return new GameMetadata(
             externalId: substr($entityUri, (int) strrpos($entityUri, '/') + 1),
             source: ExternalSource::Wikidata,
             name: $row['gameLabel']['value'] ?? '',
-            description: isset($row['description']) ? $row['description']['value'] : null,
+            description: $row['description']['value'] ?? null,
             yearPublished: isset($row['year']) ? (int) substr($row['year']['value'], 0, 4) : null,
             minPlayers: isset($row['minPlayers']) ? (int) $row['minPlayers']['value'] : null,
             maxPlayers: isset($row['maxPlayers']) ? (int) $row['maxPlayers']['value'] : null,
-            boxImageUrl: isset($row['image']) ? $row['image']['value'] : null,
+            boxImageUrl: $row['image']['value'] ?? null,
             bggId: $bggId,
         );
     }

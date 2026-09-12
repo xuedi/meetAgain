@@ -165,7 +165,7 @@ final class NotFoundLogController extends AbstractLogsController implements Admi
             $this->entityManager->remove($existing);
             $suspicious = false;
         } else {
-            $this->entityManager->persist((new SuspiciousUrl())->setUrl($url)->setCreatedAt(new DateTimeImmutable()));
+            $this->entityManager->persist(new SuspiciousUrl()->setUrl($url)->setCreatedAt(new DateTimeImmutable()));
             $suspicious = true;
         }
         $this->entityManager->flush();

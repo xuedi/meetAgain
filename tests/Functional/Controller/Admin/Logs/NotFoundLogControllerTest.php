@@ -157,7 +157,7 @@ class NotFoundLogControllerTest extends WebTestCase
         $em = $this->loginAsAdmin($client);
         $this->seedNotFoundLog($em, self::PROBE_URL);
         $this->seedNotFoundLog($em, self::PROBE_URL);
-        $em->persist((new SuspiciousUrl())->setUrl(self::PROBE_URL)->setCreatedAt(new DateTimeImmutable()));
+        $em->persist(new SuspiciousUrl()->setUrl(self::PROBE_URL)->setCreatedAt(new DateTimeImmutable()));
         $em->flush();
 
         // Act

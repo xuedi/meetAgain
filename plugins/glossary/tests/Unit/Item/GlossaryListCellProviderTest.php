@@ -21,13 +21,13 @@ class GlossaryListCellProviderTest extends TestCase
     public function testRendersTheCellTemplateWithEntryAndConfig(): void
     {
         // Arrange
-        $entry = (new Glossary())->setPhrase('你好');
+        $entry = new Glossary()->setPhrase('你好');
         $config = new Config();
 
         $twig = $this->createMock(Environment::class);
         $twig->expects(self::once())
             ->method('render')
-            ->with('@Glossary/item/list_cell.html.twig', ['entry' => $entry, 'config' => $config, 'hasTags' => false, 'viewMode' => null])
+            ->with('@Glossary/item/list_cell.html.twig', ['entry' => $entry, 'definition' => 'Hello', 'config' => $config, 'hasTags' => false, 'viewMode' => null])
             ->willReturn('<td>你好</td>');
 
         $provider = $this->makeProvider($this->serviceReturning($entry), $this->configReturning($config), $twig);
@@ -128,6 +128,7 @@ class GlossaryListCellProviderTest extends TestCase
     {
         $service = $this->createStub(GlossaryService::class);
         $service->method('get')->willReturn($entry);
+        $service->method('definitionFor')->willReturn('Hello');
 
         return $service;
     }

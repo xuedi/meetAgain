@@ -1,0 +1,18 @@
+{% set verdictClass = {'exact': 'is-success', 'near_miss': 'is-warning', 'wrong': 'is-danger'} %}
+<article class="message {{ verdictClass[feedback.verdict]|default('is-info') }}" aria-live="polite" data-trainer-feedback>
+    <div class="message-body">
+        <p class="has-text-weight-bold">
+            {% if feedback.verdict == 'exact' %}
+                {{ 'glossary_trainer.feedback_correct'|trans }}
+            {% elseif feedback.verdict == 'near_miss' %}
+                {{ 'glossary_trainer.feedback_near_miss'|trans }}
+            {% else %}
+                {{ 'glossary_trainer.feedback_wrong'|trans }}
+            {% endif %}
+        </p>
+        <p>{{ feedback.prompt }} - {{ feedback.expected }}</p>
+        {% if feedback.given is not empty and feedback.verdict != 'exact' %}
+            <p class="is-size-7">{{ 'glossary_trainer.feedback_given'|trans({'%given%': feedback.given}) }}</p>
+        {% endif %}
+    </div>
+</article>

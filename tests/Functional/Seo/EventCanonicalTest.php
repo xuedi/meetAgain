@@ -66,7 +66,7 @@ class EventCanonicalTest extends WebTestCase
     private function markMember(KernelBrowser $client, Event $event, string $locale, EventCanonicalRootType $type): void
     {
         $em = $client->getContainer()->get(EntityManagerInterface::class);
-        $marker = (new EventCanonicalRoot())
+        $marker = new EventCanonicalRoot()
             ->setEvent($event)
             ->setLocale($locale)
             ->setType($type)

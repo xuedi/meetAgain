@@ -151,7 +151,7 @@ function findUnguardedMutationCalls(array $stmts, array $mutationMethodNames, No
     return $hits;
 }
 
-$parser     = (new ParserFactory())->createForNewestSupportedVersion();
+$parser     = new ParserFactory()->createForNewestSupportedVersion();
 $finder     = new NodeFinder();
 $violations = [];
 
@@ -174,7 +174,7 @@ foreach (phpFilesIn($scanDirs) as $file) {
         }
     }
 
-    $classes = (new NodeFinder())->findInstanceOf($ast, Node\Stmt\Class_::class);
+    $classes = new NodeFinder()->findInstanceOf($ast, Node\Stmt\Class_::class);
 
     foreach ($classes as $class) {
         $className = $class->name?->toString() ?? '';

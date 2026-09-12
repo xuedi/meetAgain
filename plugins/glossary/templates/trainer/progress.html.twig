@@ -1,0 +1,187 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'glossary_trainer.progress_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    {% set summary = progress.summary %}
+    {% set percent = progress.answers > 0 ? (progress.correct * 100 / progress.answers)|round : 0 %}
+    {% set maxReviewed = max(progress.activity|map(day => day.reviewed)|merge([1])) %}
+
+    <section class="section">
+        <div class="container">
+
+            <div class="level mb-2">
+                <div class="level-left">
+                    <h1 class="title mb-0">{{ 'glossary_trainer.progress_title'|trans }}</h1>
+                </div>
+                <div class="level-right buttons">
+                    <a href="{{ path('app_plugin_glossary') }}" class="button is-small">{{ 'glossary_trainer.link_back_to_glossary'|trans }}</a>
+                    <a href="{{ path('app_plugin_glossary_trainer') }}" class="button is-small is-link">
+                        <span class="icon"><i class="fa fa-graduation-cap"></i></span>
+                        <span>{{ 'glossary_trainer.page_title'|trans }}</span>
+                    </a>
+                </div>
+            </div>
+            <p class="is-size-7 has-text-grey mb-5">{{ 'glossary_trainer.progress_intro'|trans }}</p>
+
+            <div class="columns is-multiline is-mobile">
+                <div class="column is-half-mobile is-one-quarter-tablet">
+                    <div class="box has-text-centered">
+                        <p class="heading">{{ 'glossary_trainer.summary_learned'|trans }}</p>
+                        <p class="title is-4">{{ 'glossary_trainer.summary_of'|trans({'%count%': summary.learned, '%total%': summary.total}) }}</p>
+                    </div>
+                </div>
+                <div class="column is-half-mobile is-one-quarter-tablet">
+                    <div class="box has-text-centered">
+                        <p class="heading">{{ 'glossary_trainer.progress_started'|trans }}</p>
+                        <p class="title is-4" data-progress-started>{{ summary.started }}</p>
+                    </div>
+                </div>
+                <div class="column is-half-mobile is-one-quarter-tablet">
+                    <div class="box has-text-centered">
+                        <p class="heading">{{ 'glossary_trainer.summary_due'|trans }}</p>
+                        <p class="title is-4" data-progress-due>{{ summary.due }}</p>
+                        {% if summary.due > 0 %}
+                            <a href="{{ path('app_plugin_glossary_trainer', {scope: 'due'}) }}" class="is-size-7">{{ 'glossary_trainer.scope_due'|trans }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="column is-half-mobile is-one-quarter-tablet">
+                    <div class="box has-text-centered">
+                        <p class="heading">{{ 'glossary_trainer.streak'|trans }}</p>
+                        <p class="title is-4">{{ 'glossary_trainer.streak_days'|trans({'%count%': summary.streak}) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <progress class="progress is-success mb-1" value="{{ summary.learned }}" max="{{ max(summary.total, 1) }}">{{ summary.learned }} / {{ summary.total }}</progress>
+            <p class="is-size-7 has-text-grey mb-5">{{ 'glossary_trainer.progress_learned_hint'|trans }}</p>
+
+            {% if summary.started == 0 %}
+                <article class="message is-info">
+                    <div class="message-body">
+                        {{ 'glossary_trainer.progress_empty'|trans }}
+                        <a href="{{ path('app_plugin_glossary_trainer') }}">{{ 'glossary_trainer.button_start'|trans }}</a>
+                    </div>
+                </article>
+            {% endif %}
+
+            <div class="columns">
+                <div class="column is-two-thirds">
+
+                    {% if progress.tags is not empty %}
+                        <div class="box">
+                            <h2 class="title is-6">{{ 'glossary_trainer.heading_tags'|trans }}</h2>
+                            <div class="table-container">
+                                <table class="table is-fullwidth is-narrow">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ 'glossary.label_tag'|trans }}</th>
+                                            <th class="has-text-right">{{ 'glossary_trainer.column_words'|trans }}</th>
+                                            <th class="has-text-right">{{ 'glossary_trainer.progress_started'|trans }}</th>
+                                            <th class="has-text-right">{{ 'glossary_trainer.summary_learned'|trans }}</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for tag in progress.tags %}
+                                            <tr>
+                                                <td>{{ tag.label }}</td>
+                                                <td class="has-text-right">{{ tag.total }}</td>
+                                                <td class="has-text-right">{{ tag.started }}</td>
+                                                <td class="has-text-right">{{ tag.learned }}</td>
+                                                <td class="is-vcentered">
+                                                    <progress class="progress is-small is-success" value="{{ tag.learned }}" max="{{ tag.total }}">{{ tag.learned }} / {{ tag.total }}</progress>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if progress.hardest is not empty %}
+                        <div class="box">
+                            <h2 class="title is-6">{{ 'glossary_trainer.heading_hardest'|trans }}</h2>
+                            <table class="table is-fullwidth is-narrow">
+                                <tbody>
+                                    {% for row in progress.hardest %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ path('app_plugin_glossary_show', {id: row.entry.id}) }}"{% if row.entry.termLanguage %} lang="{{ row.entry.termLanguage }}"{% endif %}>{{ row.entry.phrase }}</a>
+                                            </td>
+                                            <td class="has-text-grey">{{ row.entry.secondary }}</td>
+                                            <td class="has-text-right is-size-7">{{ 'glossary_trainer.hardest_value'|trans({'%missed%': row.missed, '%seen%': row.seen}) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+
+                    {% if progress.suspended is not empty %}
+                        <div class="box">
+                            <h2 class="title is-6">{{ 'glossary_trainer.heading_suspended'|trans }}</h2>
+                            <p class="is-size-7 has-text-grey mb-2">{{ 'glossary_trainer.suspended_hint'|trans }}</p>
+                            <div class="tags">
+                                {% for entry in progress.suspended %}
+                                    <a href="{{ path('app_plugin_glossary_show', {id: entry.id}) }}" class="tag is-light"{% if entry.termLanguage %} lang="{{ entry.termLanguage }}"{% endif %}>{{ entry.phrase }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+                <div class="column">
+
+                    <div class="box">
+                        <h2 class="title is-6">{{ 'glossary_trainer.heading_answers'|trans }}</h2>
+                        <p>{{ 'glossary_trainer.answers_value'|trans({'%answers%': progress.answers, '%percent%': percent ~ '%'}) }}</p>
+                        <p class="mt-2">
+                            {{ 'glossary_trainer.progress_starred'|trans({'%count%': progress.starred}) }}
+                            {% if progress.starred > 0 %}
+                                - <a href="{{ path('app_plugin_glossary_trainer', {scope: 'starred'}) }}">{{ 'glossary_trainer.scope_starred'|trans }}</a>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="box">
+                        <h2 class="title is-6">{{ 'glossary_trainer.heading_upcoming'|trans }}</h2>
+                        <table class="table is-fullwidth is-narrow is-size-7">
+                            <tbody>
+                                {% for date, count in progress.upcoming %}
+                                    <tr>
+                                        <td>{{ loop.first ? 'glossary_trainer.upcoming_today'|trans : date }}</td>
+                                        <td class="has-text-right">{{ count }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="box">
+                        <h2 class="title is-6">{{ 'glossary_trainer.heading_activity'|trans }}</h2>
+                        <table class="table is-fullwidth is-narrow is-size-7">
+                            <tbody>
+                                {% for day in progress.activity %}
+                                    <tr title="{{ 'glossary_trainer.activity_value'|trans({'%reviewed%': day.reviewed, '%correct%': day.correct}) }}">
+                                        <td class="is-narrow">{{ day.day|date('m-d') }}</td>
+                                        <td class="is-vcentered">
+                                            <progress class="progress is-small is-link" value="{{ day.reviewed }}" max="{{ maxReviewed }}">{{ day.reviewed }}</progress>
+                                        </td>
+                                        <td class="has-text-right is-narrow">{{ day.reviewed }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}

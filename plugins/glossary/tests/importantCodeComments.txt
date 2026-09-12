@@ -4,6 +4,5 @@
 #
 # Format: path/relative/to/this/plugin.php::symbol // why
 
-src/Controller/EditController.php::edit // required ordering: the entity must be detached before the request's changes reach a flush
 tests/Unit/DataHotfix/MigrateGlossaryCategoriesTest.php::testBackfillsAssignmentsFromLegacyColumn // names which stubbed row is deliberately absent, which is the case
 tests/Unit/DataHotfix/MigrateGlossaryCategoriesTest.php::testSkipsBackfillWhenLegacyColumnAbsentButRewritesConfig // names which stubbed row is deliberately absent, which is the case

@@ -10,16 +10,23 @@ use App\Entity\PluginSettings;
 use App\Entity\Suggestion;
 use App\Entity\User;
 use App\Review\FieldChange;
+use DateInterval;
 use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
+use Override;
 use Plugin\Glossary\Entity\Glossary;
+use Plugin\Glossary\Entity\TrainerCard;
+use Plugin\Glossary\Enum\CardState;
+use Plugin\Glossary\Enum\Direction;
 use Plugin\Glossary\Item\GlossaryTaggableTypeProvider;
 use Plugin\Glossary\Review\GlossaryChangeTarget;
 
 class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
 {
-    #[\Override]
+    private const string MEMBER_EMAIL = 'Adem.Lane@example.org';
+
+    #[Override]
     public function load(ObjectManager $manager): void
     {
         echo 'Creating glossary ... ';
@@ -28,16 +35,20 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
         $tags = $this->buildTags($manager);
 
         $assignments = [];
-        foreach ($this->getData() as [$phrase, $pinyin, $explanation, $tagKey, $user]) {
+        $entries = [];
+        foreach ($this->getData() as [$phrase, $secondary, $english, $german, $tagKey, $user]) {
             $glossary = new Glossary();
             $glossary->setCreatedAt(new DateTimeImmutable());
             $glossary->setCreatedBy($user);
             $glossary->setPhrase($phrase);
-            $glossary->setPinyin($pinyin);
-            $glossary->setExplanation($explanation);
+            $glossary->setSecondary($secondary);
+            $glossary->setTermLanguage('zh');
+            $glossary->setDefinition('en', $english);
+            $glossary->setDefinition('de', $german);
 
             $manager->persist($glossary);
             $assignments[] = [$glossary, $tagKey];
+            $entries[] = $glossary;
         }
         $manager->flush();
 
@@ -52,8 +63,12 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
         }
         $manager->flush();
 
-        $this->seedPendingProposal($manager, $assignments[0][0], $tags);
-        $this->seedPendingSuggestion($manager);
+        $member = $manager->getRepository(User::class)->findOneBy(['email' => self::MEMBER_EMAIL]);
+        if ($member instanceof User) {
+            $this->seedPendingProposal($manager, $member, $entries[0], $tags);
+            $this->seedPendingSuggestion($manager, $member);
+            $this->seedDueCards($manager, $member, array_slice($entries, 1, 3));
+        }
 
         echo 'OK' . PHP_EOL;
     }
@@ -89,41 +104,51 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
     }
 
     /** @param array<int, ItemTag> $tags */
-    private function seedPendingProposal(ObjectManager $manager, Glossary $entry, array $tags): void
+    private function seedPendingProposal(ObjectManager $manager, User $member, Glossary $entry, array $tags): void
     {
-        $member = $manager->getRepository(User::class)->findOneBy(['email' => 'Adem.Lane@example.org']);
-        if ($member === null) {
-            return;
-        }
-
         $proposal = new ChangeProposal();
         $proposal->setTargetType(GlossaryTaggableTypeProvider::ITEM_TYPE);
         $proposal->setTargetId((int) $entry->getId());
         $proposal->setProposedBy($member);
         $proposal->setChanges([
-            new FieldChange(GlossaryChangeTarget::FIELD_EXPLANATION, $entry->getExplanation(), 'Hello. The everyday greeting - say 您好 to someone older or senior.'),
+            new FieldChange(
+                GlossaryChangeTarget::DEFINITION_PREFIX . 'en',
+                $entry->getDefinitionMap()['en'] ?? null,
+                'Hello. The everyday greeting - say 您好 to someone older or senior.',
+            ),
             new FieldChange(GlossaryChangeTarget::FIELD_TAG, (string) $tags[0]->getId(), (string) $tags[5]->getId()),
         ]);
         $manager->persist($proposal);
         $manager->flush();
     }
 
-    private function seedPendingSuggestion(ObjectManager $manager): void
+    private function seedPendingSuggestion(ObjectManager $manager, User $member): void
     {
-        $member = $manager->getRepository(User::class)->findOneBy(['email' => 'Adem.Lane@example.org']);
-        if ($member === null) {
-            return;
-        }
-
         $suggestion = new Suggestion();
         $suggestion->setTargetType(GlossaryTaggableTypeProvider::ITEM_TYPE);
         $suggestion->setProposedBy($member);
         $suggestion->setPayload([
             'phrase' => '厉害',
-            'pinyin' => 'lì hai',
-            'explanation' => 'Impressive, formidable. A compliment about skill.',
+            'secondary' => 'lì hai',
+            GlossaryChangeTarget::DEFINITION_PREFIX . 'en' => 'Impressive, formidable. A compliment about skill.',
         ]);
         $manager->persist($suggestion);
+        $manager->flush();
+    }
+
+    /** @param list<Glossary> $entries */
+    private function seedDueCards(ObjectManager $manager, User $member, array $entries): void
+    {
+        $now = new DateTimeImmutable();
+        foreach ($entries as $entry) {
+            $card = new TrainerCard((int) $member->getId(), $entry, Direction::TermToDefinition, $now->sub(new DateInterval('P10D')));
+            $card->setState(CardState::Review)
+                ->setRepetitions(2)
+                ->setIntervalDays(6)
+                ->setDueAt($now->sub(new DateInterval('P1D')))
+                ->recordAnswer(true, $now->sub(new DateInterval('P7D')));
+            $manager->persist($card);
+        }
         $manager->flush();
     }
 
@@ -136,6 +161,17 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
             'secondaryLabel' => 'Pinyin',
             'primaryLabel' => null,
             'definitionLabel' => null,
+            'termLanguage' => 'zh',
+            'trainerEnabled' => true,
+            'sessionSize' => 20,
+            'newCardsPerDay' => 10,
+            'directions' => [
+                Direction::TermToDefinition->value,
+                Direction::DefinitionToTerm->value,
+                Direction::SecondaryToTerm->value,
+            ],
+            'defaultAnswerMode' => 'flip',
+            'leaderboardEnabled' => true,
         ]);
         $config->setUpdatedAt(new DateTimeImmutable());
 
@@ -143,22 +179,22 @@ class GlossaryFixture extends AbstractFixture implements FixtureGroupInterface
     }
 
     /**
-     * @return list<array{0: string, 1: string, 2: string, 3: int, 4: int}>
+     * @return list<array{0: string, 1: string, 2: string, 3: string, 4: int, 5: int}>
      */
     private function getData(): array
     {
         return [
-            ['你好',       'nǐ hǎo',        'Hello - the standard greeting, safe in any situation.',                 0, 2],
-            ['您好',       'nín hǎo',       'Hello, polite form. Use with elders, teachers and strangers.',          0, 2],
-            ['早上好',     'zǎo shang hǎo', 'Good morning.',                                                         0, 2],
-            ['干嘛',       'gàn má',        'What are you up to? Casual, between friends.',                          0, 2],
-            ['你吃了吗？', 'nǐ chī le ma?', 'Have you eaten? Used as a friendly greeting, not a real question.',      6, 2],
-            ['马马虎虎',   'mǎ ma hū hū',   'So-so, nothing special. Literally "horse horse tiger tiger".',           6, 1],
-            ['加油',       'jiā yóu',       'Keep going, you can do it. Shouted at races and exams alike.',           6, 2],
-            ['随便',       'suí biàn',      'Whatever you like, up to you. Common when nobody wants to choose.',      3, 1],
-            ['靠',         'kào',           'Damn. Mild but impolite - not for the office.',                         1, 1],
-            ['没事',       'méi shì',       'No problem / never mind. Answer to an apology or a thank you.',          5, 2],
-            ['不好意思',   'bù hǎo yì si',  'Sorry / excuse me. Softer than a formal apology.',                       5, 2],
+            ['你好',       'nǐ hǎo',        'Hello - the standard greeting, safe in any situation.',                 'Hallo - der Standardgruß, passt immer.',                                  0, 2],
+            ['您好',       'nín hǎo',       'Hello, polite form. Use with elders, teachers and strangers.',          'Hallo, höfliche Form. Für Ältere, Lehrer und Fremde.',                   0, 2],
+            ['早上好',     'zǎo shang hǎo', 'Good morning.',                                                         'Guten Morgen.',                                                           0, 2],
+            ['干嘛',       'gàn má',        'What are you up to? Casual, between friends.',                          '',                                                                        0, 2],
+            ['你吃了吗？', 'nǐ chī le ma?', 'Have you eaten? Used as a friendly greeting, not a real question.',      '',                                                                        6, 2],
+            ['马马虎虎',   'mǎ ma hū hū',   'So-so, nothing special. Literally "horse horse tiger tiger".',           'Geht so, nichts Besonderes. Wörtlich "Pferd Pferd Tiger Tiger".',         6, 1],
+            ['加油',       'jiā yóu',       'Keep going, you can do it. Shouted at races and exams alike.',           '',                                                                        6, 2],
+            ['随便',       'suí biàn',      'Whatever you like, up to you. Common when nobody wants to choose.',      '',                                                                        3, 1],
+            ['靠',         'kào',           'Damn. Mild but impolite - not for the office.',                         '',                                                                        1, 1],
+            ['没事',       'méi shì',       'No problem / never mind. Answer to an apology or a thank you.',          'Kein Problem / macht nichts. Antwort auf eine Entschuldigung oder Dank.', 5, 2],
+            ['不好意思',   'bù hǎo yì si',  'Sorry / excuse me. Softer than a formal apology.',                       '',                                                                        5, 2],
         ];
     }
 

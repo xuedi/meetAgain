@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'glossary_trainer.results_title'|trans }}{% endblock %}
+
+{% block body %}
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half">
+
+                    <h1 class="title is-4">{{ 'glossary_trainer.results_title'|trans }}</h1>
+
+                    {% if session.feedback %}
+                        {% include '@Glossary/trainer/_feedback.html.twig' with {'feedback': session.feedback} only %}
+                    {% endif %}
+
+                    <div class="box">
+                        <p class="title is-4">{{ 'glossary_trainer.results_score'|trans({'%correct%': session.correct, '%answered%': session.answered}) }}</p>
+                        <p>{{ 'glossary_trainer.results_streak'|trans({'%streak%': 'glossary_trainer.streak_days'|trans({'%count%': streak})}) }}</p>
+                        {% if session.mode.value == 'practice' %}
+                            <p class="is-size-7 has-text-grey mt-2">{{ 'glossary_trainer.results_practice_note'|trans }}</p>
+                        {% endif %}
+                    </div>
+
+                    {% if missed is not empty %}
+                        <h2 class="title is-5">{{ 'glossary_trainer.results_missed'|trans }}</h2>
+                        <table class="table is-fullwidth is-narrow">
+                            <tbody>
+                                {% for entry in missed %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ path('app_plugin_glossary_show', {id: entry.id}) }}"{% if entry.termLanguage %} lang="{{ entry.termLanguage }}"{% endif %}>{{ entry.phrase }}</a>
+                                        </td>
+                                        <td class="has-text-grey">{{ entry.secondary }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+                    <div class="buttons">
+                        {% if not session.finished %}
+                            <a href="{{ path('app_plugin_glossary_trainer_card') }}" class="button is-link">{{ 'glossary_trainer.link_resume'|trans }}</a>
+                        {% endif %}
+                        <a href="{{ path('app_plugin_glossary_trainer') }}" class="button">{{ 'glossary_trainer.button_again'|trans }}</a>
+                        <a href="{{ path('app_plugin_glossary_trainer_progress') }}" class="button">{{ 'glossary_trainer.link_progress'|trans }}</a>
+                        <a href="{{ path('app_plugin_glossary', session.tagIds is empty ? {} : {tag: session.tagIds}) }}" class="button">{{ 'glossary_trainer.link_back_to_glossary'|trans }}</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

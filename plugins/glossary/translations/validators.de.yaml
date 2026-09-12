@@ -1,0 +1,3 @@
+'glossary_import.validator_file_missing': 'Wähle eine Datei zum Hochladen.'
+'glossary_import.validator_file_size': 'Die Datei ist zu groß. Die Grenze liegt bei {{ limit }} {{ suffix }}.'
+'glossary_import.validator_file_type': 'Lade eine .txt-, .csv- oder .tsv-Datei hoch.'

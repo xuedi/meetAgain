@@ -2,8 +2,8 @@
 
 namespace Plugin\Glossary\Tests\Unit\Review;
 
-use App\Entity\User;
 use App\Entity\ItemTag;
+use App\Entity\User;
 use App\Item\Tag\TagService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -35,6 +35,8 @@ class GlossaryChangeTargetTest extends TestCase
     public static function validationCases(): iterable
     {
         $entry = new Glossary();
+        $single = new Glossary()->setDefinition('en', 'Hello');
+        $double = new Glossary()->setDefinition('en', 'Hello')->setDefinition('de', 'Hallo');
 
         yield 'missing entry fails every field' => [null, GlossaryChangeTarget::FIELD_PHRASE, 'x', 'glossary.validation_entry_missing'];
         yield 'blank phrase is rejected' => [$entry, GlossaryChangeTarget::FIELD_PHRASE, '  ', 'glossary.validation_phrase_blank'];
@@ -43,7 +45,9 @@ class GlossaryChangeTargetTest extends TestCase
         yield 'known tag id is fine' => [$entry, GlossaryChangeTarget::FIELD_TAG, '3', null];
         yield 'one unknown id in a set rejects the set' => [$entry, GlossaryChangeTarget::FIELD_TAG, '3,99', 'glossary.validation_tag_unknown'];
         yield 'clearing the tags is fine' => [$entry, GlossaryChangeTarget::FIELD_TAG, null, null];
-        yield 'explanation has no constraints' => [$entry, GlossaryChangeTarget::FIELD_EXPLANATION, '', null];
+        yield 'clearing the only definition is refused' => [$single, 'definition_en', '', 'glossary.validation_definition_last'];
+        yield 'clearing one of two definitions is fine' => [$double, 'definition_de', null, null];
+        yield 'adding a definition has no constraint' => [$single, 'definition_de', 'Hallo', null];
     }
 
     public function testFormatValueResolvesTagLabels(): void
@@ -65,7 +69,8 @@ class GlossaryChangeTargetTest extends TestCase
 
         // Act & Assert
         self::assertSame('Term', $target->getFieldLabel(GlossaryChangeTarget::FIELD_PHRASE));
-        self::assertSame('glossary.label_explanation', $target->getFieldLabel(GlossaryChangeTarget::FIELD_EXPLANATION));
+        self::assertSame('glossary.label_secondary', $target->getFieldLabel(GlossaryChangeTarget::FIELD_SECONDARY));
+        self::assertSame('glossary.label_definition_in', $target->getFieldLabel('definition_de'));
     }
 
     public function testCanProposeRequiresAVisibleEntryAndARole(): void
@@ -93,7 +98,7 @@ class GlossaryChangeTargetTest extends TestCase
     public function testTargetLabelIsThePhraseOrNull(): void
     {
         // Act & Assert
-        self::assertSame('你好', $this->makeTarget(entry: (new Glossary())->setPhrase('你好'))->getTargetLabel(1));
+        self::assertSame('你好', $this->makeTarget(entry: new Glossary()->setPhrase('你好'))->getTargetLabel(1));
         self::assertNull($this->makeTarget(entry: null)->getTargetLabel(1));
     }
 
@@ -119,6 +124,9 @@ class GlossaryChangeTargetTest extends TestCase
         if ($service === null) {
             $service = $this->createStub(GlossaryService::class);
             $service->method('get')->willReturn($entry);
+            $service->method('definitionLanguageOf')->willReturnCallback(
+                static fn(string $field): ?string => preg_match('/^definition_([a-z]{2})$/', $field, $match) === 1 ? $match[1] : null,
+            );
         }
         $service->method('decodeTagIds')->willReturnCallback(
             static fn(?string $value): array => $value === null || $value === ''

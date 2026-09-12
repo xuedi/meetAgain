@@ -1,0 +1,3 @@
+'glossary_import.validator_file_missing': 'Choisissez un fichier à téléverser.'
+'glossary_import.validator_file_size': 'Le fichier est trop volumineux. La limite est de {{ limit }} {{ suffix }}.'
+'glossary_import.validator_file_type': 'Téléversez un fichier .txt, .csv ou .tsv.'
