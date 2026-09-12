@@ -5,6 +5,7 @@ namespace Plugin\Wishlist;
 use App\Entity\Link;
 use App\Enum\EventTileLocation;
 use App\Enum\WarmCacheType;
+use App\Item\TypeRegistry;
 use App\Plugin;
 use App\Repository\EventItemAssociationRepository;
 use App\Repository\UserRepository;
@@ -20,6 +21,7 @@ class Kernel implements Plugin
         private readonly WishlistService $wishlistService,
         private readonly EventItemAssociationRepository $associations,
         private readonly UserRepository $userRepository,
+        private readonly TypeRegistry $typeRegistry,
     ) {}
 
     public function getPluginKey(): string
@@ -29,6 +31,10 @@ class Kernel implements Plugin
 
     public function getLinkCollection(): LinkCollection
     {
+        if ($this->typeRegistry->all() === []) {
+            return LinkCollection::empty();
+        }
+
         return LinkCollection::empty()->withNavLinks([
             new Link(slug: $this->urlGenerator->generate('app_wishlist_mine'), name: 'wishlist.menu_main'),
         ]);

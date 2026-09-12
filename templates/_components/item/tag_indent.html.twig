@@ -1,0 +1,18 @@
+{#
+    Item Tag Indent -- the down-then-right arrow that hangs a sub-tag from the row above it
+
+    Fills the indent in front of a nested tag with an arrow, so the hierarchy reads as structure
+    instead of stray whitespace. It is 1.5rem wide per level below the top, with the arrow at its
+    right edge, so a deeper arrow starts under its parent's label.
+    Renders nothing for a top-level tag. Place it as the first child of a flex row.
+
+    Used in:    _components/item/tag_filter.html.twig, _form/tag.html.twig,
+                contribution/_tag_form.html.twig, admin/system/theme/gallery/comp_item_filter.html.twig
+    Parameters:
+        - depth (int, required) -- the tag's level, 1 for a top-level tag
+#}
+{% if depth > 1 %}
+    <span class="is-flex is-justify-content-flex-end is-flex-shrink-0 has-text-grey-light" style="width: {{ (depth - 1) * 1.5 }}rem;" aria-hidden="true" data-item-tag-indent="{{ depth }}">
+        <span class="icon"><i class="fa-solid fa-turn-up fa-rotate-90"></i></span>
+    </span>
+{% endif %}

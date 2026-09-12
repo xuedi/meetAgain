@@ -214,6 +214,7 @@ class PluginServiceTest extends TestCase
         $keys = array_column($result, 'key');
         static::assertContains('plugin1', $keys);
         static::assertNotContains('hidden_plugin', $keys);
+        static::assertSame('plug', $result[0]['icon']);
     }
 
     public function testInstallAddsPluginToConfigAsDisabled(): void

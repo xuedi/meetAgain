@@ -1,5 +1,6 @@
 {
   "name": "Glossary",
   "version": "1.0",
-  "description": "This is a plugin to manage a glossary of phrases"
+  "description": "This is a plugin to manage a glossary of phrases",
+  "icon": "spell-check"
 }

@@ -7,7 +7,8 @@
     every label remains editable.
 
     Registered in: config/packages/twig.yaml (form_themes, after _form/bulma.html.twig)
-    Depends on:    js/admin/item-tags.js, js/item-tag-tree.js; get_admin_language_codes()
+    Depends on:    js/admin/item-tags.js, js/item-tag-tree.js; get_admin_language_codes();
+                   _components/item/tag_indent.html.twig
 #}
 {%- block item_tags_editor_widget -%}
     <div class="item-tag-editor">
@@ -32,9 +33,10 @@
     {%- set usageCount = isExisting ? (form.vars.usage[rowId]|default(0)) : 0 -%}
     {%- set depth = isExisting ? (form.vars.depths[rowId]|default(1)) : 1 -%}
     {{- form_widget(form.id) -}}
-    <div class="item-tag-row is-flex is-flex-wrap-wrap is-align-items-center" style="gap: 0.5rem; padding-left: {{ (depth - 1) * 1.5 }}rem;"
+    <div class="item-tag-row is-flex is-flex-wrap-wrap is-align-items-center" style="gap: 0.5rem;"
          data-item-tag-usage="{{ usageCount }}"
          data-item-tag-usage-message="{{ 'item.tag_remove_confirm'|trans({'%count%': usageCount}) }}">
+        {{ include('_components/item/tag_indent.html.twig', {depth: depth}) }}
         <div class="item-tag-parent-cell" style="flex: 0 0 10rem;">
             {{- form_widget(form.parent) -}}
         </div>
@@ -56,7 +58,8 @@
     <div {{ block('widget_container_attributes') }}>
         {%- for child in form -%}
             {%- if tree -%}
-                <div style="padding-left: {{ (child.vars.attr['data-item-tag-depth']|default(1) - 1) * 1.5 }}rem;">
+                <div class="is-flex is-align-items-center">
+                    {{- include('_components/item/tag_indent.html.twig', {depth: child.vars.attr['data-item-tag-depth']|default(1)}) -}}
                     {{- form_widget(child, {translation_domain: choice_translation_domain}) -}}
                 </div>
             {%- else -%}

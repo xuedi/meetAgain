@@ -4,6 +4,7 @@ namespace App\Tests\Unit\Item\Tag;
 
 use App\Entity\ItemTag;
 use App\Entity\ItemTagAssignment;
+use App\Item\Tag\AssignmentClosure;
 use App\Item\Tag\TagService;
 use App\Item\Tag\TypeRegistry;
 use App\Repository\ItemTagAssignmentRepository;
@@ -128,6 +129,6 @@ class TagServiceTest extends TestCase
         $em = $this->em ?? $this->createStub(EntityManagerInterface::class);
         $assignmentRepo = $this->assignmentRepo ?? $this->createStub(ItemTagAssignmentRepository::class);
 
-        return new TagService($em, $tagRepo, $assignmentRepo, $registry, $languageService, [], [], [], []);
+        return new TagService($em, $tagRepo, $assignmentRepo, new AssignmentClosure($em, $tagRepo, $assignmentRepo), $registry, $languageService, [], [], [], []);
     }
 }

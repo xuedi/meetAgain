@@ -14,7 +14,7 @@ final class ItemTagExtension extends AbstractExtension
         return [
             new TwigFunction('item_tag_labels', [ItemTagRuntime::class, 'tagLabels']),
             new TwigFunction('item_tag_choices', [ItemTagRuntime::class, 'tagChoices']),
-            new TwigFunction('item_tag_levels', [ItemTagRuntime::class, 'tagLevels']),
+            new TwigFunction('item_tag_rows', [ItemTagRuntime::class, 'tagRows']),
             new TwigFunction('item_tag_pending', [ItemTagRuntime::class, 'pendingCount']),
         ];
     }

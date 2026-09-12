@@ -4,11 +4,13 @@ namespace Tests\Functional\Item;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 
 class ItemListSidebarTest extends WebTestCase
 {
     private const string GLOSSARY_HOST = 'dragon.meetagain.local';
     private const string FILM_HOST = 'cinema.meetagain.local';
+    private const string PHOTO_HOST = 'photo.meetagain.local';
 
     /** @return iterable<string, array{string, string, string}> */
     public static function listPageProvider(): iterable
@@ -97,7 +99,7 @@ class ItemListSidebarTest extends WebTestCase
         );
     }
 
-    public function testASubTagRendersIndentedBelowItsParent(): void
+    public function testEveryTagSitsOnItsOwnLineAndASubTagHangsFromAnArrow(): void
     {
         // Arrange
         $client = static::createClient();
@@ -106,10 +108,55 @@ class ItemListSidebarTest extends WebTestCase
         $crawler = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
 
         // Assert
-        $rows = $crawler->filter('[data-item-facet-axis="tag"] > .tags');
-        static::assertGreaterThan(1, $rows->count(), 'A nested vocabulary renders one row per level');
-        static::assertStringNotContainsString('padding-left', (string) $rows->first()->attr('style'));
-        static::assertStringContainsString('padding-left', (string) $rows->eq(1)->attr('style'));
+        $rows = $crawler->filter('[data-item-facet-axis="tag"] > div');
+        static::assertGreaterThan(1, $rows->count());
+        static::assertSame([1], array_values(array_unique($rows->each(static fn(Crawler $row): int => $row->filter('.tag')->count()))));
+        static::assertGreaterThan(0, $crawler->filter('[data-item-facet-axis="tag"] [data-item-tag-indent]')->count());
+    }
+
+    public function testOptionsPastTheTwelfthCollapseBehindShowAll(): void
+    {
+        // Arrange
+        $client = static::createClient();
+
+        // Act
+        $crawler = $client->request('GET', '/en/photos', server: ['HTTP_HOST' => self::PHOTO_HOST]);
+        $rows = $crawler->filter('[data-item-facet-axis="tag"] > div');
+        if ($rows->count() <= 12) {
+            static::markTestSkipped('The photo fixtures here seed no vocabulary longer than the twelve visible chips.');
+        }
+
+        // Assert
+        static::assertCount($rows->count() - 12,$crawler->filter('[data-item-facet-axis="tag"] > div.item-facet-extra'));
+        static::assertCount(0, $crawler->filter('.item-facet-extra.is-flex'), 'is-flex is !important and would override the is-hidden that collapses the row');
+        static::assertCount(1, $crawler->filter('[data-item-facet-axis="tag"] > [data-item-facet-more]'));
+    }
+
+    public function testASubTagNeverOutcountsTheParentItHangsFrom(): void
+    {
+        // Arrange
+        $client = static::createClient();
+
+        // Act
+        $crawler = $client->request('GET', '/en/glossary', server: ['HTTP_HOST' => self::GLOSSARY_HOST]);
+
+        // Assert
+        $rows = $crawler->filter('[data-item-facet-axis="tag"] > div')->each(static fn(Crawler $row): array => [
+            'depth' => (int) ($row->filter('[data-item-tag-indent]')->count() > 0 ? $row->filter('[data-item-tag-indent]')->attr('data-item-tag-indent') : 1),
+            'count' => (int) $row->filter('.tag > span')->text(),
+        ]);
+        $checked = 0;
+        foreach ($rows as $index => $row) {
+            if ($row['depth'] < 2) {
+                continue;
+            }
+
+            $parent = array_find(array_reverse(array_slice($rows, 0, $index)), static fn(array $candidate): bool => $candidate['depth'] === $row['depth'] - 1);
+            static::assertNotNull($parent);
+            static::assertGreaterThanOrEqual($row['count'], $parent['count']);
+            $checked++;
+        }
+        static::assertGreaterThan(0, $checked);
     }
 
     public function testAFacetedPageNarrowsTheCountAndIsNotIndexed(): void
