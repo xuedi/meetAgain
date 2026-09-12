@@ -71,7 +71,12 @@ class Kernel extends BaseKernel
         }
 
         foreach ($plugins as $pluginName => $pluginEnabled) {
-            yield $this->getProjectDir() . '/plugins/' . $pluginName . '/config' => $pluginEnabled;
+            $pluginConfigDir = $this->getProjectDir() . '/plugins/' . $pluginName . '/config';
+            if (!is_dir($pluginConfigDir)) {
+                continue;
+            }
+
+            yield $pluginConfigDir => $pluginEnabled;
         }
     }
 
