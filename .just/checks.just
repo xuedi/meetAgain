@@ -2,7 +2,7 @@
 
 # Run all tests and checks
 [group('checks')]
-check: checkMago checkMagoAnalyze checkMagoGuard checkPluginIsolation
+check: checkMago checkMagoAnalyze checkMagoGuard checkPluginConfig checkPluginIsolation
     {{PHP}} composer validate --strict
     {{PHP}} php bin/check-get-routes.php
     echo "All tests and checks passed successfully"

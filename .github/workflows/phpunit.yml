@@ -217,3 +217,8 @@ jobs:
 
       - name: GET-route purity check
         run: php bin/check-get-routes.php
+
+      - name: Plugin config check against the shipped test defaults
+        run: |
+          cp config/plugins_test.dist.php config/plugins_test.php
+          php bin/check-plugin-config.php test

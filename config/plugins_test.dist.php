@@ -6,6 +6,7 @@ return [
     'dishes' => true,
     'films' => true,
     'glossary' => true,
+    'karaoke' => true,
     'photos' => true,
     'wishlist' => true,
 ];
