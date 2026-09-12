@@ -5,6 +5,7 @@
 check: checkMago checkMagoAnalyze checkMagoGuard checkPluginConfig checkPluginIsolation
     {{PHP}} composer validate --strict
     {{PHP}} php bin/check-get-routes.php
+    {{PHP}} php bin/check-new-parentheses.php
     echo "All tests and checks passed successfully"
 
 # Check Mago (linter)

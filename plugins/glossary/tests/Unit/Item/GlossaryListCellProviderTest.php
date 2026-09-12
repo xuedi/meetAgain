@@ -21,7 +21,7 @@ class GlossaryListCellProviderTest extends TestCase
     public function testRendersTheCellTemplateWithEntryAndConfig(): void
     {
         // Arrange
-        $entry = (new Glossary())->setPhrase('你好');
+        $entry = new Glossary()->setPhrase('你好');
         $config = new Config();
 
         $twig = $this->createMock(Environment::class);

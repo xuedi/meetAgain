@@ -137,7 +137,7 @@ readonly class TransferService
                 continue;
             }
 
-            $entry = (new Glossary())->setPhrase($row['phrase'])->setSecondary($row['secondary']);
+            $entry = new Glossary()->setPhrase($row['phrase'])->setSecondary($row['secondary']);
             $entry->setDefinition($mapping->language, $row['definition']);
             $newRows[] = [$entry, $tagIds];
             $index[$key] = $entry;

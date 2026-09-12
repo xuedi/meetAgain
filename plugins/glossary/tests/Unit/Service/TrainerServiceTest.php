@@ -104,7 +104,7 @@ class TrainerServiceTest extends TestCase
 
     private function entry(int $id): Glossary
     {
-        $entry = (new Glossary())->setPhrase('word ' . $id);
+        $entry = new Glossary()->setPhrase('word ' . $id);
         new ReflectionProperty(Glossary::class, 'id')->setValue($entry, $id);
 
         return $entry;

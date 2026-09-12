@@ -16,7 +16,7 @@ final class Version20260413000000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $now = (new \DateTimeImmutable('now'))->format('Y-m-d H:i:s');
+        $now = new \DateTimeImmutable('now')->format('Y-m-d H:i:s');
         $this->addSql("INSERT INTO app_state (key_name, value, updated_at) VALUES ('footer_col1_title', 'Help', '{$now}')");
         $this->addSql("INSERT INTO app_state (key_name, value, updated_at) VALUES ('footer_col2_title', 'Platform', '{$now}')");
         $this->addSql("INSERT INTO app_state (key_name, value, updated_at) VALUES ('footer_col3_title', 'Social', '{$now}')");

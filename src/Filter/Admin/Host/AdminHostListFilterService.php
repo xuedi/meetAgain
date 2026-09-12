@@ -69,7 +69,7 @@ readonly class AdminHostListFilterService
         foreach ($this->getSortedFilters() as $filter) {
             $filterContext = $filter->getDebugContext($hostId);
             if ($filterContext !== []) {
-                $context[get_class($filter)] = $filterContext;
+                $context[$filter::class] = $filterContext;
             }
         }
 

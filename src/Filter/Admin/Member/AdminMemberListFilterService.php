@@ -69,7 +69,7 @@ readonly class AdminMemberListFilterService
         foreach ($this->getSortedFilters() as $filter) {
             $filterContext = $filter->getDebugContext($userId);
             if ($filterContext !== []) {
-                $context[get_class($filter)] = $filterContext;
+                $context[$filter::class] = $filterContext;
             }
         }
 

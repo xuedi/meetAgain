@@ -35,7 +35,7 @@ class GlossaryTypeTest extends TestCase
     public function testSecondaryEnabledAddsTheSecondaryField(): void
     {
         // Arrange
-        $config = (new Config())->setSecondaryEnabled(true)->setSecondaryLabel('Romaji');
+        $config = new Config()->setSecondaryEnabled(true)->setSecondaryLabel('Romaji');
 
         // Act
         $form = $this->formFor($config, []);
@@ -58,7 +58,7 @@ class GlossaryTypeTest extends TestCase
     public function testTheDefinitionFieldsStartFromTheDraft(): void
     {
         // Arrange
-        $draft = (new Glossary())->submitDefinitions(['en' => 'Hello']);
+        $draft = new Glossary()->submitDefinitions(['en' => 'Hello']);
 
         // Act
         $form = $this->formFor(new Config(), [], $draft);

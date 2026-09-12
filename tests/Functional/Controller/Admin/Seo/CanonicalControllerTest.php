@@ -28,7 +28,7 @@ final class CanonicalControllerTest extends WebTestCase
         $lanes = $crawler->filter('table tbody tr');
         self::assertGreaterThan(0, $lanes->count());
         foreach ($lanes as $lane) {
-            $chips = (new Crawler($lane))->filter('.tags .tag')->each(static fn($node) => trim($node->text()));
+            $chips = new Crawler($lane)->filter('.tags .tag')->each(static fn($node) => trim($node->text()));
             self::assertNotEmpty($chips);
             self::assertSame('first', $chips[0]);
         }

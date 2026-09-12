@@ -49,7 +49,7 @@ class EventCanonicalResolverTest extends TestCase
 
     private function makeMarker(Event $event, string $locale, EventCanonicalRootType $type): EventCanonicalRoot
     {
-        return (new EventCanonicalRoot())
+        return new EventCanonicalRoot()
             ->setEvent($event)
             ->setLocale($locale)
             ->setType($type)

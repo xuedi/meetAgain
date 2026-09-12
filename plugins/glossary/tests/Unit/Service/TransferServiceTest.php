@@ -106,7 +106,7 @@ class TransferServiceTest extends TestCase
     public function testTheExportIsAnAnkiReadableTabSeparatedFile(): void
     {
         // Arrange
-        $entry = (new Glossary())->setPhrase('你好')->setSecondary('nǐ hǎo');
+        $entry = new Glossary()->setPhrase('你好')->setSecondary('nǐ hǎo');
         new ReflectionProperty(Glossary::class, 'id')->setValue($entry, 1);
 
         $glossaryService = $this->createStub(GlossaryService::class);

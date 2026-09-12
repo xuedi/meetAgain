@@ -19,7 +19,7 @@ class RegistryTest extends TestCase
         $providers = array_map($this->stubProvider(...), $fragments);
 
         // Act
-        $rendered = (new Registry($providers))->render();
+        $rendered = new Registry($providers)->render();
 
         // Assert
         static::assertSame($expected, $rendered);

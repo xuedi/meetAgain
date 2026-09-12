@@ -35,8 +35,8 @@ class GlossaryChangeTargetTest extends TestCase
     public static function validationCases(): iterable
     {
         $entry = new Glossary();
-        $single = (new Glossary())->setDefinition('en', 'Hello');
-        $double = (new Glossary())->setDefinition('en', 'Hello')->setDefinition('de', 'Hallo');
+        $single = new Glossary()->setDefinition('en', 'Hello');
+        $double = new Glossary()->setDefinition('en', 'Hello')->setDefinition('de', 'Hallo');
 
         yield 'missing entry fails every field' => [null, GlossaryChangeTarget::FIELD_PHRASE, 'x', 'glossary.validation_entry_missing'];
         yield 'blank phrase is rejected' => [$entry, GlossaryChangeTarget::FIELD_PHRASE, '  ', 'glossary.validation_phrase_blank'];
@@ -98,7 +98,7 @@ class GlossaryChangeTargetTest extends TestCase
     public function testTargetLabelIsThePhraseOrNull(): void
     {
         // Act & Assert
-        self::assertSame('你好', $this->makeTarget(entry: (new Glossary())->setPhrase('你好'))->getTargetLabel(1));
+        self::assertSame('你好', $this->makeTarget(entry: new Glossary()->setPhrase('你好'))->getTargetLabel(1));
         self::assertNull($this->makeTarget(entry: null)->getTargetLabel(1));
     }
 

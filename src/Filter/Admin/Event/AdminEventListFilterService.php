@@ -69,7 +69,7 @@ readonly class AdminEventListFilterService
         foreach ($this->getSortedFilters() as $filter) {
             $filterContext = $filter->getDebugContext($eventId);
             if ($filterContext !== []) {
-                $context[get_class($filter)] = $filterContext;
+                $context[$filter::class] = $filterContext;
             }
         }
 

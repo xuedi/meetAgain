@@ -204,7 +204,7 @@ class FieldBallotFlowTest extends WebTestCase
         self::assertNotNull($view);
         self::assertSame(TallyMode::Approval, $view->tallyMode);
         self::assertSame(
-            (new DateTimeImmutable('+2 days'))->format('Y-m-d'),
+            new DateTimeImmutable('+2 days')->format('Y-m-d'),
             $view->deadline->format('Y-m-d'),
             'the deadline is the one the steward asked for, not the seven-day default',
         );
@@ -226,7 +226,7 @@ class FieldBallotFlowTest extends WebTestCase
         $view = $this->ballots()->view($ballotId, (int) $steward->getId());
         self::assertNotNull($view);
         self::assertSame(TallyMode::Single, $view->tallyMode, 'a field ballot still picks one value by default');
-        self::assertSame((new DateTimeImmutable('+7 days'))->format('Y-m-d'), $view->deadline->format('Y-m-d'));
+        self::assertSame(new DateTimeImmutable('+7 days')->format('Y-m-d'), $view->deadline->format('Y-m-d'));
     }
 
     public function testTheMemberFacingFormStillRendersItsOwnPendingProposal(): void

@@ -21,7 +21,7 @@ class ConfigTest extends TestCase
     public function testToArrayFromArrayRoundTrip(): void
     {
         // Arrange
-        $config = (new Config())
+        $config = new Config()
             ->setFooterText(['en' => 'See you next time', 'zh' => '下次见'])
             ->setPhoneticInList(true);
 
@@ -46,7 +46,7 @@ class ConfigTest extends TestCase
     public function testSetFooterTextDropsEmptyAndTrims(): void
     {
         // Arrange + Act
-        $config = (new Config())->setFooterText(['en' => '  Hello  ', 'de' => '   ', 'zh' => '']);
+        $config = new Config()->setFooterText(['en' => '  Hello  ', 'de' => '   ', 'zh' => '']);
 
         // Assert
         static::assertSame(['en' => 'Hello'], $config->getFooterText());
@@ -55,7 +55,7 @@ class ConfigTest extends TestCase
     public function testGetFooterForReturnsEmptyStringForMissingLocale(): void
     {
         // Arrange
-        $config = (new Config())->setFooterText(['en' => 'Hi']);
+        $config = new Config()->setFooterText(['en' => 'Hi']);
 
         // Act + Assert
         static::assertSame('', $config->getFooterFor('de'));

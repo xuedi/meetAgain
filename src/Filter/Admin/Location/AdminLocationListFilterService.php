@@ -69,7 +69,7 @@ readonly class AdminLocationListFilterService
         foreach ($this->getSortedFilters() as $filter) {
             $filterContext = $filter->getDebugContext($locationId);
             if ($filterContext !== []) {
-                $context[get_class($filter)] = $filterContext;
+                $context[$filter::class] = $filterContext;
             }
         }
 

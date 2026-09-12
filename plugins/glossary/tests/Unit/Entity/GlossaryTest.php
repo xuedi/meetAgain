@@ -59,7 +59,7 @@ class GlossaryTest extends TestCase
     public function testSettingAnEmptyDefinitionRemovesThatLanguage(): void
     {
         // Arrange
-        $glossary = (new Glossary())->setDefinition('en', 'Hello')->setDefinition('de', 'Hallo');
+        $glossary = new Glossary()->setDefinition('en', 'Hello')->setDefinition('de', 'Hallo');
 
         // Act
         $glossary->setDefinition('de', '  ');
@@ -72,7 +72,7 @@ class GlossaryTest extends TestCase
     public function testSettingALanguageTwiceUpdatesTheSameRow(): void
     {
         // Arrange
-        $glossary = (new Glossary())->setDefinition('en', 'Hello');
+        $glossary = new Glossary()->setDefinition('en', 'Hello');
         $row = $glossary->findDefinition('en');
 
         // Act

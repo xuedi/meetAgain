@@ -271,7 +271,7 @@ readonly class GlossaryService
 
     public function draftOf(Glossary $entry): Glossary
     {
-        return (new Glossary())
+        return new Glossary()
             ->setPhrase((string) $entry->getPhrase())
             ->setSecondary($entry->getSecondary())
             ->setTermLanguage($entry->getTermLanguage())

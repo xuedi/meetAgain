@@ -17,7 +17,7 @@ class GlossaryTargetTest extends TestCase
     {
         // Arrange
         $target = $this->target();
-        $draft = (new Glossary())
+        $draft = new Glossary()
             ->setPhrase('半路出家')
             ->setSecondary('bàn lù chū jiā')
             ->submitDefinitions(['en' => 'A latecomer to a craft.', 'de' => 'Ein Quereinsteiger.', 'fr' => '']);
@@ -52,8 +52,8 @@ class GlossaryTargetTest extends TestCase
         $target = $this->target(duplicates: ['你好']);
 
         // Act
-        $duplicate = $target->validate((new Glossary())->setPhrase('你好')->submitDefinitions(['en' => 'Hello.']));
-        $fresh = $target->validate((new Glossary())->setPhrase('您好')->submitDefinitions(['en' => 'Hello, politely.']));
+        $duplicate = $target->validate(new Glossary()->setPhrase('你好')->submitDefinitions(['en' => 'Hello.']));
+        $fresh = $target->validate(new Glossary()->setPhrase('您好')->submitDefinitions(['en' => 'Hello, politely.']));
 
         // Assert
         self::assertSame('glossary.validator_duplicate', $duplicate);
@@ -66,9 +66,9 @@ class GlossaryTargetTest extends TestCase
         $target = $this->target();
 
         // Act & Assert
-        self::assertSame('glossary.validator_incomplete', $target->validate((new Glossary())->setPhrase('加油')));
-        self::assertSame('glossary.validator_incomplete', $target->validate((new Glossary())->setPhrase('加油')->submitDefinitions(['en' => ' '])));
-        self::assertSame('glossary.validator_incomplete', $target->validate((new Glossary())->setPhrase(' ')->submitDefinitions(['en' => 'Keep going.'])));
+        self::assertSame('glossary.validator_incomplete', $target->validate(new Glossary()->setPhrase('加油')));
+        self::assertSame('glossary.validator_incomplete', $target->validate(new Glossary()->setPhrase('加油')->submitDefinitions(['en' => ' '])));
+        self::assertSame('glossary.validator_incomplete', $target->validate(new Glossary()->setPhrase(' ')->submitDefinitions(['en' => 'Keep going.'])));
     }
 
     public function testTheSummaryShowsTheSecondaryOnlyWhereEnabledAndOneRowPerDefinition(): void
@@ -98,7 +98,7 @@ class GlossaryTargetTest extends TestCase
             static fn(string $field): ?string => preg_match('/^definition_([a-z]{2})$/', $field, $match) === 1 ? $match[1] : null,
         );
 
-        $config = (new Config())->setSecondaryEnabled($secondaryEnabled);
+        $config = new Config()->setSecondaryEnabled($secondaryEnabled);
         $configService = $this->createStub(ConfigService::class);
         $configService->method('getConfig')->willReturn($config);
 
