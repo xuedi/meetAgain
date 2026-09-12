@@ -88,7 +88,6 @@ permit = [
     "@global",
     "App\\Entity\\User",
     "App\\Controller\\AbstractController",
-    "App\\Admin\\**",
     "Doctrine\\**", "Symfony\\**", "Twig\\**", "Psr\\**",
 ]
 

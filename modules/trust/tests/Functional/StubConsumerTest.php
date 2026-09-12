@@ -2,32 +2,39 @@
 
 namespace Module\Trust\Tests\Functional;
 
-use Module\Trust\Contract\TrustConfig;
+use App\Repository\UserRepository;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Module\Trust\Contract\TrustInterface;
 use Module\Trust\Contract\TrustLevel;
 use Module\Trust\Internal\ConfigStore;
+use Module\Trust\Internal\Entity\TrustContextConfig;
 use Module\Trust\Internal\ScoreProvider;
 use Module\Trust\Tests\Stub\ActionSource;
 use Module\Trust\Tests\Stub\ContextDescriber;
 use Module\Trust\Tests\Stub\UserLocator;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
-class StubConsumerTest extends WebTestCase
+class StubConsumerTest extends KernelTestCase
 {
-    private const string PASSWORD = '1234';
     private const string CONTEXT = ContextDescriber::CONTEXT;
 
     public function testAVouchLiftsAMemberOverTheParticipationMinimum(): void
     {
         // Arrange
-        static::createClient();
+        static::bootKernel();
         $locator = static::getContainer()->get(UserLocator::class);
         $trust = static::getContainer()->get(TrustInterface::class);
         $rootId = (int) $locator->idFor(UserLocator::ROOT_EMAIL);
         $newcomerId = (int) $locator->idFor(UserLocator::NEWCOMER_EMAIL);
-        static::getContainer()->get(ConfigStore::class)->save(self::CONTEXT, new TrustConfig(minimumToParticipate: 200));
-        static::getContainer()->get(ScoreProvider::class)->invalidate(self::CONTEXT);
+        $this->configure(['minimumToParticipate' => 200]);
 
         // Act
         $before = $trust->meetsMinimum(self::CONTEXT, $newcomerId);
@@ -43,16 +50,14 @@ class StubConsumerTest extends WebTestCase
     public function testAQuantityCapKeepsTenureFromRunningAway(): void
     {
         // Arrange
-        static::createClient();
+        static::bootKernel();
         $locator = static::getContainer()->get(UserLocator::class);
         $trust = static::getContainer()->get(TrustInterface::class);
-        $configStore = static::getContainer()->get(ConfigStore::class);
         $earnerId = (int) $locator->idFor(UserLocator::EARNER_EMAIL);
         $capped = $trust->getScore(self::CONTEXT, $earnerId);
 
         // Act
-        $configStore->save(self::CONTEXT, new TrustConfig(capsPerAction: [ActionSource::TENURE => ActionSource::TENURE_MONTHS]));
-        static::getContainer()->get(ScoreProvider::class)->invalidate(self::CONTEXT);
+        $this->configure(['capsPerAction' => [ActionSource::TENURE => ActionSource::TENURE_MONTHS]]);
         $uncapped = $trust->getScore(self::CONTEXT, $earnerId);
 
         // Assert
@@ -63,7 +68,7 @@ class StubConsumerTest extends WebTestCase
     public function testActionPointsAloneProduceAScore(): void
     {
         // Arrange
-        static::createClient();
+        static::bootKernel();
         $locator = static::getContainer()->get(UserLocator::class);
         $trust = static::getContainer()->get(TrustInterface::class);
         $earnerId = (int) $locator->idFor(UserLocator::EARNER_EMAIL);
@@ -79,7 +84,7 @@ class StubConsumerTest extends WebTestCase
     public function testAnUndeclaredActionIsIgnoredAndReported(): void
     {
         // Arrange
-        static::createClient();
+        static::bootKernel();
         $provider = static::getContainer()->get(ScoreProvider::class);
 
         // Act
@@ -92,16 +97,14 @@ class StubConsumerTest extends WebTestCase
     public function testRaisingThePointsPerHandoverMovesEverybodyWhoEverEarned(): void
     {
         // Arrange
-        static::createClient();
+        static::bootKernel();
         $locator = static::getContainer()->get(UserLocator::class);
         $trust = static::getContainer()->get(TrustInterface::class);
-        $configStore = static::getContainer()->get(ConfigStore::class);
         $earnerId = (int) $locator->idFor(UserLocator::EARNER_EMAIL);
         $before = $trust->getScore(self::CONTEXT, $earnerId);
 
         // Act
-        $configStore->save(self::CONTEXT, new TrustConfig(pointsPerAction: [ActionSource::HANDOVER => 50]));
-        static::getContainer()->get(ScoreProvider::class)->invalidate(self::CONTEXT);
+        $this->configure(['pointsPerAction' => [ActionSource::HANDOVER => 50]]);
         $after = $trust->getScore(self::CONTEXT, $earnerId);
 
         // Assert
@@ -113,7 +116,7 @@ class StubConsumerTest extends WebTestCase
     public function testTwoContextsScoreTheSameMembersIndependently(): void
     {
         // Arrange
-        static::createClient();
+        static::bootKernel();
         $locator = static::getContainer()->get(UserLocator::class);
         $trust = static::getContainer()->get(TrustInterface::class);
         $earnerId = (int) $locator->idFor(UserLocator::EARNER_EMAIL);
@@ -130,7 +133,7 @@ class StubConsumerTest extends WebTestCase
     public function testAMemberNeverSeesAnotherMembersOutgoingVouches(): void
     {
         // Arrange
-        static::createClient();
+        static::bootKernel();
         $locator = static::getContainer()->get(UserLocator::class);
         $trust = static::getContainer()->get(TrustInterface::class);
         $rootId = (int) $locator->idFor(UserLocator::ROOT_EMAIL);
@@ -146,62 +149,38 @@ class StubConsumerTest extends WebTestCase
         static::assertSame(1, $trust->getVouchCount(self::CONTEXT, $newcomerId));
     }
 
-    public function testTheContextPageOffersAVouchControlForEveryOtherMember(): void
+    public function testTheTableOffersAVouchControlForEveryOtherMember(): void
     {
         // Arrange
-        $client = static::createClient();
-        $this->login($client, UserLocator::ROOT_EMAIL);
-        $locator = static::getContainer()->get(UserLocator::class);
-        $earnerId = (int) $locator->idFor(UserLocator::EARNER_EMAIL);
-        $rootId = (int) $locator->idFor(UserLocator::ROOT_EMAIL);
+        static::bootKernel();
+        $container = static::getContainer();
+        $root = $container->get(UserRepository::class)->findOneBy(['email' => UserLocator::ROOT_EMAIL]);
+        \assert($root !== null);
+        $request = new Request();
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $container->get(RequestStack::class)->push($request);
+        $container->get(TokenStorageInterface::class)->setToken(new UsernamePasswordToken($root, 'main', $root->getRoles()));
+        $earnerId = (int) $container->get(UserLocator::class)->idFor(UserLocator::EARNER_EMAIL);
 
         // Act
-        $crawler = $client->request('GET', '/en/admin/trust/context?context=' . self::CONTEXT);
+        $html = $container->get('twig')->createTemplate('{{ trust_table(context) }}')->render(['context' => self::CONTEXT]);
 
         // Assert
-        $this->assertResponseIsSuccessful();
-        $vouchTargets = $crawler->filter('form.trust-vouch input[name="user"]')->extract(['value']);
+        $vouchTargets = new Crawler($html)->filter('form.trust-vouch input[name="user"]')->extract(['value']);
         static::assertContains((string) $earnerId, $vouchTargets);
-        static::assertNotContains((string) $rootId, $vouchTargets);
+        static::assertNotContains((string) $root->getId(), $vouchTargets);
     }
 
-    public function testAnAdministratorReachesTheOperatorPageAndSeesTheStubContext(): void
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function configure(array $payload): void
     {
-        // Arrange
-        $client = static::createClient();
-        $this->login($client, UserLocator::ROOT_EMAIL);
-
-        // Act
-        $crawler = $client->request('GET', '/en/admin/trust');
-
-        // Assert
-        $this->assertResponseIsSuccessful();
-        static::assertStringContainsString('Stub context', $crawler->filter('body')->text());
-    }
-
-    public function testAPlainMemberCannotReachTheOperatorPage(): void
-    {
-        // Arrange
-        $client = static::createClient();
-        $this->login($client, UserLocator::EARNER_EMAIL);
-
-        // Act
-        $client->request('GET', '/en/admin/trust');
-
-        // Assert
-        $this->assertResponseStatusCodeSame(403);
-    }
-
-    private function login(KernelBrowser $client, string $email): void
-    {
-        $crawler = $client->request('GET', '/en/login');
-        $form = $crawler
-            ->selectButton('Login')
-            ->form([
-                '_username' => $email,
-                '_password' => self::PASSWORD,
-            ]);
-        $client->submit($form);
-        $client->followRedirect();
+        $container = static::getContainer();
+        $entityManager = $container->get(EntityManagerInterface::class);
+        $entityManager->persist(new TrustContextConfig(self::CONTEXT, $payload, new DateTimeImmutable()));
+        $entityManager->flush();
+        $container->get(ConfigStore::class)->reset();
+        $container->get(ScoreProvider::class)->invalidate(self::CONTEXT);
     }
 }

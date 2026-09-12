@@ -245,7 +245,6 @@ permit = [
     "@global",                              # DateTimeImmutable, Override, PHP's own functions
     "App\\Entity\\User",                    # the grant FK - the one sanctioned core entity
     "App\\Controller\\AbstractController",  # module controllers extend core's, as plugin controllers do
-    "App\\Admin\\**",                       # the self-owned admin area speaks the shell's own value objects
     "Doctrine\\**",
     "Symfony\\**",
     "Twig\\**",
