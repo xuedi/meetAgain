@@ -43,7 +43,7 @@ services:
   # Mail catcher for development (UI at localhost:8025)
   mailpit:
     container_name: "ma-mailpit"
-    image: axllent/mailpit:v1.31.0@sha256:c96991d9bef73594c246d89ca81411d4e916f03e76a7d2d72fa2ab5dd3c9ce24
+    image: axllent/mailpit:v1.31.1@sha256:98b916bd3c8d61f7633a52d3ea2f58d00620cb01ca57ab59edde68c347a95365
     user: ${HOST_UID}:${HOST_GID}
     ports:
       - "1025:1025"
@@ -54,7 +54,7 @@ services:
   # Redis-compatible cache server
   valkey:
     container_name: "ma-valkey"
-    image: valkey/valkey:9.1@sha256:70739f85ad2ee01a726a965584a0f94895f01b0c60b3cc8b0aeef11eaa6888cf
+    image: valkey/valkey:9.1@sha256:c123e3715db63d06d4ad6964884037aa0d5d4d703939b9929954112889708e1d
     command: valkey-server --save 60 1 --loglevel warning
     volumes:
       - ma-valkey-data:/data
