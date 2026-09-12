@@ -1,11 +1,12 @@
 {#
-    Item Tag Filter -- a chip row per tag level for narrowing an item list
+    Item Tag Filter -- one tag chip per line for narrowing an item list
 
-    Renders the type's tag vocabulary as rows of Bulma tag chips that toggle. Every chip is a real
-    link to a facet URL, so the box narrows the list with JavaScript disabled. Each option carries
-    the number of entries it would yield against the current selection and renders as a dimmed span
-    instead of a link when that number is zero. Renders nothing when the type has no tags. A branch
-    renders one indented row per level, always directly below the chip it hangs from.
+    Renders the type's tag vocabulary depth-first as Bulma tag chips that toggle, one per line, each
+    sub-tag directly below the tag it hangs from and led by the tag_indent arrow. Every chip is a real
+    link to a facet URL, so the box narrows the list with JavaScript disabled. Each option carries the
+    number of entries it would yield against the current selection - for a parent that is every entry
+    in its branch - and renders as a dimmed span instead of a link when that number is zero. Renders
+    nothing when the type has no tags.
 
     The header row carries a pencil for any logged-in visitor - to the steward's editor, or to the
     contribution hub's tag pane - with the pending-proposal count as a badge for reviewers. It lives
@@ -14,16 +15,16 @@
     Used in:    _components/item/sidebar.html.twig, App\Controller\ItemController::listFragment
     Parameters:
         - itemType (string, required) -- registry key of the item type (e.g. 'dish')
-    Depends on: item_tag_choices(), item_tag_levels(), item_tag_pending(), item_facet_current(),
+    Depends on: item_tag_rows(), item_tag_pending(), item_facet_current(),
                 item_facet_url(), item_facet_counts() (ItemTagExtension); item_list_url()
-                (ItemListExtension); the app_item_tags route for a steward, the contribution hub's tag
-                pane for everyone else; assets/js/item-list.js for the swap
-                and the mobile collapse
+                (ItemListExtension); _components/item/tag_indent.html.twig; the app_item_tags route
+                for a steward, the contribution hub's tag pane for everyone else;
+                assets/js/item-list.js for the swap, the mobile collapse and the "Show all" rows
 #}
 {% import _self as facet %}
 
-{% macro chip(url, label, count, active, extra) %}
-    {% set classes = 'tag' ~ (active ? ' is-link' : ' is-light') ~ (extra ? ' item-facet-extra' : '') %}
+{% macro chip(url, label, count, active) %}
+    {% set classes = 'tag' ~ (active ? ' is-link' : ' is-light') %}
     {% if count is same as(0) and not active %}
         <span class="{{ classes }} has-text-grey-light" title="{{ 'item.facet_zero_hint'|trans }}">{{ label }}<span class="ml-1">0</span></span>
     {% else %}
@@ -31,8 +32,8 @@
     {% endif %}
 {% endmacro %}
 
-{% set tags = item_tag_choices(itemType) %}
-{% if tags is not empty %}
+{% set rows = item_tag_rows(itemType) %}
+{% if rows is not empty %}
     {% set selection = item_facet_current() %}
     {% set counts = item_facet_counts(itemType) %}
     {% set baseUrl = item_list_url(itemType) %}
@@ -67,22 +68,22 @@
 
         <div data-item-facet-panel>
             <div class="field" data-item-facet-axis="tag">
-                {% for level in item_tag_levels(itemType) %}
-                    <div class="tags"{% if level.depth > 1 %} style="padding-left: {{ (level.depth - 1) * 1.5 }}rem;"{% endif %}>
-                        {% for id, label in level.choices %}
+                {% for row in rows %}
+                    <div{% if loop.index0 >= visibleChips %} class="item-facet-extra"{% endif %}>
+                        <div class="is-flex is-align-items-center mb-1">
+                            {{ include('_components/item/tag_indent.html.twig', {depth: row.depth}) }}
                             {{ facet.chip(
-                                item_facet_url(baseUrl, selection.withTagToggled(id)),
-                                label,
-                                counts ? (counts.tags[id]|default(0)) : null,
-                                selection.hasTag(id),
-                                level.offset + loop.index0 >= visibleChips
+                                item_facet_url(baseUrl, selection.withTagToggled(row.id)),
+                                row.label,
+                                counts ? (counts.tags[row.id]|default(0)) : null,
+                                selection.hasTag(row.id)
                             ) }}
-                        {% endfor %}
-                        {% if loop.last and tags|length > visibleChips %}
-                            <button type="button" class="tag is-white has-text-link is-hidden" data-item-facet-more>{{ 'item.facet_show_all'|trans({'%count%': tags|length}) }}</button>
-                        {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
+                {% if rows|length > visibleChips %}
+                    <button type="button" class="tag is-white has-text-link is-hidden" data-item-facet-more>{{ 'item.facet_show_all'|trans({'%count%': rows|length}) }}</button>
+                {% endif %}
             </div>
         </div>
     </div>

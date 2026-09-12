@@ -18,21 +18,27 @@
 <form method="post" class="box">
     <input type="hidden" name="_token" value="{{ csrf_token('item_tag_suggest') }}">
     {% for row in rows %}
-        <div class="field has-addons" style="padding-left: {{ (row.depth - 1) * 1.5 }}rem;">
-            <div class="control is-expanded">
-                <input class="input" type="text" name="suggest[edit][{{ row.id }}]" value="{{ row.label }}">
-            </div>
-            {% if usage[row.id]|default(0) > 0 %}
-                <div class="control">
-                    <span class="button is-static" title="{{ 'item.tag_usage_hint'|trans({'%count%': usage[row.id]}) }}">{{ usage[row.id] }}</span>
+        <div class="is-flex is-align-items-center mb-3">
+            {{ include('_components/item/tag_indent.html.twig', {depth: row.depth}) }}
+            <div class="field has-addons is-flex-grow-1">
+                <div class="control is-expanded">
+                    <input class="input" type="text" name="suggest[edit][{{ row.id }}]" value="{{ row.label }}">
                 </div>
-            {% endif %}
+                {% if usage[row.id]|default(0) > 0 %}
+                    <div class="control">
+                        <span class="button is-static" title="{{ 'item.tag_usage_hint'|trans({'%count%': usage[row.id]}) }}">{{ usage[row.id] }}</span>
+                    </div>
+                {% endif %}
+            </div>
         </div>
         {% if row.canAddChild %}
-            <div class="field" style="padding-left: {{ row.depth * 1.5 }}rem;">
-                <div class="control">
-                    <input class="input is-small" type="text" name="suggest[addBelow][{{ row.id }}][]"
-                           placeholder="{{ 'item.tag_suggest_add_child_placeholder'|trans({'%parent%': row.label}) }}">
+            <div class="is-flex is-align-items-center mb-3">
+                {{ include('_components/item/tag_indent.html.twig', {depth: row.depth + 1}) }}
+                <div class="field is-flex-grow-1">
+                    <div class="control">
+                        <input class="input is-small" type="text" name="suggest[addBelow][{{ row.id }}][]"
+                               placeholder="{{ 'item.tag_suggest_add_child_placeholder'|trans({'%parent%': row.label}) }}">
+                    </div>
                 </div>
             </div>
         {% endif %}

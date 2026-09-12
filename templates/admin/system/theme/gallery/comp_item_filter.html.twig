@@ -1,12 +1,11 @@
 {#
-    Gallery: Item facet filter -- chip rows, counts and the disabled zero-count option
+    Gallery: Item facet filter -- one chip per line, counts and the disabled zero-count option
 
-    Static reproduction of the item-list filter box: one chip row per facet group, the active chip
-    filled, an inactive one light, and an option that would yield nothing rendered as a dimmed span
-    instead of a link. A vocabulary with display groups puts a bold heading above an indented chip
-    row, ungrouped chips first; a tag that carries sub-tags puts them in a further indented row
-    directly below it. The live box is data-driven per item type, so this entry shows the states
-    rather than including the component.
+    Static reproduction of the item-list filter box: one chip per line, the active chip filled, an
+    inactive one light, and an option that would yield nothing rendered as a dimmed span instead of
+    a link. A sub-tag sits directly below its parent behind the tag_indent arrow, and a parent's
+    count covers its whole branch. The live box is data-driven per item type, so this entry shows
+    the states rather than including the component.
 
     Used in:    admin/system/theme/gallery/index.html.twig
     Parameters: none
@@ -30,27 +29,28 @@
                 </span>
             </div>
             <div class="field">
-                <div class="tags">
+                <div class="is-flex is-align-items-center mb-1">
                     <a href="#" class="tag is-link" rel="nofollow">Starter<span class="ml-1">4</span></a>
+                </div>
+                <div class="is-flex is-align-items-center mb-1">
                     <a href="#" class="tag is-light" rel="nofollow">Main<span class="ml-1 has-text-grey">7</span></a>
+                </div>
+                <div class="is-flex is-align-items-center mb-1">
                     <span class="tag is-light has-text-grey-light" title="{{ 'item.facet_zero_hint'|trans }}">Dessert<span class="ml-1">0</span></span>
                 </div>
-                <p class="is-size-7 has-text-weight-semibold mb-1 mt-2" data-item-facet-group>Meat</p>
-                <div class="tags ml-4">
-                    <a href="#" class="tag is-light" rel="nofollow">Chicken<span class="ml-1 has-text-grey">3</span></a>
-                    <a href="#" class="tag is-light" rel="nofollow">Beef<span class="ml-1 has-text-grey">1</span></a>
-                </div>
-            </div>
-            <div class="field">
-                <div class="tags">
-                    <a href="#" class="tag is-light" rel="nofollow">Spicy<span class="ml-1 has-text-grey">2</span></a>
-                    <span class="tag is-light has-text-grey-light" title="{{ 'item.facet_zero_hint'|trans }}">Vegan<span class="ml-1">0</span></span>
-                </div>
-                <div class="tags">
+                <div class="is-flex is-align-items-center mb-1">
                     <a href="#" class="tag is-light" rel="nofollow">Meat<span class="ml-1 has-text-grey">6</span></a>
                 </div>
-                <div class="tags" style="padding-left: 1.5rem;">
-                    <a href="#" class="tag is-light" rel="nofollow">Chicken<span class="ml-1 has-text-grey">4</span></a>
+                <div class="is-flex is-align-items-center mb-1">
+                    {{ include('_components/item/tag_indent.html.twig', {depth: 2}) }}
+                    <a href="#" class="tag is-light" rel="nofollow">Poultry<span class="ml-1 has-text-grey">4</span></a>
+                </div>
+                <div class="is-flex is-align-items-center mb-1">
+                    {{ include('_components/item/tag_indent.html.twig', {depth: 3}) }}
+                    <a href="#" class="tag is-light" rel="nofollow">Chicken<span class="ml-1 has-text-grey">3</span></a>
+                </div>
+                <div class="is-flex is-align-items-center mb-1">
+                    {{ include('_components/item/tag_indent.html.twig', {depth: 2}) }}
                     <a href="#" class="tag is-light" rel="nofollow">Pork<span class="ml-1 has-text-grey">2</span></a>
                 </div>
             </div>

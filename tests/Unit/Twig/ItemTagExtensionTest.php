@@ -17,7 +17,7 @@ class ItemTagExtensionTest extends TestCase
 
         // Assert
         static::assertSame(
-            ['item_tag_labels', 'item_tag_choices', 'item_tag_levels', 'item_tag_pending'],
+            ['item_tag_labels', 'item_tag_choices', 'item_tag_rows', 'item_tag_pending'],
             $functionNames,
         );
     }

@@ -25,6 +25,7 @@ readonly class TagService implements ActionInterface
         private EntityManagerInterface $em,
         private ItemTagRepository $tagRepo,
         private ItemTagAssignmentRepository $assignmentRepo,
+        private AssignmentClosure $closure,
         private TypeRegistry $registry,
         private LanguageService $languageService,
         #[AutowireIterator(FilterInterface::class)]
@@ -209,24 +210,19 @@ readonly class TagService implements ActionInterface
         return $parents;
     }
 
-    /** @return list<array{depth: int, offset: int, choices: array<int, string>}> */
-    public function getChoiceLevels(string $itemType, ?string $locale): array
+    /** @return list<array{id: int, label: string, depth: int}> depth-first */
+    public function getChoiceRows(string $itemType, ?string $locale): array
     {
-        $levels = [];
-        $offset = 0;
+        $rows = [];
         foreach ($this->getVocabulary($itemType) as $tag) {
-            $depth = $tag->getDepth();
-            $current = array_key_last($levels);
-            if ($current === null || $levels[$current]['depth'] !== $depth) {
-                $levels[] = ['depth' => $depth, 'offset' => $offset, 'choices' => []];
-                $current = array_key_last($levels);
-            }
-
-            $levels[$current]['choices'][(int) $tag->getId()] = $tag->getLabel($locale, $this->sourceLocale());
-            $offset++;
+            $rows[] = [
+                'id' => (int) $tag->getId(),
+                'label' => $tag->getLabel($locale, $this->sourceLocale()),
+                'depth' => $tag->getDepth(),
+            ];
         }
 
-        return $levels;
+        return $rows;
     }
 
     /** @return array<int, int> tag id => how many items carry it */
@@ -264,8 +260,10 @@ readonly class TagService implements ActionInterface
             return;
         }
 
-        $tag->setParent($parent);
-        $this->em->flush();
+        $this->closure->reshape((string) $tag->getItemType(), function () use ($tag, $parent): void {
+            $tag->setParent($parent);
+            $this->em->flush();
+        });
     }
 
     public function canParent(ItemTag $tag, ItemTag $parent): bool
@@ -333,13 +331,16 @@ readonly class TagService implements ActionInterface
             $this->announceCreation($pair['tag']);
         }
 
-        foreach ($pairs as $pair) {
-            $parent = $byKey[$pair['parent']] ?? null;
-            $pair['tag']->setParent($parent === $pair['tag'] ? null : $parent);
-        }
-        $this->em->flush();
-
         $kept = array_column($pairs, 'tag');
+        $this->closure->reshape($itemType, function () use ($pairs, $byKey, $kept): void {
+            foreach ($pairs as $pair) {
+                $parent = $byKey[$pair['parent']] ?? null;
+                $pair['tag']->setParent($parent === $pair['tag'] ? null : $parent);
+            }
+            $this->em->flush();
+            $this->repairForest($kept);
+        });
+
         foreach ($existing as $tag) {
             if (in_array($tag, $kept, true)) {
                 continue;
@@ -347,8 +348,6 @@ readonly class TagService implements ActionInterface
 
             $this->deleteTag($tag);
         }
-
-        $this->repairForest($itemType);
     }
 
     #[Override]
@@ -491,10 +490,11 @@ readonly class TagService implements ActionInterface
         }
     }
 
-    private function repairForest(string $itemType): void
+    /** @param list<ItemTag> $tags */
+    private function repairForest(array $tags): void
     {
         $changed = false;
-        foreach ($this->tagRepo->findForType($itemType) as $tag) {
+        foreach ($tags as $tag) {
             if ($this->isWellPlaced($tag)) {
                 continue;
             }

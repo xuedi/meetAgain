@@ -30,10 +30,10 @@ final readonly class ItemTagRuntime implements RuntimeExtensionInterface
         return $this->tagService->getChoices($itemType, $this->locale());
     }
 
-    /** @return list<array{depth: int, offset: int, choices: array<int, string>}> */
-    public function tagLevels(string $itemType): array
+    /** @return list<array{id: int, label: string, depth: int}> */
+    public function tagRows(string $itemType): array
     {
-        return $this->tagService->getChoiceLevels($itemType, $this->locale());
+        return $this->tagService->getChoiceRows($itemType, $this->locale());
     }
 
     public function pendingCount(string $itemType): int

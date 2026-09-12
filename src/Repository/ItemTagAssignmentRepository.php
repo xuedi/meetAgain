@@ -126,6 +126,44 @@ class ItemTagAssignmentRepository extends ServiceEntityRepository
         return $result;
     }
 
+    /** @return array<int, list<int>> item id => tag ids, for every item of this type that carries any */
+    public function tagIdsForType(string $itemType): array
+    {
+        $rows = $this->createQueryBuilder('a')
+            ->select('a.itemId', 'IDENTITY(a.tag) AS tagId')
+            ->where('a.itemType = :type')->setParameter('type', $itemType)
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[(int) $row['itemId']][] = (int) $row['tagId'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param list<int> $tagIds
+     * @return array<int, list<int>> item id => every tag id it carries, for the items carrying any of $tagIds
+     */
+    public function tagIdsForItemsCarrying(string $itemType, array $tagIds): array
+    {
+        if ($tagIds === []) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('a')
+            ->select('a.itemId')
+            ->distinct()
+            ->where('a.itemType = :type')->setParameter('type', $itemType)
+            ->andWhere('a.tag IN (:tags)')->setParameter('tags', $tagIds)
+            ->getQuery()
+            ->getScalarResult();
+
+        return $this->tagIdsForItems($itemType, array_values(array_map('intval', array_column($rows, 'itemId'))));
+    }
+
     /** @param list<int> $tagIds */
     public function deleteForTags(string $itemType, array $tagIds): void
     {
